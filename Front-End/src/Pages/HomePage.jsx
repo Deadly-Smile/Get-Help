@@ -1,16 +1,23 @@
-/* eslint-disable no-unused-vars */
-import React from "react";
 import { Link } from "react-router-dom";
+import UsersTable from "../Components/UsersTable";
 
 const HomePage = () => {
   return (
     <div>
-      <h1>
+      <p>
         <Link to="/about">About</Link>
-      </h1>
-      <h1>
+      </p>
+      <p>
         <Link to="*">Not Found</Link>
-      </h1>
+      </p>
+      <p>
+        <Link to="/login">Log in</Link>
+      </p>
+      <p>
+        <Link to="/signup">Sign up</Link>
+      </p>
+      <h2>Users:</h2>
+      <UsersTable />
     </div>
   );
 };

@@ -6,7 +6,6 @@ import NotFound from "./Pages/NotFound";
 import SignUp from "./Pages/SignUp";
 import Login from "./Pages/Login";
 import { Route, Routes } from "react-router-dom";
-
 const App = () => {
   return (
     <div>
