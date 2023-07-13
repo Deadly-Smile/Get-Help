@@ -21,7 +21,7 @@ const UsersSlice = createSlice({
     });
     builder.addCase(FatchUsers.rejected, (state, action) => {
       state.isPending = false;
-      state.error = action.error;
+      state.error = action.error.message;
     });
 
     // REGISTER AN USERS
