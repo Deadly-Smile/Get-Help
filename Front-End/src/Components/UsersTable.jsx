@@ -1,19 +1,8 @@
-// import { FatchUsers } from "../Store";
-// import { useDispatch, useSelector } from "react-redux";
 import Table from "../Components/Table";
-// import { useEffect } from "react";
 import { useFetchUsersQuery } from "../Store";
 
 const UsersTable = () => {
   const { data, error, isLoading } = useFetchUsersQuery();
-  // const dispatch = useDispatch();
-  // const { isPending, data, error } = useSelector((state) => {
-  //   return state.users;
-  // });
-
-  // useEffect(() => {
-  //   dispatch(FatchUsers());
-  // }, [dispatch]);
   const config = [
     {
       title: "Id",

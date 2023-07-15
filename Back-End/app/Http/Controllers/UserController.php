@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SignUpRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -17,20 +17,14 @@ class UserController extends Controller
         return response()->json($sendingUser);
     }
 
-    public function store(Request $request)
+    public function store(SignUpRequest $request)
     {
-        $validatedUser = $request->validate([
-            "name" => ["required", "max:255"],
-            "username" => ["required", "max:64", "min:4"],
-            "email" => ["required", "unique:users", "email"],
-            "password" => ["min:4", "confirmed"],
-            "password_confirmation" => ["required", "min:4"]
-        ]);
+        // return response()->json($request);
         $newUser = new User();
-        $newUser->username = $validatedUser["username"];
-        $newUser->name = $validatedUser["name"];
-        $newUser->email = $validatedUser["email"];
-        $newUser->password = bcrypt($validatedUser["password"]);
+        $newUser->username = $request["username"];
+        $newUser->name = $request["name"];
+        $newUser->email = $request["email"];
+        $newUser->password = bcrypt($request["password"]);
         if ($newUser->save()) {
             $user = User::latest()->first();
             return response()->json(["data" => ["id" => $user->id, "name" => $user->name, "username" => $user->username, "email" => $user->email], "message" => "User registered successfully"]);

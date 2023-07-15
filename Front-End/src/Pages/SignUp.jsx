@@ -1,8 +1,7 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RegisterUser } from "../Store";
+import { useAddUserMutation } from "../Store";
 
 const SignUp = () => {
   const [newUser, setNewUser] = useState({
@@ -12,11 +11,7 @@ const SignUp = () => {
     password: "",
     confirm_password: "",
   });
-  const dispatch = useDispatch();
-  const { isPending, error } = useSelector((state) => {
-    return state.users;
-  });
-
+  const [addUser, result] = useAddUserMutation();
   const onUsernameChange = (event) => {
     setNewUser({ ...newUser, username: event.target.value });
   };
@@ -34,16 +29,13 @@ const SignUp = () => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(newUser);
-    dispatch(
-      RegisterUser({
-        username: newUser.username,
-        name: newUser.name,
-        email: newUser.email,
-        password: newUser.password,
-        password_confirmation: newUser.confirm_password,
-      })
-    ).unwrap();
+    addUser({
+      username: newUser.username,
+      name: newUser.name,
+      email: newUser.email,
+      password: newUser.password,
+      password_confirmation: newUser.confirm_password,
+    });
     setNewUser({
       username: "",
       name: "",
@@ -53,6 +45,32 @@ const SignUp = () => {
     });
   };
 
+  let usernameFieldError = null;
+  let nameFieldError = null;
+  let emailFieldError = null;
+  let passwordFieldError = null;
+  let password_confirmationFieldError = null;
+
+  if (result.data) {
+    if (result.data.errors) {
+      usernameFieldError = (
+        <p className="text-danger">{result.data.errors.username}</p>
+      );
+      nameFieldError = <p className="text-danger">{result.data.errors.name}</p>;
+      emailFieldError = (
+        <p className="text-danger">{result.data.errors.email}</p>
+      );
+      passwordFieldError = (
+        <p className="text-danger">{result.data.errors.password}</p>
+      );
+      password_confirmationFieldError = (
+        <p className="text-danger">
+          {result.data.errors.password_confirmation}
+        </p>
+      );
+    }
+  }
+
   return (
     <div>
       <div style={{ textAlign: "center" }}>
@@ -60,8 +78,8 @@ const SignUp = () => {
           <Link to={"/"}>Go Home</Link>
         </h3>
         <h1>Create User</h1>
-        {isPending && <h2>Loading...</h2>}
-        {error && <h3>{error.message}</h3>}
+        {result.isLoading && <h2>Loading...</h2>}
+        {result.error && <h3>{result.error.message}</h3>}
       </div>
 
       <form className="container-sm" style={{ marginTop: "30px" }}>
@@ -75,6 +93,7 @@ const SignUp = () => {
             value={newUser.username}
           />
         </div>
+        <div className="form-text">{usernameFieldError}</div>
         <div className="mb-3">
           <label className="form-label">Name</label>
           <input
@@ -85,6 +104,7 @@ const SignUp = () => {
             value={newUser.name}
           />
         </div>
+        <div className="form-text">{nameFieldError}</div>
         <div className="mb-3">
           <label className="form-label">Email address</label>
           <input
@@ -95,9 +115,12 @@ const SignUp = () => {
             onChange={onEmailChange}
             value={newUser.email}
           />
-          <div id="emailHelp" className="form-text">
-            We will never share your email with anyone else.
-          </div>
+        </div>
+        <div className="form-text">
+          {emailFieldError}
+          {!emailFieldError && (
+            <p>We will never share your email with anyone else.</p>
+          )}
         </div>
         <div className="mb-3">
           <label className="form-label">Password</label>
@@ -109,6 +132,7 @@ const SignUp = () => {
             value={newUser.password}
           />
         </div>
+        <div className="form-text">{passwordFieldError}</div>
         <div className="mb-3">
           <label className="form-label">Confirm Password</label>
           <input
@@ -119,14 +143,7 @@ const SignUp = () => {
             value={newUser.confirm_password}
           />
         </div>
-        <div className="mb-3 form-check">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            id="exampleCheck1"
-          />
-          <label className="form-check-label">Check me out</label>
-        </div>
+        <div className="form-text">{password_confirmationFieldError}</div>
         <button
           type="submit"
           className="btn btn-primary"

@@ -14,9 +14,24 @@ const UsersAPI = createApi({
           };
         },
       }),
+      addUser: builder.mutation({
+        query: ({ username, name, email, password, password_confirmation }) => {
+          return {
+            url: "/users",
+            body: {
+              username,
+              name,
+              email,
+              password,
+              password_confirmation,
+            },
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useFetchUsersQuery } = UsersAPI;
+export const { useFetchUsersQuery, useAddUserMutation } = UsersAPI;
 export { UsersAPI };
