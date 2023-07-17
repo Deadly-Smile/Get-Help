@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('/users', UserController::class);
+Route::put("/users/{id}/signup/verify", [UserController::class, 'signUpVerify']);

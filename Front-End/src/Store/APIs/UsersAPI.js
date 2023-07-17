@@ -29,9 +29,24 @@ const UsersAPI = createApi({
           };
         },
       }),
+      signUpVerify: builder.mutation({
+        query: ({ id, code }) => {
+          return {
+            url: `/users/${id}/signup/verify`,
+            body: {
+              code,
+            },
+            method: "PUT",
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useFetchUsersQuery, useAddUserMutation } = UsersAPI;
+export const {
+  useFetchUsersQuery,
+  useAddUserMutation,
+  useSignUpVerifyMutation,
+} = UsersAPI;
 export { UsersAPI };

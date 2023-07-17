@@ -12,4 +12,8 @@ export const Store = configureStore({
   },
 });
 setupListeners(Store.dispatch);
-export { useFetchUsersQuery, useAddUserMutation } from "./APIs/UsersAPI";
+export {
+  useFetchUsersQuery,
+  useAddUserMutation,
+  useSignUpVerifyMutation,
+} from "./APIs/UsersAPI";

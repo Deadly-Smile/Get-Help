@@ -25,7 +25,7 @@ class SignUpRequest extends FormRequest
     {
         return [
             "name" => ["required", "max:255"],
-            "username" => ["required", "max:64", "min:4"],
+            "username" => ["required", "unique:users", "max:64", "min:4"],
             "email" => ["required", "unique:users", "email"],
             "password" => ["min:4", "confirmed"],
             "password_confirmation" => ["required", "min:4"]
@@ -38,6 +38,6 @@ class SignUpRequest extends FormRequest
             'success' => false,
             'message' => "validation error",
             'errors' => $validator->errors()
-        ]));
+        ], 400));
     }
 }
