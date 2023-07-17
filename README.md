@@ -5,6 +5,9 @@ Deadline is 8 August 2023, so hurry up.
 ```
 php artisan make:model Flight --all
 php artisan make:request SignUpRequest
+php artisan make:mail SignUpMail
+php artisan make:job SendUserVarifyMail
+php artisan queue:table
 ```
 
 - [ ] npm install bootstrap@latest
