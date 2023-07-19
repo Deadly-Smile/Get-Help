@@ -1,14 +1,40 @@
-// eslint-disable-next-line no-unused-vars
-import React from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useLoginMutation } from "../Store";
+import Button from "../Components/Button";
+import Panel from "../Components/Panel";
 
 const Login = () => {
+  const [authInfo, setAuthInfo] = useState({ username: "", password: "" });
+  const [errorMsg, setErrorMsg] = useState("");
+  const [login, result] = useLoginMutation();
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (authInfo.username.length === 0 || authInfo.password.length === 0) {
+      setErrorMsg("Username and Password field must be filled*");
+    } else {
+      login({
+        username: authInfo.username,
+        password: authInfo.password,
+      });
+    }
+  };
   return (
-    <div>
-      <form className="container-sm" style={{ marginTop: "30px" }}>
+    <Panel className="justify-center text-center mt-10 mx-56">
+      {result.isLoading && <h4>Loading...</h4>}
+      {result.isError && <h4>{result.status}</h4>}
+      <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label className="form-label">Username</label>
-          <input type="text" className="form-control" placeholder="Username" />
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Username"
+            value={authInfo.username}
+            onChange={(event) => {
+              setAuthInfo({ ...authInfo, username: event.target.value });
+            }}
+          />
         </div>
 
         <div className="mb-3">
@@ -17,25 +43,32 @@ const Login = () => {
             type="password"
             className="form-control"
             placeholder="Password"
+            value={authInfo.password}
+            onChange={(event) => {
+              setAuthInfo({ ...authInfo, password: event.target.value });
+            }}
           />
         </div>
-        <div className="mb-3 form-check">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            id="exampleCheck1"
-          />
-          <label className="form-check-label">Remember Me</label>
+        <div>
+          <p className="text-red-700">{errorMsg.length !== 0 && errorMsg}</p>
         </div>
-        <button type="submit" className="btn btn-primary">
+        <Button secondary rounded type="submit">
+          Log In
+        </Button>
+        {/* <button
+          type="submit"
+          className="bg-orange-50 hover:bg-orange-600 rounded p-2"
+          onClick={handleSubmit}
+        >
           Log in
-        </button>
-        <p style={{ marginTop: "8px" }}>
+        </button> */}
+
+        <p className="mt-2">
           {`Don't have an account? `}
           <Link to="/signup">Sign Up</Link> now
         </p>
       </form>
-    </div>
+    </Panel>
   );
 };
 

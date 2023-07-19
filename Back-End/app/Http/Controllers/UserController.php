@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SignUpRequest;
-use App\Jobs\SendUserVarifyMail;
-use App\Models\User;
 use Exception;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Jobs\SendUserVarifyMail;
+use App\Http\Requests\SignUpRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->middleware('auth.basic');
+    // }
     public function index()
     {
         $users = User::get();
@@ -55,6 +60,21 @@ class UserController extends Controller
             return response()->json(['message' => "Could not verify email, please try again"], 400);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 401);
+        }
+    }
+
+    public function login(Request $request)
+    {
+        // return response()->json(["message" => "Request acknowledged with " . $request['username'] . " " . $request['password']]);
+        $credentials = $request->only('username', 'password');
+        if (Auth::attempt($credentials)) {
+            // $user = Auth::user();
+            // $token = Auth::user()->createToken('Access Token')->accessToken;
+            // return $token;
+            // $token = Auth::user()->createToken('login-token');
+            return response()->json(['message' => "Logged in successfully"], 200);
+        } else {
+            return response()->json(['message' => "Wrong credentials.."], 400);
         }
     }
 }

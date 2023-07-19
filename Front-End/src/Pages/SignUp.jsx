@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.css";
 import { Link } from "react-router-dom";
 import { useAddUserMutation } from "../Store";
 import SignUpVerification from "../Components/SignUpVerification";
@@ -46,25 +45,28 @@ const SignUp = () => {
   let waitForMailMessage = null;
 
   if (result.status === "rejected") {
-    if (result.error.data.errors) {
-      usernameFieldError = (
-        <p className="text-danger">{result.error.data.errors.username}</p>
-      );
-      nameFieldError = (
-        <p className="text-danger">{result.error.data.errors.name}</p>
-      );
-      emailFieldError = (
-        <p className="text-danger">{result.error.data.errors.email}</p>
-      );
-      passwordFieldError = (
-        <p className="text-danger">{result.error.data.errors.password}</p>
-      );
-      password_confirmationFieldError = (
-        <p className="text-danger">
-          {result.error.data.errors.password_confirmation}
-        </p>
-      );
+    if (result.error.data) {
+      if (result.error.data.errors) {
+        usernameFieldError = (
+          <p className="text-danger">{result.error.data.errors.username}</p>
+        );
+        nameFieldError = (
+          <p className="text-danger">{result.error.data.errors.name}</p>
+        );
+        emailFieldError = (
+          <p className="text-danger">{result.error.data.errors.email}</p>
+        );
+        passwordFieldError = (
+          <p className="text-danger">{result.error.data.errors.password}</p>
+        );
+        password_confirmationFieldError = (
+          <p className="text-danger">
+            {result.error.data.errors.password_confirmation}
+          </p>
+        );
+      }
     }
+
     // console.log(result.data.data.message);
   }
   let form = (

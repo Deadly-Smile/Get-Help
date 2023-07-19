@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-import React from "react";
 import HomePage from "./Pages/HomePage";
 import About from "./Pages/About";
 import NotFound from "./Pages/NotFound";
