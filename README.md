@@ -8,8 +8,8 @@ php artisan make:request SignUpRequest
 php artisan make:mail SignUpMail
 php artisan make:job SendUserVarifyMail
 php artisan queue:table
-composer require laravel/breeze --dev // Could not use this package properly
-php artisan breeze:install api  // Could not use this package properly
+composer require laravel/passport
+php artisan passport:install
 ```
 
 - [ ] npm install bootstrap@latest // Not using

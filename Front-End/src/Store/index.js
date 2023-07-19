@@ -13,7 +13,7 @@ export const Store = configureStore({
 });
 setupListeners(Store.dispatch);
 export {
-  useFetchUsersQuery,
+  useGetUserQuery,
   useAddUserMutation,
   useSignUpVerifyMutation,
   useLoginMutation,

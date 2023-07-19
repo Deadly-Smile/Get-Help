@@ -3,16 +3,22 @@ const UsersAPI = createApi({
   reducerPath: "users",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://127.0.0.1:8000/api",
+    prepareHeaders: (headers) => {
+      // Get the access token
+      const accessToken = localStorage.getItem("login_token");
+
+      // Add the 'Authorization' header with the access token
+      if (accessToken) {
+        headers.set("Authorization", `Bearer ${accessToken}`);
+      }
+
+      return headers;
+    },
   }),
   endpoints(builder) {
     return {
-      fetchUsers: builder.query({
-        query: () => {
-          return {
-            url: "/users",
-            method: "GET",
-          };
-        },
+      getUser: builder.query({
+        query: () => "/user",
       }),
       addUser: builder.mutation({
         query: ({ username, name, email, password, password_confirmation }) => {
@@ -57,9 +63,9 @@ const UsersAPI = createApi({
 });
 
 export const {
-  useFetchUsersQuery,
+  useGetUserQuery,
   useAddUserMutation,
   useSignUpVerifyMutation,
-  useLoginMutation
+  useLoginMutation,
 } = UsersAPI;
 export { UsersAPI };

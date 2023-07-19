@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import UsersTable from "../Components/UsersTable";
 
 const HomePage = () => {
   return (
@@ -17,7 +16,6 @@ const HomePage = () => {
         <Link to="/signup">Sign up</Link>
       </p>
       <h2>Users:</h2>
-      <UsersTable />
     </div>
   );
 };

@@ -4,28 +4,29 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Passport;
 
 class UserController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('auth.basic');
-    // }
-    public function index()
+    public function index(): JsonResponse
     {
         $users = User::get();
         $sendingUser = array();
         foreach ($users as $user) {
-            array_push($sendingUser, ["id" => $user->id, "name" => $user->name, "username" => $user->username, "email" => $user->email]);
+            $sendingUser[] = ["id" => $user->id, "name" => $user->name, "username" => $user->username, "email" => $user->email];
         }
         return response()->json($sendingUser);
     }
 
-    public function store(SignUpRequest $request)
+    /**
+     * @throws Exception
+     */
+    public function store(SignUpRequest $request): JsonResponse
     {
         $mailData = [
             "name" => $request["name"],
@@ -47,7 +48,7 @@ class UserController extends Controller
         return response()->json(["message" => "Failed to register the user"]);
     }
 
-    public function signUpVerify(Request $request, $id)
+    public function signUpVerify(Request $request, $id): JsonResponse
     {
         try {
             $user = User::findOrFail($id);
@@ -63,18 +64,19 @@ class UserController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
-        // return response()->json(["message" => "Request acknowledged with " . $request['username'] . " " . $request['password']]);
         $credentials = $request->only('username', 'password');
         if (Auth::attempt($credentials)) {
-            // $user = Auth::user();
-            // $token = Auth::user()->createToken('Access Token')->accessToken;
-            // return $token;
-            // $token = Auth::user()->createToken('login-token');
-            return response()->json(['message' => "Logged in successfully"], 200);
-        } else {
-            return response()->json(['message' => "Wrong credentials.."], 400);
+            $user = Auth::user();
+            if ($user->email_verified_at != null) {
+                $token = $user->createToken('Access Token')->accessToken;
+                $updatedUser = User::findOrFail($user->id);
+                $updatedUser->remember_token = $token;
+                $updatedUser->save();
+                return response()->json(['message' => "Logged in successfully", "token" => $token], 200);
+            }
         }
+        return response()->json(['message' => "Wrong credentials.."], 400);
     }
 }
