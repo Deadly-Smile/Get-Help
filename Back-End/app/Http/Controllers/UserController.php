@@ -4,51 +4,70 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Jobs\SendUserVarifyMail;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Passport;
+use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
     {
-        $users = User::get();
-        $sendingUser = array();
-        foreach ($users as $user) {
-            $sendingUser[] = ["id" => $user->id, "name" => $user->name, "username" => $user->username, "email" => $user->email];
-        }
-        return response()->json($sendingUser);
+        //
     }
 
     /**
-     * @throws Exception
+     * Show the form for creating a new resource.
      */
-    public function store(SignUpRequest $request): JsonResponse
+    public function create()
     {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(SignUpRequest $request)
+    {
+        // Validate the user input
+        // already validated
+
+        // mail data
         $mailData = [
             "name" => $request["name"],
             "link" => "http://localhost:5173/",
             "sixDigitNumber" => random_int(100000, 999999),
         ];
-        $newUser = new User();
-        $newUser->username = $request["username"];
-        $newUser->name = $request["name"];
-        $newUser->email = $request["email"];
-        $newUser->password = bcrypt($request["password"]);
-        $newUser->verify_token = $mailData["sixDigitNumber"];
 
-        dispatch(new SendUserVarifyMail(["send-to" => $newUser->email, "data" => $mailData]));
-        if ($newUser->save()) {
-            $user = User::latest()->first();
-            return response()->json(["data" => ["id" => $user->id, "name" => $user->name, "username" => $user->username, "email" => $user->email], "message" => "User registered successfully, to varify the mail please check your email"]);
-        }
-        return response()->json(["message" => "Failed to register the user"]);
+        // Create a new user with the validated data
+        $user = User::create([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'password' => Hash::make($request['password']),
+            'username' => $request['username'],
+            'verify_token' => $mailData['sixDigitNumber']
+        ]);
+
+        // send mail
+        // dispatch(new SendUserVarifyMail(["send-to" => $newUser->email, "data" => $mailData]));
+
+        // get leatest user id
+        $user = User::latest()->first();
+
+        // Optionally, you can log in the user after registration
+        // auth()->login($user);
+        return response()->json(["data" => ["id" => $user->id, "name" => $user->name, "username" => $user->username, "email" => $user->email], "message" => "User registered successfully, to varify the mail please check your email"]);
     }
 
-    public function signUpVerify(Request $request, $id): JsonResponse
+    /**
+     * Verify user 
+     */
+    public function signUpVerify(Request $request, $id)
     {
         try {
             $user = User::findOrFail($id);
@@ -64,19 +83,53 @@ class UserController extends Controller
         }
     }
 
-    public function login(Request $request): JsonResponse
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+
+    /**
+     * Log in
+     */
+    public function login(Request $request)
     {
         $credentials = $request->only('username', 'password');
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->email_verified_at != null) {
-                $token = $user->createToken('Access Token')->accessToken;
-                $updatedUser = User::findOrFail($user->id);
-                $updatedUser->remember_token = $token;
-                $updatedUser->save();
-                return response()->json(['message' => "Logged in successfully", "token" => $token], 200);
+
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
             }
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'Could not create token'], 500);
         }
-        return response()->json(['message' => "Wrong credentials.."], 400);
+
+        return response()->json(['token' => $token], 200);
     }
 }

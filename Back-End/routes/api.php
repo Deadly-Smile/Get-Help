@@ -15,16 +15,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::resource('/users', UserController::class);
-Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+Route::post('/login', [UserController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
-    // Protected routes
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    // Other protected API routes...
 });
-Route::post('/login', [UserController::class, 'login']);
-
+Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
+Route::resource('/users', UserController::class);
