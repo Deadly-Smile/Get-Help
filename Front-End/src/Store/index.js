@@ -17,4 +17,5 @@ export {
   useAddUserMutation,
   useSignUpVerifyMutation,
   useLoginMutation,
+  useLogoutQuery,
 } from "./APIs/UsersAPI";

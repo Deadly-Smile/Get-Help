@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +55,7 @@ class UserController extends Controller
         ]);
 
         // send mail
-        // dispatch(new SendUserVarifyMail(["send-to" => $newUser->email, "data" => $mailData]));
+        dispatch(new SendUserVarifyMail(["send-to" => $user->email, "data" => $mailData]));
 
         // get leatest user id
         $user = User::latest()->first();
@@ -131,5 +132,12 @@ class UserController extends Controller
         }
 
         return response()->json(['token' => $token], 200);
+    }
+
+    public function logout()
+    {
+        JWTAuth::invalidate(JWTAuth::getToken());
+
+        return response()->json(['message' => 'Successfully logged out']);
     }
 }
