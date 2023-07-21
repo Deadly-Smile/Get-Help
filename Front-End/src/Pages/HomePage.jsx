@@ -1,23 +1,25 @@
-import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
-const HomePage = () => {
-  return (
-    <div>
-      <p>
-        <Link to="/about">About</Link>
+const HomePage = ({ data, isLoading, isError }) => {
+  if (isLoading) {
+    return (
+      <p className="flex justify-center items-center text-5xl">Loading...</p>
+    );
+  }
+  if (isError) {
+    return (
+      <p className="flex justify-center items-center text-5xl">
+        Error getting data
       </p>
-      <p>
-        <Link to="*">Not Found</Link>
-      </p>
-      <p>
-        <Link to="/login">Log in</Link>
-      </p>
-      <p>
-        <Link to="/signup">Sign up</Link>
-      </p>
-      <h2>Users:</h2>
-    </div>
-  );
+    );
+  }
+  return <div>{data?.name}</div>;
+};
+
+HomePage.propTypes = {
+  data: PropTypes.object,
+  isLoading: PropTypes.bool.isRequired,
+  isError: PropTypes.bool.isRequired,
 };
 
 export default HomePage;

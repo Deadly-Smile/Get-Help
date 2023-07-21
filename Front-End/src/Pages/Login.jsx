@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import { useLoginMutation } from "../Store";
 import Button from "../Components/Button";
 import Panel from "../Components/Panel";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
-const Login = () => {
+const Login = ({ attempLogin }) => {
   const [authInfo, setAuthInfo] = useState({ username: "", password: "" });
   const [errorMsg, setErrorMsg] = useState("");
   const [login, result] = useLoginMutation();
+  const navigate = useNavigate();
   const failMessage = "Incorrect username or password*";
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -20,10 +23,15 @@ const Login = () => {
       });
     }
   };
-  if (result.isSuccess) {
-    console.log(result);
-    localStorage.setItem("login_token", result.data.token);
-  }
+  useEffect(() => {
+    if (result.isSuccess && result.data) {
+      setAuthInfo({ username: "", password: "" });
+      localStorage.setItem("login_token", result.data.token);
+      attempLogin();
+      return navigate("/");
+    }
+  }, [attempLogin, navigate, result.data, result.isSuccess]);
+
   useEffect(() => {
     if (result.error) {
       if (errorMsg !== failMessage) {
@@ -32,10 +40,9 @@ const Login = () => {
     }
   }, [errorMsg, result.error, result.isError]);
 
-  // console.log(result);
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Panel className="bg-white p-8 shadow-md rounded-md w-96">
+      <Panel className="bg-white p-8 shadow-md rounded-md max-w-sm">
         <h2 className="text-3xl font-semibold mb-4 text-center">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -90,6 +97,10 @@ const Login = () => {
       </Panel>
     </div>
   );
+};
+
+Login.propTypes = {
+  attempLogin: PropTypes.func.isRequired,
 };
 
 export default Login;
