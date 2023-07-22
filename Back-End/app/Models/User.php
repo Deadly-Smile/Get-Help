@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -20,7 +21,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // Method required by JWTSubject interface to define custom claims for the JWT token
-    public function getJWTCustomClaims()
+    public function getJWTCustomClaims(): array
     {
         return [
             // You can add any custom claims you want to include in the token
@@ -61,4 +62,31 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class);
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function userHasRole($role_name): bool
+    {
+        foreach ($this->roles() as $role) {
+            if($role->name == $role_name) return true;
+        }
+        return false;
+    }
+
+    public function userHasPermission($permission_name): bool
+    {
+        foreach ($this->permissions() as $permission) {
+            if($permission->slag == $permission_name) return true;
+        }
+        return false;
+    }
+
 }
