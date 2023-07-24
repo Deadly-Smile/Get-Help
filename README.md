@@ -23,6 +23,7 @@ php artisan passport:install
 ## importent facts
 - validator error does not sends responce in api // at least I can't figure out yet
 - to solve this problem I create a custom request class named *SignUpRequest*
+- To automate query, tagging system is the best way to go.
 
 ## Introducing roles & permission:
 ### Additional changes
