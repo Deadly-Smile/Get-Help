@@ -1,29 +1,30 @@
 import { useEffect } from "react";
-import { useLogoutQuery } from "../Store";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
+import { useLogoutMutation } from "../Store";
 
-const Logout = ({ logoutFrontPart }) => {
-  const { refetch, isError, isLoading, isSuccess } = useLogoutQuery();
+const Logout = () => {
   const navigate = useNavigate();
+  const [logout, result] = useLogoutMutation();
 
   useEffect(() => {
-    refetch();
-  }, [refetch]);
+    logout("Please work properly");
+  }, [logout]);
+
   useEffect(() => {
-    if (isSuccess) {
-      logoutFrontPart();
-      return navigate("/");
+    if (result.isSuccess) {
+      navigate("/");
     }
-  }, [navigate, logoutFrontPart, isSuccess]);
+  }, [navigate, result.isSuccess]);
+
   let render = null;
-  if (isLoading) {
+  if (result.isLoading) {
     render = "Logging out..";
   }
-  if (isSuccess) {
+  if (result.isSuccess) {
     render = "Logged out successfully";
   }
-  if (isError) {
+  if (result.isError) {
     render = "An unexpected error occured";
   }
   return (
@@ -31,10 +32,6 @@ const Logout = ({ logoutFrontPart }) => {
       <h1 className="flex justify-center items-center">{render}</h1>
     </div>
   );
-};
-
-Logout.propTypes = {
-  logoutFrontPart: PropTypes.func.isRequired,
 };
 
 export default Logout;

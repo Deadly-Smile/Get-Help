@@ -4,9 +4,8 @@ import { useLoginMutation } from "../Store";
 import Button from "../Components/Button";
 import Panel from "../Components/Panel";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
 
-const Login = ({ attempLogin }) => {
+const Login = () => {
   const [authInfo, setAuthInfo] = useState({ username: "", password: "" });
   const [errorMsg, setErrorMsg] = useState("");
   const [login, result] = useLoginMutation();
@@ -26,11 +25,9 @@ const Login = ({ attempLogin }) => {
   useEffect(() => {
     if (result.isSuccess && result.data) {
       setAuthInfo({ username: "", password: "" });
-      localStorage.setItem("login_token", result.data.token);
-      attempLogin();
       return navigate("/");
     }
-  }, [attempLogin, navigate, result.data, result.isSuccess]);
+  }, [navigate, result.data, result.isSuccess]);
 
   useEffect(() => {
     if (result.error) {
@@ -97,10 +94,6 @@ const Login = ({ attempLogin }) => {
       </Panel>
     </div>
   );
-};
-
-Login.propTypes = {
-  attempLogin: PropTypes.func.isRequired,
 };
 
 export default Login;
