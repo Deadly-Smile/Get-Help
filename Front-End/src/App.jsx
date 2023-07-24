@@ -8,12 +8,10 @@ import Navbar from "./Components/Navbar";
 import Logout from "./Pages/Logout";
 import { useGetUserQuery } from "./Store";
 import { useEffect, useState } from "react";
+import EditProfile from "./Pages/EditProfile";
 
 const App = () => {
-  const { data, isLoading, isError, refetch } = useGetUserQuery();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [usernameLabel, setUsernameLabel] = useState("username");
-
+  const { data, isLoading, isError, isSuccess } = useGetUserQuery();
   const [activeNavLinks, setActiveNavLinks] = useState([
     { label: "About", link: "/about" },
     { label: "Log in", link: "/login" },
@@ -21,12 +19,16 @@ const App = () => {
   ]);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      setActiveNavLinks([
-        { label: "About", link: "/about" },
-        { label: usernameLabel, link: "/" },
-        { label: "Log out", link: "/logout" },
-      ]);
+    if (isSuccess) {
+      if (data) {
+        if (data.username) {
+          setActiveNavLinks([
+            { label: "About", link: "/about" },
+            { label: data.username, link: "/edit-profile" },
+            { label: "Log out", link: "/logout" },
+          ]);
+        }
+      }
     } else {
       setActiveNavLinks([
         { label: "About", link: "/about" },
@@ -34,35 +36,7 @@ const App = () => {
         { label: "Sign up", link: "/signup" },
       ]);
     }
-  }, [isLoggedIn, usernameLabel]);
-
-  useEffect(() => {
-    refetch().then((result) => {
-      if (result.data) {
-        if (result.data.username) {
-          setUsernameLabel(result.data.username);
-          handleLogin();
-        }
-      }
-    });
-  }, [refetch]);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
-  const attempLogin = () => {
-    refetch();
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
-
-  const logoutFrontPart = () => {
-    attempLogin();
-    handleLogout();
-  };
+  }, [data, isSuccess]);
 
   return (
     <div>
@@ -78,12 +52,10 @@ const App = () => {
             }
           />
           <Route path="/about" element={<About />} />
+          <Route path="//edit-profile" element={<EditProfile />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login attempLogin={attempLogin} />} />
-          <Route
-            path="/logout"
-            element={<Logout logoutFrontPart={logoutFrontPart} />}
-          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

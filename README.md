@@ -18,6 +18,7 @@ php artisan passport:install
 - [ ] npm install @reduxjs/toolkit react-icons react-redux
 - [ ] npm i -D react-router-dom
 - [ ] npm i classnames
+- [ ] npm i react-query
 
 ## importent facts
 - validator error does not sends responce in api // at least I can't figure out yet

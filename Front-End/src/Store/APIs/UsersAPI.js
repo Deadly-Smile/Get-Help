@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const getAuthToken = () => {
@@ -8,7 +9,6 @@ const getAuthToken = () => {
     console.log("token not found");
   }
   return token;
-  // return import.meta.env.VITE_YOUR_AUTHENTICATION_TOKEN;
 };
 
 const UsersAPI = createApi({
@@ -28,6 +28,11 @@ const UsersAPI = createApi({
   endpoints(builder) {
     return {
       getUser: builder.query({
+        providesTags: (result, error, arg) => {
+          console.log("getUser");
+          const tags = [{ type: "user" }];
+          return tags;
+        },
         query: () => "/user",
       }),
       addUser: builder.mutation({
@@ -45,7 +50,27 @@ const UsersAPI = createApi({
           };
         },
       }),
+      logout: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          console.log("logout", result);
+          localStorage.setItem("login_token", "");
+          return [{ type: "user" }];
+        },
+        query: ({ message }) => {
+          return {
+            url: "/logout",
+            body: {
+              message,
+            },
+            method: "POST",
+          };
+        },
+      }),
       signUpVerify: builder.mutation({
+        invalidatesTags: (result, error, id) => {
+          console.log("signUpVerify");
+          return [{ type: "user" }];
+        },
         query: ({ id, code }) => {
           return {
             url: `/${id}/signup/verify`,
@@ -57,6 +82,11 @@ const UsersAPI = createApi({
         },
       }),
       login: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          console.log("login", result);
+          localStorage.setItem("login_token", result.token);
+          return [{ type: "user" }];
+        },
         query: ({ username, password }) => {
           return {
             url: "/login",
@@ -68,24 +98,15 @@ const UsersAPI = createApi({
           };
         },
       }),
-      logout: builder.query({
-        query: () => {
-          // localStorage.setItem("login_token", "");
-          return {
-            url: "/logout",
-            method: "GET",
-          };
-        },
-      }),
     };
   },
 });
 
 export const {
   useGetUserQuery,
+  useLogoutMutation,
   useAddUserMutation,
   useSignUpVerifyMutation,
   useLoginMutation,
-  useLogoutQuery,
 } = UsersAPI;
 export { UsersAPI };

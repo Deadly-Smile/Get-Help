@@ -119,6 +119,7 @@ class UserController extends Controller
     /**
      * Log in
      */
+
     public function login(Request $request)
     {
         $credentials = $request->only('username', 'password');
@@ -127,17 +128,21 @@ class UserController extends Controller
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
+
+            // Get the authenticated user
+            // $user = JWTAuth::user();
+
+            return response()->json(['token' => $token], 200);
         } catch (JWTException $e) {
             return response()->json(['message' => 'Could not create token'], 500);
         }
-
-        return response()->json(['token' => $token], 200);
     }
 
-    public function logout()
+
+    public function logout(Request $request)
     {
         JWTAuth::invalidate(JWTAuth::getToken());
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out', "id" => $request['message']]);
     }
 }
