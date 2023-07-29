@@ -8,9 +8,11 @@ const HomePage = ({ data, isLoading, isError }) => {
   }
   if (isError) {
     return (
-      <p className="flex justify-center items-center text-5xl">
-        Error getting data
-      </p>
+      <div className="m-0 min-h-screen">
+        <p className="flex justify-center items-center text-5xl">
+          Error getting data
+        </p>
+      </div>
     );
   }
   return <div>{data?.name}</div>;

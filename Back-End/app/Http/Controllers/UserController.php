@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
@@ -10,7 +11,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\EditUserRequest;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Contracts\Providers\Storage as JWTStorage;
 
 class UserController extends Controller
 {
@@ -75,6 +79,7 @@ class UserController extends Controller
             if ($user->verify_token == $request['code']) {
                 $user->verify_token = null;
                 $user->email_verified_at = now();
+                $user->roles()->attach(Role::findOrFail(1));
                 $user->save();
                 return response()->json(['message' => "Email verified"]);
             }
@@ -105,7 +110,6 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -130,7 +134,10 @@ class UserController extends Controller
             }
 
             // Get the authenticated user
-            // $user = JWTAuth::user();
+            $user = JWTAuth::user();
+            if ($user->verify_token) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
+            }
 
             return response()->json(['token' => $token], 200);
         } catch (JWTException $e) {
@@ -144,5 +151,49 @@ class UserController extends Controller
         JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => 'Successfully logged out', "id" => $request['message']]);
+    }
+
+    public function editUser(EditUserRequest $request)
+    {
+        return response()->json(["request" => $request], 200);
+        $user = Auth::user();
+
+        // Update the user's information
+        $user->name = $request->input('name');
+        $user->date_of_birth = $request->input('date_of_birth');
+
+        // Check if the new_password field is provided
+        if ($request->has('new_password')) {
+            // Validate the old password before changing it
+            if (!Hash::check($request->input('old_password'), $user->password)) {
+                return response()->json(['message' => 'Invalid old password'], 422);
+            }
+
+            // Set the new password
+            $user->password = Hash::make($request->input('new_password'));
+        }
+
+        // Check if the user is a doctor based on the is_a_doctor flag
+        if ($request->input('is_a_doctor')) {
+            // Additional fields are required for doctors, so update them
+            $user->document = $request->file('document')->store('documents');
+            $user->nid_card_number = $request->input('nid_card_number');
+            $user->mobile = $request->input('mobile');
+            $user->country = $request->input('country');
+            $user->district = $request->input('district');
+            $user->address = $request->input('address');
+        }
+
+        if ($request->hasFile('avatar')) {
+            // Upload the avatar and update the 'avatar' column with the file path
+            $avatarPath = $request->file('avatar')->store('avatars');
+            $user->avatar = $avatarPath;
+        }
+
+        // Save the updated user data
+        $user->save();
+
+        // Return a response indicating success
+        return response()->json(['message' => 'User information updated successfully']);
     }
 }

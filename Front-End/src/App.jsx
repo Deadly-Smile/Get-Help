@@ -9,6 +9,7 @@ import Logout from "./Pages/Logout";
 import { useGetUserQuery } from "./Store";
 import { useEffect, useState } from "react";
 import EditProfile from "./Pages/EditProfile";
+import Footer from "./Components/Footer";
 
 const App = () => {
   const { data, isLoading, isError, isSuccess } = useGetUserQuery();
@@ -52,13 +53,14 @@ const App = () => {
             }
           />
           <Route path="/about" element={<About />} />
-          <Route path="//edit-profile" element={<EditProfile />} />
+          <Route path="//edit-profile" element={<EditProfile data={data} />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      <Footer />
     </div>
   );
 };

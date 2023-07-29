@@ -29,7 +29,6 @@ const UsersAPI = createApi({
     return {
       getUser: builder.query({
         providesTags: (result, error, arg) => {
-          console.log("getUser");
           const tags = [{ type: "user" }];
           return tags;
         },
@@ -52,7 +51,6 @@ const UsersAPI = createApi({
       }),
       logout: builder.mutation({
         invalidatesTags: (result, error, arg) => {
-          console.log("logout", result);
           localStorage.setItem("login_token", "");
           return [{ type: "user" }];
         },
@@ -68,7 +66,6 @@ const UsersAPI = createApi({
       }),
       signUpVerify: builder.mutation({
         invalidatesTags: (result, error, id) => {
-          console.log("signUpVerify");
           return [{ type: "user" }];
         },
         query: ({ id, code }) => {
@@ -83,7 +80,6 @@ const UsersAPI = createApi({
       }),
       login: builder.mutation({
         invalidatesTags: (result, error, arg) => {
-          console.log("login", result);
           localStorage.setItem("login_token", result.token);
           return [{ type: "user" }];
         },
@@ -98,12 +94,25 @@ const UsersAPI = createApi({
           };
         },
       }),
+      editUser: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "user" }];
+        },
+        query: (formDataToSend) => {
+          return {
+            url: "/edit-user",
+            body: formDataToSend,
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
 
 export const {
   useGetUserQuery,
+  useEditUserMutation,
   useLogoutMutation,
   useAddUserMutation,
   useSignUpVerifyMutation,

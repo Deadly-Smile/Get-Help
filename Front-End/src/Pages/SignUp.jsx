@@ -165,18 +165,24 @@ const SignUp = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      {/* <div>
-        <h3>
-          <Link to={"/"}>Go Home</Link>
-        </h3>
-        <h1>Create User</h1>
-        {result.isLoading && <h2>Loading...</h2>}
-        {result.error && <h3 className="text-danger">{result.status}</h3>}
-        
-      </div> */}
-      {form}
-      <div className="mb-3">{waitForMailMessage}</div>
+    <div className="bg-gray-100">
+      <h1 className="flex justify-center font-semibold text-2xl">
+        Create User
+      </h1>
+      {result.isLoading && (
+        <h1 className="flex justify-center font-semibold text-lg text-blue-950">
+          Loading...
+        </h1>
+      )}
+      {result.error && (
+        <h1 className="flex justify-center font-semibold text-lg text-red-700">
+          {result.status}
+        </h1>
+      )}
+      <div className="flex items-center justify-center min-h-screen">
+        {form}
+        <div className="mb-3">{waitForMailMessage}</div>
+      </div>
     </div>
   );
 };
