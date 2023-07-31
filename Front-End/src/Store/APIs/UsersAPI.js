@@ -77,6 +77,16 @@ const UsersAPI = createApi({
           };
         },
       }),
+      test: builder.mutation({
+        query: (formDataToSend) => {
+          console.log(typeof picture);
+          return {
+            url: "/test",
+            body: formDataToSend,
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
@@ -87,5 +97,6 @@ export const {
   useSignUpVerifyMutation,
   useLoginMutation,
   useLogoutQuery,
+  useTestMutation,
 } = UsersAPI;
 export { UsersAPI };

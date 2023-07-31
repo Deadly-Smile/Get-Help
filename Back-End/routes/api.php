@@ -28,3 +28,4 @@ Route::middleware('auth:api')->group(function () {
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);
+Route::post('/test', [UserController::class, 'test']);

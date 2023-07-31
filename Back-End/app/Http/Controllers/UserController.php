@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\SignUpRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -139,5 +140,38 @@ class UserController extends Controller
         JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    // public function test(Request $request)
+    // {
+    //     $request = $request->only('name', 'date_of_birth', "picture");
+    //     return response()->json(['request' => $request], 200);
+    // }
+
+    public function test(Request $request)
+    {
+        // Get the uploaded file named "picture"
+        $picture = $request->file('picture');
+
+        // Log the received file data to help debug
+        Log::info('Received picture data:', ['file' => $picture]);
+
+        // Ensure that the file was uploaded successfully
+        if ($request->hasFile('picture') && $request->file('picture')->isValid()) {
+            // Move the file to the desired storage location (e.g., public directory)
+            $path = $picture->store('public/pictures');
+
+            // Log the file storage path for debugging
+            Log::info('Stored file path:', ['path' => $path]);
+
+            // Get the URL to access the file
+            $url = Storage::url($path);
+
+            // Return the URL in the response
+            return response()->json(['message' => 'File uploaded successfully', 'picture_url' => $url], 200);
+        } else {
+            // Handle the case when the file was not uploaded correctly
+            return response()->json(['error' => 'File upload failed'], 400);
+        }
     }
 }
