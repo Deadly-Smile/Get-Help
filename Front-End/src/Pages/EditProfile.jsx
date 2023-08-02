@@ -18,7 +18,7 @@ const EditUserForm = () => {
     old_password: "",
     new_password: "",
     confirm_password: "",
-    is_a_doctor: "",
+    is_a_doctor: false,
   });
 
   const handleChange = (e) => {
@@ -55,12 +55,12 @@ const EditUserForm = () => {
       formDataToSend.append("avatar", formData.avatar);
     }
 
-    // Append other fields to the formDataToSend
+    formDataToSend.append("is_a_doctor", formData.is_a_doctor);
     for (const key in formData) {
       if (key === "name") {
         // Use 'name' as the key for both frontend and backend
         formDataToSend.append("name", formData[key]);
-      } else if (key === "dateOfBirth") {
+      } else if (key === "date_of_birth") {
         // Format the date and use 'date_of_birth' for the backend
         const formattedDate = new Date(formData[key]).toLocaleDateString(
           "en-CA"
@@ -68,26 +68,27 @@ const EditUserForm = () => {
         formDataToSend.append("date_of_birth", formattedDate);
       } else if (key !== "avatar") {
         // Append other fields except 'avatar', 'name', and 'dateOfBirth'
+        if (formData[key] === "" || formData[key] === null) {
+          continue;
+        }
         formDataToSend.append(key, formData[key]);
       }
     }
-
-    // Now call the editUser mutation with the formDataToSend object
-    try {
-      const result = await editUser(formDataToSend);
-      console.log("is worked");
-      console.log("Result:", result);
-      // Handle success
-    } catch (error) {
-      // Handle error
-      console.log("did not work");
-      console.error("Error:", error);
-    }
+    editUser(formDataToSend);
   };
 
   const handleGoBack = (e) => {
     e.preventDefault();
-    setFormData({ ...formData, is_a_doctor: false });
+    setFormData({
+      ...formData,
+      is_a_doctor: false,
+      mobile: "",
+      nid_card_number: "",
+      country: "",
+      district: "",
+      address: "",
+      document: null,
+    });
   };
 
   const labelClassnames = classNames(

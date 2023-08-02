@@ -15,7 +15,7 @@ const UsersAPI = createApi({
   reducerPath: "users",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api`,
     prepareHeaders: (headers) => {
       // Add the authentication token to the request headers
       const token = getAuthToken();
@@ -99,6 +99,7 @@ const UsersAPI = createApi({
           return [{ type: "user" }];
         },
         query: (formDataToSend) => {
+          console.log(formDataToSend);
           return {
             url: "/edit-user",
             body: formDataToSend,

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('country')->nullable()->default(null);
             $table->string('district')->nullable()->default(null);
             $table->string('address')->nullable()->default(null);
-            $table->date('data_of_birth')->nullable()->default(null);
+            $table->date('date_of_birth')->nullable()->default(null);
         });
     }
 
@@ -37,7 +37,7 @@ return new class extends Migration
                 'country',
                 'district',
                 'address',
-                'data_of_birth',
+                'date_of_birth',
             ]);
         });
     }

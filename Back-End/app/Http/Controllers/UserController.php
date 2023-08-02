@@ -79,7 +79,7 @@ class UserController extends Controller
             if ($user->verify_token == $request['code']) {
                 $user->verify_token = null;
                 $user->email_verified_at = now();
-                $user->roles()->attach(Role::findOrFail(1));
+                $user->roles()->attach(Role::where('slug', 'subscriber')->firstOrFail());
                 $user->save();
                 return response()->json(['message' => "Email verified"]);
             }
@@ -155,45 +155,43 @@ class UserController extends Controller
 
     public function editUser(EditUserRequest $request)
     {
-        return response()->json(["request" => $request], 200);
+        $avatar = $request->file('avatar');
+        $document = $request->file('document');
+        $avatarUrl = null;
+        $documentUrl = null;
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            $path = $avatar->store('public/pictures');
+            $avatarUrl = Storage::url($path);
+        }
+        if ($request->hasFile('document') && $request->file('document')->isValid()) {
+            $path = $document->store('public/documents');
+            $documentUrl = Storage::url($path);
+        }
         $user = Auth::user();
 
-        // Update the user's information
         $user->name = $request->input('name');
         $user->date_of_birth = $request->input('date_of_birth');
 
-        // Check if the new_password field is provided
         if ($request->has('new_password')) {
-            // Validate the old password before changing it
-            if (!Hash::check($request->input('old_password'), $user->password)) {
-                return response()->json(['message' => 'Invalid old password'], 422);
+            if ($request->filled('old_password')) {
+                if (!Hash::check($request->input('old_password'), $user->password)) {
+                    return response()->json(['message' => 'Invalid old password'], 422);
+                }
+                $user->password = Hash::make($request->input('new_password'));
             }
-
-            // Set the new password
-            $user->password = Hash::make($request->input('new_password'));
         }
 
-        // Check if the user is a doctor based on the is_a_doctor flag
         if ($request->input('is_a_doctor')) {
-            // Additional fields are required for doctors, so update them
-            $user->document = $request->file('document')->store('documents');
             $user->nid_card_number = $request->input('nid_card_number');
             $user->mobile = $request->input('mobile');
             $user->country = $request->input('country');
             $user->district = $request->input('district');
             $user->address = $request->input('address');
+            $user->document = $documentUrl;
         }
 
-        if ($request->hasFile('avatar')) {
-            // Upload the avatar and update the 'avatar' column with the file path
-            $avatarPath = $request->file('avatar')->store('avatars');
-            $user->avatar = $avatarPath;
-        }
-
-        // Save the updated user data
+        $user->avatar = $avatarUrl;
         $user->save();
-
-        // Return a response indicating success
         return response()->json(['message' => 'User information updated successfully']);
     }
 }

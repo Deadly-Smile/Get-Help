@@ -49,7 +49,12 @@ const App = () => {
           <Route
             path="/"
             element={
-              <HomePage data={data} isLoading={isLoading} isError={isError} />
+              <HomePage
+                data={data}
+                isLoading={isLoading}
+                isError={isError}
+                isSuccess={isSuccess}
+              />
             }
           />
           <Route path="/about" element={<About />} />
