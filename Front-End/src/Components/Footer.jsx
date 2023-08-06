@@ -41,7 +41,7 @@ const Footer = ({ className }) => {
                 </Link>
               </li>
               <li>
-                <Link to="/" className={linkClasses}>
+                <Link to="/apply-for-admin" className={linkClasses}>
                   Become an Admin
                 </Link>
               </li>

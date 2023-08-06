@@ -10,6 +10,7 @@ import { useGetUserQuery } from "./Store";
 import { useEffect, useState } from "react";
 import EditProfile from "./Pages/EditProfile";
 import Footer from "./Components/Footer";
+import AdminReg from "./Pages/AdminReg";
 
 const App = () => {
   const { data, isLoading, isError, isSuccess } = useGetUserQuery();
@@ -62,6 +63,7 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/apply-for-admin" element={<AdminReg />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

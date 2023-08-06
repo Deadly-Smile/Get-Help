@@ -56,8 +56,6 @@ const SignUp = () => {
           result.error.data.errors.password_confirmation;
       }
     }
-
-    // console.log(result.data.data.message);
   }
   let form = (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

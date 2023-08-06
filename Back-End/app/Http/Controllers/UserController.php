@@ -78,6 +78,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             if ($user->verify_token == $request['code']) {
                 $user->verify_token = null;
+                $user->pending_subscriber = false;
                 $user->email_verified_at = now();
                 $user->roles()->attach(Role::where('slug', 'subscriber')->firstOrFail());
                 $user->save();
@@ -135,7 +136,7 @@ class UserController extends Controller
 
             // Get the authenticated user
             $user = JWTAuth::user();
-            if ($user->verify_token) {
+            if (!$user->pending_subscriber) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
 
@@ -188,6 +189,7 @@ class UserController extends Controller
             $user->district = $request->input('district');
             $user->address = $request->input('address');
             $user->document = $documentUrl;
+            $user->pending_doctor = true;
         }
 
         $user->avatar = $avatarUrl;

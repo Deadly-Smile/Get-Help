@@ -107,12 +107,26 @@ const UsersAPI = createApi({
           };
         },
       }),
+      applyAdmin: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "user" }];
+        },
+        query: (formDataToSend) => {
+          console.log(formDataToSend);
+          return {
+            url: "/apply-admin",
+            body: formDataToSend,
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
 
 export const {
   useGetUserQuery,
+  useApplyAdminMutation,
   useEditUserMutation,
   useLogoutMutation,
   useAddUserMutation,
