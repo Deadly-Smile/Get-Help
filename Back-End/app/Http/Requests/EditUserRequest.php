@@ -16,7 +16,7 @@ class EditUserRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
+    public function authorize()
     {
         try {
             JWTAuth::parseToken()->authenticate();
@@ -51,7 +51,7 @@ class EditUserRequest extends FormRequest
         ];
 
 
-        Log::alert(["new_password" => $this->input("new_password"), "confirm_password" => $this->input("confirm_password")]);
+        // Log::alert(["new_password" => $this->input("new_password"), "confirm_password" => $this->input("confirm_password")]);
         // Add custom validation for the password change fields
         if ($this->filled('new_password') || $this->filled('old_password')) {
             $rules = array_merge($rules, [

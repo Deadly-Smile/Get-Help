@@ -13,27 +13,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\ApplyAdminRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Contracts\Providers\Storage as JWTStorage;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function getUser(Request $request)
     {
-        //
+        $permission = $request->user()->getAllPermissions();
+        return response()->json(['user' => $request->user(), 'permission' => $permission]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -55,7 +44,8 @@ class UserController extends Controller
             'email' => $request['email'],
             'password' => Hash::make($request['password']),
             'username' => $request['username'],
-            'verify_token' => $mailData['sixDigitNumber']
+            'verify_token' => $mailData['sixDigitNumber'],
+            'pending_subscriber' => true,
         ]);
 
         // send mail
@@ -90,36 +80,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 
     /**
      * Log in
@@ -136,7 +96,7 @@ class UserController extends Controller
 
             // Get the authenticated user
             $user = JWTAuth::user();
-            if (!$user->pending_subscriber) {
+            if ($user->pending_subscriber) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
 
@@ -168,7 +128,7 @@ class UserController extends Controller
             $path = $document->store('public/documents');
             $documentUrl = Storage::url($path);
         }
-        $user = Auth::user();
+        $user = JWTAuth::user();
 
         $user->name = $request->input('name');
         $user->date_of_birth = $request->input('date_of_birth');
@@ -195,5 +155,31 @@ class UserController extends Controller
         $user->avatar = $avatarUrl;
         $user->save();
         return response()->json(['message' => 'User information updated successfully']);
+    }
+
+    public function applyForAdmin(ApplyAdminRequest $request)
+    {
+        $user = JWTAuth::user();
+        if ($user->pending_subscriber) {
+            return response()->json(['message' => 'invalid user can not apply for admin role', 404]);
+        }
+
+        $document = $request->file('document');
+        $documentUrl = null;
+        if ($request->hasFile('document') && $request->file('document')->isValid()) {
+            $path = $document->store('public/documents');
+            $documentUrl = Storage::url($path);
+        }
+
+        $user->pending_admin = true;
+        $user->nid_card_number = $request->input('nid_card_number');
+        $user->mobile = $request->input('mobile');
+        $user->country = $request->input('country');
+        $user->district = $request->input('district');
+        $user->address = $request->input('address');
+        $user->document = $documentUrl;
+
+        $user->save();
+        return response()->json(['message' => "Your request is being proccessed"], 200);
     }
 }

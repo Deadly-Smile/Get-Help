@@ -3,11 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Tymon\JWTAuth\Contracts\JWTSubject; // Import the JWTSubject interface
 
 class User extends Authenticatable implements JWTSubject
@@ -75,18 +74,30 @@ class User extends Authenticatable implements JWTSubject
 
     public function userHasRole($role_name): bool
     {
-        foreach ($this->roles() as $role) {
-            if($role->name == $role_name) return true;
+        foreach ($this->roles()->get() as $role) {
+            if ($role->slug === $role_name) {
+                return true;
+            }
         }
         return false;
+    }
+
+    public function getAllPermissions()
+    {
+        $permissions = array();
+        foreach ($this->roles()->get() as $role) {
+            foreach ($role->getAllPermissions() as $permission) {
+                array_push($permissions, $permission->slug);
+            }
+        }
+        return $permissions;
     }
 
     public function userHasPermission($permission_name): bool
     {
-        foreach ($this->permissions() as $permission) {
-            if($permission->slag == $permission_name) return true;
+        foreach ($this->permissions()->get() as $permission) {
+            if ($permission->slug === $permission_name) return true;
         }
         return false;
     }
-
 }

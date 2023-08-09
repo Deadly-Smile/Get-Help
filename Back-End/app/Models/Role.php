@@ -21,4 +21,13 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function getAllPermissions()
+    {
+        $permissions = array();
+        foreach ($this->permissions()->get() as $permission) {
+            array_push($permissions, $permission->name);
+        }
+        return $this->permissions()->get();
+    }
 }

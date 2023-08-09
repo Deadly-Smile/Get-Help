@@ -19,6 +19,12 @@ const App = () => {
     { label: "Log in", link: "/login" },
     { label: "Sign up", link: "/signup" },
   ]);
+  const [activeFooterLinks, setActiveFooterLinks] = useState([
+    { label: "Privacy Policy", link: "#" },
+    { label: "Terms of Service", link: "#" },
+    { label: "Contact", link: "#" },
+    { label: "Buy me a cup of coffee", link: "#" },
+  ]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -29,6 +35,13 @@ const App = () => {
             { label: data.username, link: "/edit-profile" },
             { label: "Log out", link: "/logout" },
           ]);
+          setActiveFooterLinks([
+            { label: "Privacy Policy", link: "#" },
+            { label: "Terms of Service", link: "#" },
+            { label: "Contact", link: "#" },
+            { label: "Buy me a cup of coffee", link: "#" },
+            { label: "Become an Admin", link: "/apply-for-admin" },
+          ]);
         }
       }
     } else {
@@ -36,6 +49,12 @@ const App = () => {
         { label: "About", link: "/about" },
         { label: "Log in", link: "/login" },
         { label: "Sign up", link: "/signup" },
+      ]);
+      setActiveFooterLinks([
+        { label: "Privacy Policy", link: "#" },
+        { label: "Terms of Service", link: "#" },
+        { label: "Contact", link: "#" },
+        { label: "Buy me a cup of coffee", link: "#" },
       ]);
     }
   }, [data, isSuccess]);
@@ -67,7 +86,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      <Footer />
+      <Footer linkList={activeFooterLinks} website="Get Help" />
     </div>
   );
 };

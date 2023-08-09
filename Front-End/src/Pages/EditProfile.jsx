@@ -284,14 +284,14 @@ const EditUserForm = () => {
       </div>
       <div className="flex mb-4">
         <label htmlFor="address" className={labelClassnames}>
-          House No.:
+          Address:
         </label>
         <input
           type="text"
           id="address"
           name="address"
           value={formData.address}
-          placeholder="Your house no. & Street name must be included"
+          placeholder="Include your house no. & Street name"
           onChange={handleChange}
           className={inputClassnames}
         />

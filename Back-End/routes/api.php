@@ -22,11 +22,13 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
 Route::middleware('auth:api')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // Route::get('/user', function (Request $request) {
+    //     return $request->user();
+    // });
+    Route::get('/user', [UserController::class, 'getUser']);
     // Other protected API routes...
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);
 Route::post("/edit-user", [UserController::class, 'editUser']);
+Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
