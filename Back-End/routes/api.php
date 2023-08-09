@@ -16,17 +16,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
 Route::middleware('auth:api')->group(function () {
-    // Route::get('/user', function (Request $request) {
-    //     return $request->user();
-    // });
     Route::get('/user', [UserController::class, 'getUser']);
-    // Other protected API routes...
+    Route::get('/get-users', [UserController::class, 'getPagedUsers']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);

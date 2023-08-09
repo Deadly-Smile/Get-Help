@@ -95,8 +95,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function userHasPermission($permission_name): bool
     {
-        foreach ($this->permissions()->get() as $permission) {
-            if ($permission->slug === $permission_name) return true;
+        foreach ($this->roles()->get() as $role) {
+            foreach ($role->getAllPermissions() as $permission) {
+                if ($permission->slug === $permission_name) return true;
+            }
         }
         return false;
     }

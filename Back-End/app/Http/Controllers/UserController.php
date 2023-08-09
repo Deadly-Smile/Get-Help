@@ -182,4 +182,18 @@ class UserController extends Controller
         $user->save();
         return response()->json(['message' => "Your request is being proccessed"], 200);
     }
+
+
+    public function getPagedUsers()
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        // sending the sorted users
+        $users = User::query()->orderByDesc('id')->paginate(10);
+        return response()->json(['users' => $users], 200);
+    }
 }

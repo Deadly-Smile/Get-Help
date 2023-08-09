@@ -34,6 +34,18 @@ const UsersAPI = createApi({
         },
         query: () => "/user",
       }),
+      getAllUsers: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "all-users" }];
+          return tags;
+        },
+        query: () => {
+          return {
+            url: "/get-users",
+            method: "GET",
+          };
+        },
+      }),
       addUser: builder.mutation({
         query: ({ username, name, email, password, password_confirmation }) => {
           return {
@@ -112,7 +124,6 @@ const UsersAPI = createApi({
           return [{ type: "user" }];
         },
         query: (formDataToSend) => {
-          console.log(formDataToSend);
           return {
             url: "/apply-admin",
             body: formDataToSend,
@@ -126,6 +137,7 @@ const UsersAPI = createApi({
 
 export const {
   useGetUserQuery,
+  useGetAllUsersQuery,
   useApplyAdminMutation,
   useEditUserMutation,
   useLogoutMutation,
