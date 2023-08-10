@@ -39,11 +39,11 @@ const UsersAPI = createApi({
           const tags = [{ type: "all-users" }];
           return tags;
         },
-        query: () => {
-          return {
-            url: "/get-users",
-            method: "GET",
-          };
+        query: ({ currentPage, usersPerPage }) => {
+          let perPage = 2;
+          if (usersPerPage) perPage = usersPerPage;
+          console.log(perPage);
+          return `get-users?page=${currentPage}&perPage=${perPage}`;
         },
       }),
       addUser: builder.mutation({

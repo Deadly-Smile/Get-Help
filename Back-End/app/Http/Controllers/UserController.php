@@ -193,7 +193,8 @@ class UserController extends Controller
         }
 
         // sending the sorted users
-        $users = User::query()->orderByDesc('id')->paginate(10);
-        return response()->json(['users' => $users], 200);
+        $perPage = (int)request()->input('perPage', 10);
+        $users = User::query()->orderByDesc('id')->paginate($perPage);
+        return response()->json(['users' => $users, 'perPage' => $perPage], 200);
     }
 }
