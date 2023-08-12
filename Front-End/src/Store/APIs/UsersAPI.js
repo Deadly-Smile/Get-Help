@@ -40,10 +40,86 @@ const UsersAPI = createApi({
           return tags;
         },
         query: ({ currentPage, usersPerPage }) => {
-          let perPage = 2;
+          let perPage = 8;
           if (usersPerPage) perPage = usersPerPage;
-          console.log(perPage);
           return `get-users?page=${currentPage}&perPage=${perPage}`;
+        },
+      }),
+      getAllAdmins: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "all-users" }];
+          return tags;
+        },
+        query: ({ currentPage, adminsPerPage }) => {
+          let perPage = 8;
+          if (adminsPerPage) perPage = adminsPerPage;
+          return `get-admins?page=${currentPage}&perPage=${perPage}`;
+        },
+      }),
+      getAllDoctors: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "all-users" }];
+          return tags;
+        },
+        query: ({ currentPage, doctorsPerPage }) => {
+          let perPage = 8;
+          if (doctorsPerPage) perPage = doctorsPerPage;
+          return `get-doctors?page=${currentPage}&perPage=${perPage}`;
+        },
+      }),
+      deleteUser: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "all-users" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/delete-user/${id}`,
+            method: "DELETE",
+          };
+        },
+      }),
+      approveAdmin: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "all-users" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/approve-admin/${id}`,
+            method: "POST",
+          };
+        },
+      }),
+      disproveAdmin: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "all-users" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/disprove-admin/${id}`,
+            method: "POST",
+          };
+        },
+      }),
+      approveDoctor: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "all-users" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/approve-doctor/${id}`,
+            method: "POST",
+          };
+        },
+      }),
+      disproveDoctor: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "all-users" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/disprove-doctor/${id}`,
+            method: "POST",
+          };
         },
       }),
       addUser: builder.mutation({
@@ -138,6 +214,13 @@ const UsersAPI = createApi({
 export const {
   useGetUserQuery,
   useGetAllUsersQuery,
+  useGetAllDoctorsQuery,
+  useGetAllAdminsQuery,
+  useApproveAdminMutation,
+  useDisproveAdminMutation,
+  useApproveDoctorMutation,
+  useDisproveDoctorMutation,
+  useDeleteUserMutation,
   useApplyAdminMutation,
   useEditUserMutation,
   useLogoutMutation,

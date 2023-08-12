@@ -99,10 +99,10 @@ const App = () => {
 
   return (
     <div>
-      <header className="sticky top-0 z-10">
+      <header className="fixed top-0 z-10 w-full">
         <Navbar linkList={activeNavLinks} />
       </header>
-      <div>
+      <section className="min-h-[calc(100vh-60px)] pt-20">
         <Routes>
           <Route
             path="/"
@@ -116,7 +116,7 @@ const App = () => {
             }
           />
           <Route path="/about" element={<About />} />
-          <Route path="//edit-profile" element={<EditProfile data={data} />} />
+          <Route path="/edit-profile" element={<EditProfile data={data} />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
@@ -127,8 +127,10 @@ const App = () => {
           <Route path="/post-table" element={<PostTable />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </div>
-      <Footer linkList={activeFooterLinks} website="Get Help" />
+      </section>
+      <footer className="">
+        <Footer linkList={activeFooterLinks} website="Get Help" />
+      </footer>
     </div>
   );
 };

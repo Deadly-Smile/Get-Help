@@ -4,7 +4,7 @@ import classNames from "classnames";
 
 const Footer = ({ className, linkList, website }) => {
   const finalClassNames = classNames(
-    "bg-gray-900 py-4 text-white  h-auto",
+    "bg-gray-900 py-5 text-white  h-auto",
     className
   );
   const linkClasses = classNames(
@@ -24,7 +24,7 @@ const Footer = ({ className, linkList, website }) => {
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
           <div>
-            <p className="m-0 font-thin text-sm text-gray-400">
+            <p className="font-thin text-sm text-gray-400">
               &copy; 2023 {website}
             </p>
           </div>

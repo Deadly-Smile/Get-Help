@@ -49,7 +49,7 @@ class UserController extends Controller
         ]);
 
         // send mail
-        dispatch(new SendUserVarifyMail(["send-to" => $user->email, "data" => $mailData]));
+        // dispatch(new SendUserVarifyMail(["send-to" => $user->email, "data" => $mailData]));
 
         // get leatest user id
         $user = User::latest()->first();
@@ -193,8 +193,162 @@ class UserController extends Controller
         }
 
         // sending the sorted users
+        $roleName = 'subscriber';
         $perPage = (int)request()->input('perPage', 10);
-        $users = User::query()->orderByDesc('id')->paginate($perPage);
-        return response()->json(['users' => $users, 'perPage' => $perPage], 200);
+        $users = User::query()->where(function ($query) use ($roleName) {
+            $query->whereHas('roles', function ($query) use ($roleName) {
+                $query->where('slug', $roleName);
+            })->orWhereDoesntHave('roles');
+        })->orderByDesc('id')->paginate($perPage);
+        return response()->json(['items' => $users, 'perPage' => $perPage], 200);
+    }
+
+    public function deleteUser($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted', 'id' => $id], 401);
+        }
+
+        // delete user
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return response()->json(["message" => "404 user not found", 'id' => $id]);
+        }
+        if (!$user->delete()) {
+            return response()->json(["message" => "Failed to delete", 'id' => $id]);
+        }
+        return response()->json(["message" => "Successfully deleted", 'id' => $id]);
+    }
+
+    public function getPagedDoctors()
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        // sending the sorted users
+        $perPage = (int)request()->input('perPage', 10);
+        $users = User::query()
+            ->where(function ($query) {
+                $query->whereHas('roles', function ($query) {
+                    $query->where('slug', 'subscriber');
+                })->where('pending_doctor', true);
+            })
+            ->orWhere(function ($query) {
+                $query->whereHas('roles', function ($query) {
+                    $query->where('slug', 'doctor');
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
+        return response()->json(['items' => $users], 200);
+    }
+
+    public function getPagedAdmins()
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        // sending the sorted users
+        $roleName = ['admin', 'master'];
+        $perPage = (int)request()->input('perPage', 10);
+        $users = User::query()->where(function ($query) use ($roleName) {
+            $query->whereHas('roles', function ($query) use ($roleName) {
+                $query->whereIn('slug', $roleName);
+            });
+        })->orderByDesc('id')->paginate($perPage);
+        return response()->json(['items' => $users], 200);
+    }
+
+    public function approveAdmin($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return response()->json(["message" => "404 user not found", 'id' => $id]);
+        }
+        $user->roles()->detach(Role::findOrFail(1));
+        if (!$user->userHasRole(Role::findOrFail(3)->slug)) {
+            $user->roles()->attach(Role::findOrFail(3));
+        }
+        $user->pending_admin = false;
+        $user->save();
+        return response()->json(['message' => 'Successfully approved user ' . $id . ' as an admin'], 200);
+    }
+
+    public function approveDoctor($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return response()->json(["message" => "404 user not found", 'id' => $id]);
+        }
+        $user->roles()->detach(Role::findOrFail(1));
+        if (!$user->userHasRole(Role::findOrFail(2)->slug)) {
+            $user->roles()->attach(Role::findOrFail(2));
+        }
+        $user->pending_doctor = false;
+        $user->save();
+        return response()->json(['message' => 'Successfully approved user ' . $id . ' as a doctor'], 200);
+    }
+
+    public function disproveAdmin($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return response()->json(["message" => "404 user not found", 'id' => $id]);
+        }
+        $user->roles()->detach(Role::findOrFail(3));
+        if (!$user->userHasRole(Role::findOrFail(1)->slug)) {
+            $user->roles()->attach(Role::findOrFail(1));
+        }
+        $user->pending_admin = false;
+        $user->save();
+        return response()->json(['message' => 'Successfully disproved user ' . $id . ' as an admin'], 200);
+    }
+
+    public function disproveDoctor($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('edit-user-table')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return response()->json(["message" => "404 user not found", 'id' => $id]);
+        }
+        $user->roles()->detach(Role::findOrFail(2));
+        if (!$user->userHasRole(Role::findOrFail(1)->slug)) {
+            $user->roles()->attach(Role::findOrFail(1));
+        }
+        $user->pending_doctor = false;
+        $user->save();
+        return response()->json(['message' => 'Successfully disproved user ' . $id . ' as a doctor'], 200);
     }
 }
