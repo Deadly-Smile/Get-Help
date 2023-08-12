@@ -1,6 +1,10 @@
-import React, { Fragment } from "react";
+/* eslint-disable react/prop-types */
+import { Fragment } from "react";
 
 const Table = ({ data, config, getKey }) => {
+  if (!data) {
+    return null;
+  }
   const renderedRows = data.map((product) => {
     const renderedCells = config.map((column) => {
       return (

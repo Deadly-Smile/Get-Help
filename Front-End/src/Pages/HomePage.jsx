@@ -6,7 +6,7 @@ const HomePage = ({ data, isLoading, isError, isSuccess }) => {
   const [imgURL, setImgURL] = useState(null);
   useEffect(() => {
     if (isSuccess && data) {
-      setImgURL(`${backEndURL}${data.avatar}`);
+      setImgURL(`${backEndURL}${data?.user?.avatar}`);
     }
   }, [backEndURL, data, isSuccess]);
   if (isLoading) {

@@ -14,6 +14,15 @@ export const Store = configureStore({
 setupListeners(Store.dispatch);
 export {
   useGetUserQuery,
+  useGetAllUsersQuery,
+  useGetAllDoctorsQuery,
+  useGetAllAdminsQuery,
+  useApproveAdminMutation,
+  useDisproveAdminMutation,
+  useApproveDoctorMutation,
+  useDisproveDoctorMutation,
+  useDeleteUserMutation,
+  useApplyAdminMutation,
   useEditUserMutation,
   useLogoutMutation,
   useAddUserMutation,

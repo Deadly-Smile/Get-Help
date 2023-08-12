@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../Components/Button";
 import classNames from "classnames";
 import { useEditUserMutation } from "../Store";
@@ -20,6 +20,7 @@ const EditUserForm = () => {
     confirm_password: "",
     is_a_doctor: false,
   });
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -38,6 +39,21 @@ const EditUserForm = () => {
       );
     }
   };
+
+  useEffect(() => {
+    if (result.status === "rejected") {
+      if (result.error.data) {
+        if (result.error.data.errors) {
+          setValidationErrors({
+            ...validationErrors,
+            ...result.error.data.errors,
+          });
+          console.log(validationErrors);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
 
   const handleApply = (e) => {
     e.preventDefault();
@@ -268,14 +284,14 @@ const EditUserForm = () => {
       </div>
       <div className="flex mb-4">
         <label htmlFor="address" className={labelClassnames}>
-          House No.:
+          Address:
         </label>
         <input
           type="text"
           id="address"
           name="address"
           value={formData.address}
-          placeholder="Your house no. & Street name must be included"
+          placeholder="Include your house no. & Street name"
           onChange={handleChange}
           className={inputClassnames}
         />
@@ -326,6 +342,15 @@ const EditUserForm = () => {
             Edit User
           </h2>
           {formData.is_a_doctor ? additionalForm : subscriberform}
+          {Object.keys(validationErrors).length > 0 && (
+            <div className="mb-4 text-red-600">
+              {Object.keys(validationErrors).map((key) =>
+                validationErrors[key].map((error, index) => (
+                  <p key={index}>{error}</p>
+                ))
+              )}
+            </div>
+          )}
         </form>
       </section>
       <div>
