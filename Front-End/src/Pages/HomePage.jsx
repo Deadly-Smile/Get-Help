@@ -27,7 +27,7 @@ const HomePage = () => {
   if (isError) {
     render = (
       <div className="flex justify-center">
-        <p className="text-red-600 font-semibold">Error occured!!!</p>
+        <p className="text-red-600 font-semibold">No post found</p>
       </div>
     );
   }
@@ -35,13 +35,6 @@ const HomePage = () => {
     render = (
       <div className="flex justify-center">
         <p className="text-blue-600 font-semibold">Loding...</p>
-      </div>
-    );
-  }
-  if (isSuccess) {
-    render = (
-      <div className="flex justify-center">
-        <p className="text-blue-600 font-semibold">Successfully</p>
       </div>
     );
   }

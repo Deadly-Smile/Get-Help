@@ -74,7 +74,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function posts()
     {
-        return $this->hasMany(Post::class);
+        return $this->belongsToMany(Post::class);
     }
 
     public function userHasRole($role_name): bool

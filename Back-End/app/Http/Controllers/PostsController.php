@@ -22,7 +22,8 @@ class PostsController extends Controller
         ]);
 
         $post->save();
-        JWTAuth::user()->posts()->attach(Post::latest()->first());
+        // it hase many-to-many relation after next migration i want to make it one to many
+        $user->posts()->attach($post);
         // JWTAuth::user()->posts()->save($post);
         return response()->json(['message' => "Post successfully created"], 200);
     }
@@ -31,7 +32,11 @@ class PostsController extends Controller
     {
         $posts = Post::where('isPending', false)->get();
         foreach ($posts as $post) {
-            $post->author = $post->user->username;
+            $users = $post->users;
+            foreach ($users as $user) {
+                $post->author = $user->username;
+                break;
+            }
         }
         return response()->json(['posts' => $posts], 200);
     }

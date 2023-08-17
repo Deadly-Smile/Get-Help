@@ -22,10 +22,12 @@ const PostView = ({ post, wordLimit, className, ...rest }) => {
   };
   return (
     <div className={finalClassNames} {...rest}>
-      <div className="text-gray-600 text-sm mb-2">
-        Created {moment(post?.created_at).fromNow()} by {post?.author_name}
+      <div className="flex justify-between">
+        <h2 className="text-xl font-semibold mb-2">{post?.title}</h2>
+        <div className="text-gray-600 text-sm mb-2">
+          Created {moment(post?.created_at).fromNow()} by {post?.author}
+        </div>
       </div>
-      <h2 className="text-xl font-semibold mb-2">{post?.title}</h2>
       <div dangerouslySetInnerHTML={{ __html: contentToShow }} />
       {fullContent.length > maxLengthToShow && (
         <button
@@ -35,7 +37,7 @@ const PostView = ({ post, wordLimit, className, ...rest }) => {
           {showFullContent ? "See Less" : "See More"}
         </button>
       )}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-end space-x-2 bg-gray-300 rounded p-2">
         <button
           className="text-blue-500 hover:underline"
           //   onClick={() => handleVote(post.id, "upvote")}
