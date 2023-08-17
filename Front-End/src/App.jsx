@@ -15,9 +15,10 @@ import UserTable from "./Pages/UserTable";
 import DoctorTable from "./Pages/DoctorTable";
 import AdminTable from "./Pages/AdminTable";
 import PostTable from "./Pages/PostTable";
+import CreatePostPage from "./Pages/CreatePostPage";
 
 const App = () => {
-  const { data, isLoading, isError, isSuccess } = useGetUserQuery();
+  const { data, isSuccess } = useGetUserQuery();
   const [activeNavLinks, setActiveNavLinks] = useState([
     { label: "About", link: "/about" },
     { label: "Log in", link: "/login" },
@@ -89,6 +90,13 @@ const App = () => {
         });
       }
 
+      if (data.permission.includes("create-post")) {
+        navLinkWithPermission.splice(1, 0, {
+          label: "Create Post",
+          link: "/create-post",
+        });
+      }
+
       setActiveNavLinks(navLinkWithPermission);
       setActiveFooterLinks(footerLinkWithPermission);
     } else {
@@ -102,19 +110,9 @@ const App = () => {
       <header className="fixed top-0 z-10 w-full">
         <Navbar linkList={activeNavLinks} />
       </header>
-      <section className="min-h-[calc(100vh-60px)] pt-20">
+      <section className="min-h-[calc(100vh-60px)] pt-16">
         <Routes>
-          <Route
-            path="/"
-            element={
-              <HomePage
-                data={data}
-                isLoading={isLoading}
-                isError={isError}
-                isSuccess={isSuccess}
-              />
-            }
-          />
+          <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<About />} />
           <Route path="/edit-profile" element={<EditProfile data={data} />} />
           <Route path="/signup" element={<SignUp />} />
@@ -125,6 +123,7 @@ const App = () => {
           <Route path="/doctor-table" element={<DoctorTable />} />
           <Route path="/admin-table" element={<AdminTable />} />
           <Route path="/post-table" element={<PostTable />} />
+          <Route path="/create-post" element={<CreatePostPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </section>

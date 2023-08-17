@@ -37,11 +37,27 @@ php artisan passport:install
 -  npm i -D react-router-dom
 -  npm i classnames
 -  npm i prop-types
+-  npm install moment
+<!-- -  npm i quill -->
+-  npm i quill highlight.js // not using
+-  npm install react-quill --save
+-  npm i draft-js react-draft-wysiwyg // not going to use
+-  npm i emoji-mart // not going to use
+-  backup dependency -// "draft-js": "^0.11.7",
+    // "emoji-mart": "^5.5.2",    // "react-draft-wysiwyg": "^1.15.0",
+
 
 ## importent facts
 - validator error does not sends responce in api // at least I can't figure out yet
 - to solve this problem I create a custom request class named *SignUpRequest*
 - To automate query, tagging system is the best way to go.
+### React with Draft.js gives "Global is not defined" error
+The best way to solve this is to add this codd to the index.html(for my case I added in header)
+```js
+<script>
+    const global = globalThis;
+</script>
+```
 
 ## Introducing roles & permission:
 ### Additional changes

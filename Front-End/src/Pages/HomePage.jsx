@@ -1,53 +1,57 @@
-import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
+import { useGetPostsQuery } from "../Store/APIs/PostsAPI";
+import PostView from "../Components/PostView";
 
-const HomePage = ({ data, isLoading, isError, isSuccess }) => {
-  const backEndURL = import.meta.env.VITE_BACKEND_URL;
-  const [imgURL, setImgURL] = useState(null);
+const HomePage = () => {
+  const { data, isSuccess, isLoading, isError } = useGetPostsQuery();
+  const [postList, setPostList] = useState(null);
   useEffect(() => {
-    if (isSuccess && data) {
-      setImgURL(`${backEndURL}${data?.user?.avatar}`);
+    if (data && isSuccess) {
+      console.log(data);
+      setPostList(
+        data.posts.map((post, index) => {
+          return (
+            <PostView
+              key={index}
+              post={post}
+              wordLimit={1000}
+              className="w-4/5"
+            />
+          );
+        })
+      );
     }
-  }, [backEndURL, data, isSuccess]);
-  if (isLoading) {
-    return (
-      <p className="flex justify-center items-center text-5xl">Loading...</p>
+  }, [data, isSuccess]);
+
+  let render = null;
+  if (isError) {
+    render = (
+      <div className="flex justify-center">
+        <p className="text-red-600 font-semibold">Error occured!!!</p>
+      </div>
     );
   }
-  if (isError) {
-    return (
-      <div className="m-0 min-h-screen">
-        <p className="flex justify-center items-center text-5xl">
-          Error getting data
-        </p>
+  if (isLoading) {
+    render = (
+      <div className="flex justify-center">
+        <p className="text-blue-600 font-semibold">Loding...</p>
+      </div>
+    );
+  }
+  if (isSuccess) {
+    render = (
+      <div className="flex justify-center">
+        <p className="text-blue-600 font-semibold">Successfully</p>
       </div>
     );
   }
 
-  const renderBro = (
+  return (
     <div>
-      <h2>{data?.name}</h2>
-      {imgURL && (
-        <div>
-          <h3>Uploaded Image:</h3>
-          <img
-            src={imgURL}
-            alt="Uploaded"
-            style={{ maxWidth: "100%", maxHeight: "300px" }}
-          />
-        </div>
-      )}
+      {render}
+      <div>{postList}</div>
     </div>
   );
-
-  return <div>{renderBro}</div>;
-};
-
-HomePage.propTypes = {
-  data: PropTypes.object,
-  isLoading: PropTypes.bool.isRequired,
-  isError: PropTypes.bool.isRequired,
-  isSuccess: PropTypes.bool.isRequired,
 };
 
 export default HomePage;

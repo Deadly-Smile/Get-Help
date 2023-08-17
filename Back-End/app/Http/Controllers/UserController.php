@@ -193,13 +193,14 @@ class UserController extends Controller
         }
 
         // sending the sorted users
-        $roleName = 'subscriber';
+        $roleName = ['admin', 'master', 'doctor'];
         $perPage = (int)request()->input('perPage', 10);
         $users = User::query()->where(function ($query) use ($roleName) {
             $query->whereHas('roles', function ($query) use ($roleName) {
-                $query->where('slug', $roleName);
-            })->orWhereDoesntHave('roles');
-        })->orderByDesc('id')->paginate($perPage);
+                $query->whereNotIn('slug', $roleName);
+            });
+        })
+            ->orderByDesc('id')->paginate($perPage);
         return response()->json(['items' => $users, 'perPage' => $perPage], 200);
     }
 
@@ -226,18 +227,13 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('edit-user-table')) {
+        if (!$user->userHasPermission('edit-doctor-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
-
         // sending the sorted users
         $perPage = (int)request()->input('perPage', 10);
         $users = User::query()
-            ->where(function ($query) {
-                $query->whereHas('roles', function ($query) {
-                    $query->where('slug', 'subscriber');
-                })->where('pending_doctor', true);
-            })
+            ->where('pending_doctor', true)
             ->orWhere(function ($query) {
                 $query->whereHas('roles', function ($query) {
                     $query->where('slug', 'doctor');
@@ -253,7 +249,7 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('edit-user-table')) {
+        if (!$user->userHasPermission('edit-admin-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
@@ -264,7 +260,9 @@ class UserController extends Controller
             $query->whereHas('roles', function ($query) use ($roleName) {
                 $query->whereIn('slug', $roleName);
             });
-        })->orderByDesc('id')->paginate($perPage);
+        })
+            ->orWhere('pending_admin', true)
+            ->orderByDesc('id')->paginate($perPage);
         return response()->json(['items' => $users], 200);
     }
 
@@ -272,7 +270,7 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('edit-user-table')) {
+        if (!$user->userHasPermission('edit-admin-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
@@ -293,7 +291,7 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('edit-user-table')) {
+        if (!$user->userHasPermission('edit-doctor-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
@@ -314,7 +312,7 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('edit-user-table')) {
+        if (!$user->userHasPermission('edit-admin-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
@@ -335,7 +333,7 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('edit-user-table')) {
+        if (!$user->userHasPermission('edit-doctor-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
