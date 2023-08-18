@@ -31,7 +31,11 @@ const PostsAPI = createApi({
           const tags = [{ type: "posts" }];
           return tags;
         },
-        query: () => "/posts",
+        // get-doctors?page=${currentPage}&perPage=${perPage}
+        query: (currentPage, perPage) => {
+          if (!perPage) perPage = 10;
+          return `/posts?page=${currentPage}&perPage=${perPage}`;
+        },
       }),
       addPost: builder.mutation({
         // eslint-disable-next-line no-unused-vars
@@ -46,10 +50,24 @@ const PostsAPI = createApi({
           };
         },
       }),
+      votePost: builder.mutation({
+        // eslint-disable-next-line no-unused-vars
+        invalidatesTags: (_result, _error, _arg) => {
+          return [{ type: "posts" }];
+        },
+        query: ({ id, operation }) => {
+          return {
+            url: `/vote/post/${id}`,
+            body: { id, type: operation },
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useGetPostsQuery, useAddPostMutation } = PostsAPI;
+export const { useGetPostsQuery, useAddPostMutation, useVotePostMutation } =
+  PostsAPI;
 
 export { PostsAPI };

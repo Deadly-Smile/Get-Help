@@ -34,4 +34,8 @@ export {
   useLoginMutation,
 } from "./APIs/UsersAPI";
 
-export { useGetPostsQuery, useAddPostMutation } from "./APIs/PostsAPI";
+export {
+  useGetPostsQuery,
+  useAddPostMutation,
+  useVotePostMutation,
+} from "./APIs/PostsAPI";

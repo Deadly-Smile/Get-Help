@@ -29,6 +29,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/approve-doctor/{id}', [UserController::class, 'approveDoctor']);
     Route::post('/disprove-doctor/{id}', [UserController::class, 'disproveDoctor']);
     Route::post('/add-post', [PostsController::class, 'store']);
+    Route::post('/vote/post/{id}', [PostsController::class, 'vote']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);

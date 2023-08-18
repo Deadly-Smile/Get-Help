@@ -4,7 +4,14 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import classNames from "classnames";
 
-const PostView = ({ post, wordLimit, className, ...rest }) => {
+const PostView = ({
+  post,
+  wordLimit,
+  className,
+  useVotePostMutation,
+  ...rest
+}) => {
+  const [votePost, result] = useVotePostMutation();
   const finalClassNames = classNames(
     "mx-auto p-4 bg-white shadow-md rounded-lg my-3",
     className
@@ -19,6 +26,10 @@ const PostView = ({ post, wordLimit, className, ...rest }) => {
 
   const toggleShowFullContent = () => {
     setShowFullContent(!showFullContent);
+  };
+
+  const handleVote = (id, operation) => {
+    votePost({ id, operation });
   };
   return (
     <div className={finalClassNames} {...rest}>
@@ -38,16 +49,17 @@ const PostView = ({ post, wordLimit, className, ...rest }) => {
         </button>
       )}
       <div className="flex items-center justify-end space-x-2 bg-gray-300 rounded p-2">
+        {result.isError ? <p className="text-red-500">Error occured</p> : null}
         <button
           className="text-blue-500 hover:underline"
-          //   onClick={() => handleVote(post.id, "upvote")}
+          onClick={() => handleVote(post.id, "upvote")}
         >
           Upvote
         </button>
         <span className="text-gray-600">({post?.upvote_count})</span>
         <button
           className="text-red-500 hover:underline"
-          //   onClick={() => handleVote(post.id, "downvote")}
+          onClick={() => handleVote(post.id, "downvote")}
         >
           Downvote
         </button>

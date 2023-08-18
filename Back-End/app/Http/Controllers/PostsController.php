@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Vote;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -30,14 +31,52 @@ class PostsController extends Controller
 
     public function showAllPost()
     {
-        $posts = Post::where('isPending', false)->get();
+        $perPage = (int)request()->input('perPage', 10);
+        $posts = Post::query()->where('isPending', false)->orderByDesc('id')->paginate($perPage);
         foreach ($posts as $post) {
             $users = $post->users;
             foreach ($users as $user) {
                 $post->author = $user->username;
                 break;
             }
+            $post->downvote_count = $post->downvotes()->count();
+            $post->upvote_count = $post->upvotes()->count();
         }
         return response()->json(['posts' => $posts], 200);
+    }
+
+    public function vote(Request $request, $id)
+    {
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('vote-post')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+        $vote = 0;
+        if ($request->input('type') === 'upvote') {
+            $vote = 1; // 1 for upvote
+        } else {
+            $vote = -1; // -1 for downvote
+        }
+        if (!$user->hasVoted(Post::findOrFail($id))) {
+
+            $vote = new Vote([
+                'user_id' => $user->id,
+                'post_id' => $id,
+                'vote' => $vote,
+            ]);
+
+            $vote->save();
+
+            return response()->json(['message' => 'Voted successfully'], 200);
+        } else {
+            $existingVote = $user->votes()->where('post_id', $id)->first();
+            if ($existingVote) {
+                $existingVote->update([
+                    'vote' => $vote,
+                ]);
+                return response()->json(['message' => 'Vote toggled successfully'], 200);
+            }
+        }
+        return response()->json(['error' => 'Something went very wrong'], 400);
     }
 }
