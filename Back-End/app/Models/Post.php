@@ -43,4 +43,10 @@ class Post extends Model
     {
         return $this->users()->get();
     }
+
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Vote;
+use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -78,5 +80,32 @@ class PostsController extends Controller
             }
         }
         return response()->json(['error' => 'Something went very wrong'], 400);
+    }
+
+    public function getComments($id)
+    {
+        $post = Post::find($id);
+        $comments = $post->comments;
+        foreach ($comments as $comment) {
+            $comment->author = User::findOrFail($comment->user_id)->username;
+        }
+        return response()->json(['comments' => $comments], 200);
+    }
+
+    public function addComment(Request $request, $id)
+    {
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('comment-post')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $comment = new Comment([
+            'content' => $request->input('content'),
+            'post_id' => $id,
+            'user_id' => $user->id,
+        ]);
+        $comment->save();
+
+        return response()->json(['message' => 'Successfully commented'], 200);
     }
 }

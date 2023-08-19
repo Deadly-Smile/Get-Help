@@ -1,6 +1,6 @@
 import Button from "../Components/Button";
 import PostEditor from "../Components/PostEditor";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddPostMutation } from "../Store/APIs/PostsAPI";
 
 const CreatePostPage = () => {
@@ -19,6 +19,13 @@ const CreatePostPage = () => {
   const handleCreatePostClick = () => {
     addPost({ title, content });
   };
+
+  useEffect(() => {
+    if (result.isSuccess) {
+      setTitle("");
+      setContent("");
+    }
+  }, [result]);
 
   return (
     <div className="bg-gray-200 min-h-screen flex items-center justify-center">

@@ -30,9 +30,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/disprove-doctor/{id}', [UserController::class, 'disproveDoctor']);
     Route::post('/add-post', [PostsController::class, 'store']);
     Route::post('/vote/post/{id}', [PostsController::class, 'vote']);
+    Route::post('/add/comment/post/{id}', [PostsController::class, 'addComment']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);
 Route::post("/edit-user", [UserController::class, 'editUser']);
 Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 Route::get('/posts', [PostsController::class, 'showAllPost']);
+Route::get('/comments/post/{id}', [PostsController::class, 'getComments']);

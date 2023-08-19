@@ -105,12 +105,11 @@ const HomePage = () => {
 
   useEffect(() => {
     if (data && isSuccess) {
-      console.log(data);
       setPostList(
-        data?.posts?.data?.map((post, index) => {
+        data?.posts?.data?.map((post, id) => {
           return (
             <PostView
-              key={index}
+              key={id}
               post={post}
               wordLimit={1000}
               className="w-4/5"

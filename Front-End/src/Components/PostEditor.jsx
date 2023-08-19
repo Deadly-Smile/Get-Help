@@ -1,8 +1,7 @@
 import "quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import PropTypes from "prop-types";
-
-const PostEditor = ({ header, onChange, content }) => {
+const PostEditor = ({ header, onChange, content, ...rest }) => {
   const editor = (
     <ReactQuill
       theme="snow"
@@ -25,8 +24,9 @@ const PostEditor = ({ header, onChange, content }) => {
       placeholder="Start typing..."
     />
   );
+
   return (
-    <div className="p-4">
+    <div className="p-4" {...rest}>
       <h2 className="text-xl font-semibold mb-2">{header}</h2>
       {editor}
     </div>
