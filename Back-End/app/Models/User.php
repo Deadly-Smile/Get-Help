@@ -72,6 +72,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Role::class);
     }
 
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class);
+    }
+
     public function userHasRole($role_name): bool
     {
         foreach ($this->roles()->get() as $role) {
@@ -101,5 +106,25 @@ class User extends Authenticatable implements JWTSubject
             }
         }
         return false;
+    }
+
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function hasVoted(Post $post)
+    {
+        return $this->votes()->where('post_id', $post->id)->exists();
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(Reply::class);
     }
 }

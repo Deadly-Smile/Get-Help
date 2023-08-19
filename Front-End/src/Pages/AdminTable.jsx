@@ -23,7 +23,8 @@ const AdminTable = () => {
     setIsPanelOpen(true);
   };
 
-  const closePanel = () => {
+  const closePanel = (event) => {
+    event.preventDefault();
     setIsPanelOpen(false);
   };
 

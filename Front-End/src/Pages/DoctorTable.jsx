@@ -23,7 +23,8 @@ const DoctorTable = () => {
     setIsPanelOpen(true);
   };
 
-  const closePanel = () => {
+  const closePanel = (event) => {
+    event.preventDefault();
     setIsPanelOpen(false);
   };
 
@@ -236,7 +237,7 @@ const DoctorTable = () => {
       title: "Approve/Disprove",
       render: (user) => {
         const id = user?.id;
-        return user?.pending_admin ? (
+        return user?.pending_doctor ? (
           <Button
             onClick={() => {
               approveDoctor({ id });
