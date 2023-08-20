@@ -41,6 +41,7 @@ class PostsController extends Controller
                 $post->author = $user->username;
                 break;
             }
+            $post->comments = $this->commentOfPost($post->id);
             $post->downvote_count = $post->downvotes()->count();
             $post->upvote_count = $post->upvotes()->count();
         }
@@ -82,14 +83,19 @@ class PostsController extends Controller
         return response()->json(['error' => 'Something went very wrong'], 400);
     }
 
-    public function getComments($id)
+    private function commentOfPost($id)
     {
         $post = Post::find($id);
         $comments = $post->comments;
         foreach ($comments as $comment) {
             $comment->author = User::findOrFail($comment->user_id)->username;
         }
-        return response()->json(['comments' => $comments], 200);
+        return $comments;
+    }
+
+    public function getComments($id)
+    {
+        return response()->json(['comments' => $this->commentOfPost($id)], 200);
     }
 
     public function addComment(Request $request, $id)

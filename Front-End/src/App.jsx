@@ -16,6 +16,7 @@ import DoctorTable from "./Pages/DoctorTable";
 import AdminTable from "./Pages/AdminTable";
 import PostTable from "./Pages/PostTable";
 import CreatePostPage from "./Pages/CreatePostPage";
+import ProfileViewPage from "./Pages/ProfileViewPage";
 
 const App = () => {
   const { data, isSuccess } = useGetUserQuery();
@@ -30,6 +31,8 @@ const App = () => {
     { label: "Contact", link: "#" },
     { label: "Buy me a cup of coffee", link: "#" },
   ]);
+
+  const id = 2;
 
   useEffect(() => {
     let defaultNavLink = [
@@ -124,6 +127,10 @@ const App = () => {
           <Route path="/admin-table" element={<AdminTable />} />
           <Route path="/post-table" element={<PostTable />} />
           <Route path="/create-post" element={<CreatePostPage />} />
+          <Route
+            path={`/get-user/${id}`}
+            element={<ProfileViewPage id={id} />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </section>

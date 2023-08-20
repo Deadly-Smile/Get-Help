@@ -28,7 +28,7 @@ const Comment = ({ content, author, created_at, wordLimit }) => {
         </div>
       )}
       <div className="flex items-center mt-1">
-        <span className="text-gray-500 text-sm">{author}</span>
+        <span className="text-gray-800">{author}</span>
         <span className="text-gray-500 text-sm mx-2">·</span>
         <span className="text-gray-500 text-sm">
           {moment(created_at).fromNow()}

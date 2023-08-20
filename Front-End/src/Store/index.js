@@ -32,12 +32,12 @@ export {
   useAddUserMutation,
   useSignUpVerifyMutation,
   useLoginMutation,
+  useGetUserByIDQuery,
 } from "./APIs/UsersAPI";
 
 export {
   useGetPostsQuery,
   useAddPostMutation,
   useVotePostMutation,
-  useGetCommentsQuery,
   useAddCommentMutation,
 } from "./APIs/PostsAPI";
