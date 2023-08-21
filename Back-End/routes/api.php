@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
+Route::get('user/{id}', [UserController::class, 'getTheUser']);
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [UserController::class, 'getUser']);
     Route::get('/get-users', [UserController::class, 'getPagedUsers']);
@@ -37,4 +38,4 @@ Route::resource('/users', UserController::class);
 Route::post("/edit-user", [UserController::class, 'editUser']);
 Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 Route::get('/posts', [PostsController::class, 'showAllPost']);
-// Route::get('/comments/post/{id}', [PostsController::class, 'getComments']);
+Route::get('/post/{id}', [PostsController::class, 'getFullPost']);

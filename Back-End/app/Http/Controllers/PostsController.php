@@ -48,6 +48,36 @@ class PostsController extends Controller
         return response()->json(['posts' => $posts], 200);
     }
 
+    public function getFullPost($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->comments = $this->commentOfPost($post->id);
+        $post->downvote_count = $post->downvotes()->count();
+        $post->upvote_count = $post->upvotes()->count();
+        $users = $post->users;
+        foreach ($users as $user) {
+            $post->author = $user->username;
+            break;
+        }
+
+        return response()->json(['post' => $post], 200);
+    }
+
+    public function getPostOfUser($id)
+    {
+        $user = User::findOrFail($id);
+        $perPage = (int)request()->input('perPage', 10);
+        $posts = $user->posts()->orderByDesc('id')->paginate($perPage);
+        foreach ($posts as $post) {
+            $post->comments = $this->commentOfPost($post->id);
+            $post->downvote_count = $post->downvotes()->count();
+            $post->upvote_count = $post->upvotes()->count();
+            $post->author = $user->username;
+        }
+
+        return response()->json(['posts' => $posts], 200);
+    }
+
     public function vote(Request $request, $id)
     {
         $user = JWTAuth::user();

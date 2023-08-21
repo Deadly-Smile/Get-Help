@@ -101,10 +101,6 @@ const UsersAPI = createApi({
         },
       }),
       getUserByID: builder.query({
-        providesTags: (result, error, id) => {
-          const tags = [{ type: "user", id }];
-          return tags;
-        },
         query: ({ id }) => {
           return `user/${id}`;
         },

@@ -40,4 +40,5 @@ export {
   useAddPostMutation,
   useVotePostMutation,
   useAddCommentMutation,
+  useGetThePostQuery,
 } from "./APIs/PostsAPI";
