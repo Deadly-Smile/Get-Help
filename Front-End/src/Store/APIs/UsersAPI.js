@@ -100,6 +100,11 @@ const UsersAPI = createApi({
           };
         },
       }),
+      getUserByID: builder.query({
+        query: ({ id }) => {
+          return `user/${id}`;
+        },
+      }),
       approveDoctor: builder.mutation({
         invalidatesTags: (result, error, arg) => {
           return [{ type: "all-users" }];
@@ -227,5 +232,6 @@ export const {
   useAddUserMutation,
   useSignUpVerifyMutation,
   useLoginMutation,
+  useGetUserByIDQuery,
 } = UsersAPI;
 export { UsersAPI };

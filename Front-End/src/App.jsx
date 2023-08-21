@@ -16,6 +16,8 @@ import DoctorTable from "./Pages/DoctorTable";
 import AdminTable from "./Pages/AdminTable";
 import PostTable from "./Pages/PostTable";
 import CreatePostPage from "./Pages/CreatePostPage";
+import ProfileViewPage from "./Pages/ProfileViewPage";
+import PostPage from "./Pages/PostPage";
 
 const App = () => {
   const { data, isSuccess } = useGetUserQuery();
@@ -124,6 +126,8 @@ const App = () => {
           <Route path="/admin-table" element={<AdminTable />} />
           <Route path="/post-table" element={<PostTable />} />
           <Route path="/create-post" element={<CreatePostPage />} />
+          <Route path="/get-user/:id" element={<ProfileViewPage />} />
+          <Route path="/posts/:id" element={<PostPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </section>

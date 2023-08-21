@@ -28,7 +28,9 @@ const PostsAPI = createApi({
       getPosts: builder.query({
         // eslint-disable-next-line no-unused-vars
         providesTags: (_result, _error, _arg) => {
-          const tags = [{ type: "posts" }];
+          const tags = _result?.posts?.data?.map((post) => {
+            return { type: "post", id: post.id };
+          });
           return tags;
         },
         // get-doctors?page=${currentPage}&perPage=${perPage}
@@ -37,19 +39,18 @@ const PostsAPI = createApi({
           return `/posts?page=${currentPage}&perPage=${perPage}`;
         },
       }),
-      getComments: builder.query({
-        providesTags: (_result, _error, id) => {
-          const tags = [{ type: `post/${id}` }];
-          return tags;
+      getThePost: builder.query({
+        // eslint-disable-next-line no-unused-vars
+        providesTags: (_result, _error, _arg) => {
+          return [{ type: "post", id: _arg.id }];
         },
         query: ({ id }) => {
-          return `/comments/post/${id}`;
+          return `/post/${id}`;
         },
       }),
       addComment: builder.mutation({
-        invalidatesTags: (_result, _error, id) => {
-          const tags = [{ type: `post/${id}` }];
-          return tags;
+        invalidatesTags: (_result, _error, arg) => {
+          return [{ type: "post", id: arg.id }];
         },
         query: ({ content, id }) => {
           return {
@@ -93,8 +94,8 @@ export const {
   useGetPostsQuery,
   useAddPostMutation,
   useVotePostMutation,
-  useGetCommentsQuery,
   useAddCommentMutation,
+  useGetThePostQuery,
 } = PostsAPI;
 
 export { PostsAPI };

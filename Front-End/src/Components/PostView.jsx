@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import classNames from "classnames";
 import CommentPanel from "./CommentPanel";
 import Button from "./Button";
-import { useAddCommentMutation, useGetCommentsQuery } from "../Store";
+import { useAddCommentMutation } from "../Store";
 
 const PostView = ({
   post,
@@ -14,9 +14,6 @@ const PostView = ({
   useVotePostMutation,
   ...rest
 }) => {
-  const { data, isLoading, isError } = useGetCommentsQuery({
-    id: post?.id,
-  });
   const [votePost, postResult] = useVotePostMutation();
   const [addComment, cmtResult] = useAddCommentMutation();
   const finalClassNames = classNames(
@@ -39,7 +36,7 @@ const PostView = ({
     votePost({ id, operation });
   };
 
-  const comment = <CommentPanel comments={data?.comments} />;
+  const comment = <CommentPanel comments={post?.comments} />;
 
   const [newComment, setNewComment] = useState("");
   const handleSubmitComment = () => {
@@ -73,9 +70,6 @@ const PostView = ({
           Add Comment
         </Button>
       </div>
-
-      {isError && <p className="text-red-500">Error occurred</p>}
-      {isLoading && <p className="text-blue-500">Loading...</p>}
     </div>
   );
 

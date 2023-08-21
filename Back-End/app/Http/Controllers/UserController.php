@@ -349,4 +349,34 @@ class UserController extends Controller
         $user->save();
         return response()->json(['message' => 'Successfully disproved user ' . $id . ' as a doctor'], 200);
     }
+
+    public function getTheUser($id)
+    {
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return response()->json(["message" => "404 user not found", 'id' => $id], 404);
+        }
+
+        $posts = $user->posts;
+        $totalUpvotes = 0;
+        $totalDownvotes = 0;
+        foreach ($posts as $post) {
+            $totalUpvotes += $post->upvotes()->count();
+            $totalDownvotes += $post->downvotes()->count();
+        }
+
+        $sendingUser = array(
+            'name' => $user->name,
+            'username' => $user->username, 'email' => $user->email,
+            'avatar' => $user->avatar, 'country' => $user->country,
+            'district' => $user->district,
+            'posts' => $posts,
+            'contribution' => (int)$totalUpvotes - $totalDownvotes,
+            'isAdmin' => $user->userHasRole(Role::findOrFail(3)->slug) ? true : false,
+            'isDoctor' => $user->userHasRole(Role::findOrFail(2)->slug) ? true : false,
+            'isMaster' => $user->userHasRole(Role::findOrFail(4)->slug) ? true : false
+        );
+
+        return response()->json(['user' => $sendingUser], 200);
+    }
 }
