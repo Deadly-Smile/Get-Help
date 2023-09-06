@@ -112,7 +112,6 @@ const PostList = ({ query, mutation }) => {
               key={id}
               post={post}
               wordLimit={1000}
-              className="w-4/5"
               useVotePostMutation={mutation}
             />
           );

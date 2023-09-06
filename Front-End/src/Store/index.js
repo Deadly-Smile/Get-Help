@@ -33,6 +33,7 @@ export {
   useSignUpVerifyMutation,
   useLoginMutation,
   useGetUserByIDQuery,
+  useGetUserByUsernameMutation,
 } from "./APIs/UsersAPI";
 
 export {

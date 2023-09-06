@@ -39,7 +39,8 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'username',
-        'verify_token'
+        'verify_token',
+        'status',
     ];
 
     /**
@@ -126,5 +127,22 @@ class User extends Authenticatable implements JWTSubject
     public function replies()
     {
         return $this->hasMany(Reply::class);
+    }
+
+    public function getStatusAttribute()
+    {
+        return $this->attributes['status'] == 1 ? 'Active' : 'Inactive';
+    }
+
+    // Define a one-to-many relationship between User and Messaging
+    public function messages()
+    {
+        return $this->hasMany(Messaging::class, 'sender_id');
+    }
+
+    // Define a many-to-many relationship between User and Contact
+    public function contacts()
+    {
+        return $this->belongsToMany(User::class, 'contacts', 'user_id', 'contact_id');
     }
 }

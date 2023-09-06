@@ -99,7 +99,6 @@ class UserController extends Controller
             if ($user->pending_subscriber) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
-
             return response()->json(['token' => $token], 200);
         } catch (JWTException $e) {
             return response()->json(['message' => 'Could not create token'], 500);
@@ -378,5 +377,34 @@ class UserController extends Controller
         );
 
         return response()->json(['user' => $sendingUser], 200);
+    }
+
+    public function getContacts()
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('get-contacts')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+        $contacts = $user->contacts;
+        return response()->json(['contacts' => $contacts], 200);
+    }
+
+    public function getUsersByUsername($username)
+    {
+        $users = User::where('username', 'like', '%' . $username . '%')->get();
+        $sendingUsers = array();
+        foreach ($users as $user) {
+            $tempUser = array(
+                'id' => $user->id,
+                'username' => $user->username,
+                'avatar' => $user->avatar,
+                'isAdmin' => $user->userHasRole(Role::findOrFail(3)->slug) ? true : false,
+                'isDoctor' => $user->userHasRole(Role::findOrFail(2)->slug) ? true : false,
+                'isMaster' => $user->userHasRole(Role::findOrFail(4)->slug) ? true : false
+            );
+            array_push($sendingUsers, $tempUser);
+        }
+        return response()->json(['users' => $sendingUsers], 200);
     }
 }

@@ -42,6 +42,7 @@ php artisan passport:install
 -  npm i classnames
 -  npm i prop-types
 -  npm install moment
+-  npm i socket.io-client
 <!-- -  npm i quill -->
 -  npm i quill highlight.js // not using
 -  npm install react-quill --save
@@ -82,10 +83,6 @@ $admin->permissions()->attach($view_all_users);
 $admin->users; // array of users
 $admin->permissions // array of permissions
 ```
-=======
-style={{
-            width: `${videoSize.width}px`,
-            height: `${videoSize.height}px`,
-            transform: "scaleX(-1)",
-            WebkitTransform: "scaleX(-1)",
-          }}
+
+## Node package
+- npm i socket.io
