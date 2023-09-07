@@ -370,6 +370,7 @@ class UserController extends Controller
             'avatar' => $user->avatar, 'country' => $user->country,
             'district' => $user->district,
             'posts' => $posts,
+            'status' => $user->getStatusAttribute(),
             'contribution' => (int)$totalUpvotes - $totalDownvotes,
             'isAdmin' => $user->userHasRole(Role::findOrFail(3)->slug) ? true : false,
             'isDoctor' => $user->userHasRole(Role::findOrFail(2)->slug) ? true : false,
@@ -395,10 +396,14 @@ class UserController extends Controller
         $users = User::where('username', 'like', '%' . $username . '%')->get();
         $sendingUsers = array();
         foreach ($users as $user) {
+            if ($user->pending_subscriber == 1) {
+                continue;
+            }
             $tempUser = array(
                 'id' => $user->id,
                 'username' => $user->username,
                 'avatar' => $user->avatar,
+                'status' => $user->getStatusAttribute(),
                 'isAdmin' => $user->userHasRole(Role::findOrFail(3)->slug) ? true : false,
                 'isDoctor' => $user->userHasRole(Role::findOrFail(2)->slug) ? true : false,
                 'isMaster' => $user->userHasRole(Role::findOrFail(4)->slug) ? true : false

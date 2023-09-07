@@ -6,6 +6,7 @@ import classNames from "classnames";
 import CommentPanel from "./CommentPanel";
 import Button from "./Button";
 import { useAddCommentMutation } from "../Store";
+import { Link } from "react-router-dom";
 
 const PostView = ({
   post,
@@ -78,7 +79,10 @@ const PostView = ({
       <div className="flex justify-between">
         <h2 className="font-semibold text-3xl mb-2">{post?.title}</h2>
         <div className="text-gray-600 text-sm mb-2">
-          Created {moment(post?.created_at).fromNow()} by {post?.author}
+          Created {moment(post?.created_at).fromNow()} by{" "}
+          <span className="hover:text-green-800 hover:underline">
+            <Link to={`/get-user/${post?.users[0]?.id}`}>{post?.author}</Link>
+          </span>
         </div>
       </div>
       <div dangerouslySetInnerHTML={{ __html: contentToShow }} />

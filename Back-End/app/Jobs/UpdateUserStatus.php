@@ -20,10 +20,15 @@ class UpdateUserStatus implements ShouldQueue
 
         // Get users whose last activity is older than the threshold
         $inactiveUsers = User::where('last_activity', '<', $inactiveThreshold)->get();
-
+        $activeUsers = User::where('last_activity', '>', $inactiveThreshold)->get();
         // Update the status of inactive users to "inactive"
         foreach ($inactiveUsers as $user) {
-            $user->status = 'inactive';
+            $user->status = 0;
+            $user->save();
+        }
+
+        foreach ($activeUsers as $user) {
+            $user->status = 1;
             $user->save();
         }
     }

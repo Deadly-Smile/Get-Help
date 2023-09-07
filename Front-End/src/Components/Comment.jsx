@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import moment from "moment";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
-const Comment = ({ content, author, created_at, wordLimit }) => {
+const Comment = ({ content, author, created_at, wordLimit, authorID }) => {
   const fullContent = content;
   const maxLengthToShow = wordLimit ? wordLimit : 500;
 
@@ -28,7 +29,15 @@ const Comment = ({ content, author, created_at, wordLimit }) => {
         </div>
       )}
       <div className="flex items-center mt-1">
-        <span className="text-gray-800">{author}</span>
+        <span className="text-gray-800">
+          By{" "}
+          <Link
+            to={`/get-user/${authorID}`}
+            className="hover:text-green-800 hover:underline"
+          >
+            {author}
+          </Link>
+        </span>
         <span className="text-gray-500 text-sm mx-2">·</span>
         <span className="text-gray-500 text-sm">
           {moment(created_at).fromNow()}
@@ -43,5 +52,6 @@ Comment.propTypes = {
   author: PropTypes.string.isRequired,
   created_at: PropTypes.string.isRequired,
   wordLimit: PropTypes.number,
+  authorID: PropTypes.number,
 };
 export default Comment;

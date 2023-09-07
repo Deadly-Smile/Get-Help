@@ -5,15 +5,15 @@ import { useGetPostsQuery, useVotePostMutation } from "../Store/APIs/PostsAPI";
 
 const HomePage = () => {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col relative">
       <div className="flex-grow flex">
         {/* Centered Posts Panel */}
-        <div className="flex justify-center items-center w-5/6 ml-16 mr-4">
+        <div className="flex justify-center items-center w-9/12 ml-20">
           <PostList query={useGetPostsQuery} mutation={useVotePostMutation} />
         </div>
 
         {/* Top-right User Search Panel */}
-        <div className="w-1/4 p-1">
+        <div className="fixed top-12 right-0 w-2/12 p-1">
           <UserSearchPanel />
         </div>
       </div>

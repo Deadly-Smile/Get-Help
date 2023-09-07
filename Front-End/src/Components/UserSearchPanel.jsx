@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useGetUserByUsernameMutation } from "../Store";
 import { GoSearch, GoIssueReopened } from "react-icons/go";
 import Button from "./Button";
+import { Link } from "react-router-dom";
 
 const UserSearchPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,8 +23,8 @@ const UserSearchPanel = () => {
   }, [result?.data?.users, result?.isError, result?.isSuccess]);
 
   return (
-    <div className="space-y-4">
-      <p className="md-0 font-light text-sm text-gray-600">Search User</p>
+    <div className="space-y-2 p-4">
+      <p className="text-sm text-gray-600">Search User</p>
       <div className="flex">
         <input
           type="text"
@@ -41,20 +42,34 @@ const UserSearchPanel = () => {
           {result.isLoading ? <GoIssueReopened /> : <GoSearch />}
         </Button>
       </div>
-      <div>
+      <div className="max-h-[100px] overflow-y-auto min-h-[100px]">
         <ul className="space-y-2">
           {searchResults.length === 0 ? (
             <p>No user found</p>
           ) : (
             searchResults.map((user, index) => (
-              <li key={index} className="flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-full bg-gray-700 text-white flex items-center justify-center">
-                  {user.username
-                    .split(" ")
-                    .map((username) => username[0])
-                    .join("")}
-                </div>
-                <span>{user.username}</span>
+              <li key={index} className="flex items-center justify-between">
+                <Link
+                  to={`/get-user/${user.id}`}
+                  className="flex items-center space-x-2"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gray-700 text-white flex items-center justify-center">
+                    {user.username
+                      .split(" ")
+                      .map((username) => username[0])
+                      .join("")}
+                  </div>
+                  <span className="hover:text-green-800 hover:underline">
+                    {user.username}
+                  </span>
+                </Link>
+
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    user.status === "Active" ? "bg-green-500" : "bg-yellow-500"
+                  }`}
+                  title={user.status === "Active" ? "Active" : "Inactive"}
+                ></div>
               </li>
             ))
           )}
