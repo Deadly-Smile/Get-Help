@@ -18,6 +18,8 @@ import PostTable from "./Pages/PostTable";
 import CreatePostPage from "./Pages/CreatePostPage";
 import ProfileViewPage from "./Pages/ProfileViewPage";
 import PostPage from "./Pages/PostPage";
+import UserContext from "./Context/UserContext";
+import { Provider } from "./Context/MsgListContext";
 
 const App = () => {
   const { data, isSuccess } = useGetUserQuery();
@@ -112,26 +114,34 @@ const App = () => {
       <header className="fixed top-0 z-10 w-full">
         <Navbar linkList={activeNavLinks} />
       </header>
-      <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/edit-profile" element={<EditProfile data={data} />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/logout" element={<Logout />} />
-          <Route path="/apply-for-admin" element={<AdminReg />} />
-          <Route path="/user-table" element={<UserTable />} />
-          <Route path="/doctor-table" element={<DoctorTable />} />
-          <Route path="/admin-table" element={<AdminTable />} />
-          <Route path="/post-table" element={<PostTable />} />
-          <Route path="/create-post" element={<CreatePostPage />} />
-          <Route path="/get-user/:id" element={<ProfileViewPage />} />
-          <Route path="/posts/:id" element={<PostPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </section>
-      <footer className="">
+      <UserContext.Provider value={{ data, isSuccess }}>
+        <Provider>
+          <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<About />} />
+              <Route
+                path="/edit-profile"
+                element={<EditProfile data={data} />}
+              />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/apply-for-admin" element={<AdminReg />} />
+              <Route path="/user-table" element={<UserTable />} />
+              <Route path="/doctor-table" element={<DoctorTable />} />
+              <Route path="/admin-table" element={<AdminTable />} />
+              <Route path="/post-table" element={<PostTable />} />
+              <Route path="/create-post" element={<CreatePostPage />} />
+              <Route path="/get-user/:id" element={<ProfileViewPage />} />
+              <Route path="/posts/:id" element={<PostPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </section>
+        </Provider>
+      </UserContext.Provider>
+
+      <footer>
         <Footer linkList={activeFooterLinks} website="Get Help" />
       </footer>
     </div>
