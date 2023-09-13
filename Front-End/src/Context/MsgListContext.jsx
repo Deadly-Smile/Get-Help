@@ -5,19 +5,18 @@ const MsgListContext = createContext();
 function Provider({ children }) {
   const [msgList, setMsgList] = useState([]);
 
-  const addMsgPanel = ({ userId }) => {
+  const addMsgPanel = ({ userId, username }) => {
     let list = msgList;
     if (msgList.length > 2) {
       list = msgList.slice(1, msgList.length);
     }
-    list = list.filter((id) => id !== userId);
-    list.push(userId);
+    list = list.filter((msg) => msg.id !== userId);
+    list.push({ id: userId, username });
     setMsgList(list);
-    console.log(msgList);
   };
 
-  const removeMsgPanel = ({ userId }) => {
-    const index = msgList.indexOf(userId);
+  const removeMsgPanel = ({ userId, username }) => {
+    const index = msgList.indexOf({ id: userId, username });
     let list = msgList;
     if (index > -1) {
       list = msgList.splice(index, 1);

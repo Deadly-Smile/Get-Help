@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
+use App\Models\Message;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
@@ -411,5 +412,46 @@ class UserController extends Controller
             array_push($sendingUsers, $tempUser);
         }
         return response()->json(['users' => $sendingUsers], 200);
+    }
+
+    public function getMessages($receiver, $sender)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('get-messages')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $sentMessages = Message::where('sender_id', $sender)
+            ->where('receiver_id', $receiver)
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'type' => 'sent', // Type indicator for sender
+                    'senderName' => $message->sender_username,
+                    'status' => $message->read,
+                    'message' => $message->content,
+                    'timestamp' => $message->created_at,
+                ];
+            });
+
+        $receivedMessages = Message::where('sender_id', $receiver)
+            ->where('receiver_id', $sender)
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'type' => 'received', // Type indicator for receiver
+                    'senderName' => $message->sender_username,
+                    'status' => $message->read,
+                    'message' => $message->content,
+                    'timestamp' => $message->created_at,
+                ];
+            });
+
+        $allMessages = $sentMessages->concat($receivedMessages)->sortBy('timestamp')->values();
+
+        return response()->json(['messages' => $allMessages], 200);
     }
 }

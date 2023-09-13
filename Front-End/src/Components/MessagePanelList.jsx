@@ -1,9 +1,23 @@
 import { useContext } from "react";
 import MsgListContext from "../Context/MsgListContext";
+import UserContext from "../Context/UserContext";
+import MessagePanel from "./MessagePanel";
 
 const MessagePanelList = () => {
+  const { data } = useContext(UserContext);
   const { msgList } = useContext(MsgListContext);
-  return <div>Message Panels</div>;
+  let renderList = null;
+  renderList = msgList.map((msg, index) => {
+    return (
+      <MessagePanel
+        key={index}
+        receiver={msg.id}
+        userId={data?.user?.id}
+        username={msg.username}
+      />
+    );
+  });
+  return <div className="flex justify-end">{renderList}</div>;
 };
 
 export default MessagePanelList;

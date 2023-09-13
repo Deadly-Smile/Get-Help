@@ -82,7 +82,7 @@ const ProfileViewPage = () => {
           </p>
           <Button
             onClick={() => {
-              addMsgPanel({ userId: id });
+              addMsgPanel({ userId: id, username: data?.user?.username });
             }}
             className="mt-2 rounded"
             secondary

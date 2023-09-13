@@ -20,6 +20,7 @@ import ProfileViewPage from "./Pages/ProfileViewPage";
 import PostPage from "./Pages/PostPage";
 import UserContext from "./Context/UserContext";
 import { Provider } from "./Context/MsgListContext";
+import MessagePanelList from "./Components/MessagePanelList";
 
 const App = () => {
   const { data, isSuccess } = useGetUserQuery();
@@ -137,6 +138,9 @@ const App = () => {
               <Route path="/posts/:id" element={<PostPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <div className="fixed right-2 bottom-2">
+              <MessagePanelList />
+            </div>
           </section>
         </Provider>
       </UserContext.Provider>

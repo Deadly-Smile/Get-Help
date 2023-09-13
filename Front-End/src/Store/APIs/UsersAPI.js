@@ -220,6 +220,15 @@ const UsersAPI = createApi({
           };
         },
       }),
+      getMessages: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [
+            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
+          ];
+          return tags;
+        },
+        query: ({ receiver, sender }) => `/messages/${receiver}/${sender}`,
+      }),
     };
   },
 });
@@ -242,5 +251,6 @@ export const {
   useLoginMutation,
   useGetUserByIDQuery,
   useGetUserByUsernameMutation,
+  useGetMessagesQuery,
 } = UsersAPI;
 export { UsersAPI };

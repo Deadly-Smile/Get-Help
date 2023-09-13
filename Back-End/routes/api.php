@@ -33,6 +33,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/vote/post/{id}', [PostsController::class, 'vote']);
     Route::post('/add/comment/post/{id}', [PostsController::class, 'addComment']);
     Route::get('/get-contacts', [UserController::class, 'getContacts']);
+    Route::get('/messages/{receiver}/{sender}', [UserController::class, 'getMessages']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);
