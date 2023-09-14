@@ -15,12 +15,8 @@ function Provider({ children }) {
     setMsgList(list);
   };
 
-  const removeMsgPanel = ({ userId, username }) => {
-    const index = msgList.indexOf({ id: userId, username });
-    let list = msgList;
-    if (index > -1) {
-      list = msgList.splice(index, 1);
-    }
+  const removeMsgPanel = ({ userId }) => {
+    let list = msgList.filter((msg) => msg.id !== userId);
     setMsgList([...list]);
   };
 

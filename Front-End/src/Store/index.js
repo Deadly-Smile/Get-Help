@@ -35,6 +35,7 @@ export {
   useGetUserByIDQuery,
   useGetUserByUsernameMutation,
   useGetMessagesQuery,
+  useSendMessageMutation,
 } from "./APIs/UsersAPI";
 
 export {

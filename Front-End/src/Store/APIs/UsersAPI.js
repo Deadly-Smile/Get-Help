@@ -229,6 +229,20 @@ const UsersAPI = createApi({
         },
         query: ({ receiver, sender }) => `/messages/${receiver}/${sender}`,
       }),
+      sendMessage: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [
+            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
+          ];
+        },
+        query: ({ receiver, sender, content }) => {
+          return {
+            url: `/message-send/${receiver}/${sender}`,
+            body: { content },
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
@@ -252,5 +266,6 @@ export const {
   useGetUserByIDQuery,
   useGetUserByUsernameMutation,
   useGetMessagesQuery,
+  useSendMessageMutation,
 } = UsersAPI;
 export { UsersAPI };

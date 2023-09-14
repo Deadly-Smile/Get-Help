@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\SignUpRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
@@ -418,11 +417,11 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('get-messages')) {
+        if (!$user->userHasPermission('get-messages') || $user->id != $sender) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
-        $sentMessages = Message::where('sender_id', $sender)
+        $sentMessages = Message::where('sender_id', $user->id)
             ->where('receiver_id', $receiver)
             ->get()
             ->map(function ($message) {
@@ -437,7 +436,7 @@ class UserController extends Controller
             });
 
         $receivedMessages = Message::where('sender_id', $receiver)
-            ->where('receiver_id', $sender)
+            ->where('receiver_id', $user->id)
             ->get()
             ->map(function ($message) {
                 return [
@@ -453,5 +452,24 @@ class UserController extends Controller
         $allMessages = $sentMessages->concat($receivedMessages)->sortBy('timestamp')->values();
 
         return response()->json(['messages' => $allMessages], 200);
+    }
+
+    public function sendMessage($receiver, $sender, Request $request)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('send-message') || $user->id != $sender) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $messageData = [
+            'sender_id' => $user->id,
+            'receiver_id' => $receiver,
+            'content' => $request["content"],
+            'sender_username' => $user->username,
+            'receiver_username' => User::findOrFail($receiver)->username,
+        ];
+        Message::create($messageData);
+        return response()->json(['message' => "message sent successfully"], 200);
     }
 }
