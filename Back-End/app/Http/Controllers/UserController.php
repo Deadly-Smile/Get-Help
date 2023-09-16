@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Pusher\Pusher;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Message;
+use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -13,7 +16,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
-use App\Models\Message;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
@@ -454,22 +456,44 @@ class UserController extends Controller
         return response()->json(['messages' => $allMessages], 200);
     }
 
-    public function sendMessage($receiver, $sender, Request $request)
+    public function sendMessage(Request $request)
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('send-message') || $user->id != $sender) {
+        if (!$user->userHasPermission('send-message')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
         $messageData = [
             'sender_id' => $user->id,
-            'receiver_id' => $receiver,
+            'receiver_id' => $request['receiver'],
             'content' => $request["content"],
             'sender_username' => $user->username,
-            'receiver_username' => User::findOrFail($receiver)->username,
+            'receiver_username' => User::findOrFail($request['receiver'])->username,
         ];
-        Message::create($messageData);
-        return response()->json(['message' => "message sent successfully"], 200);
+        $message = Message::create($messageData);
+        broadcast(new MessageSent($user->id, $message))->toOthers();
+        return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
+    }
+
+    public function authenticatePusher(Request $request)
+    {
+        $socket_id = $request->socket_id;
+        $channel_name = $request->channel_name;
+        $user = JWTAuth::user();
+
+        $pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'encrypted' => config('broadcasting.connections.pusher.options.encrypted'),
+            ]
+        );
+
+        $auth = $pusher->presence_auth($channel_name, $socket_id, $user->id);
+
+        return response($auth);
     }
 }

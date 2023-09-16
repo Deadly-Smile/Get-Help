@@ -237,8 +237,8 @@ const UsersAPI = createApi({
         },
         query: ({ receiver, sender, content }) => {
           return {
-            url: `/message-send/${receiver}/${sender}`,
-            body: { content },
+            url: `/message-send`,
+            body: { content, receiver, sender },
             method: "POST",
           };
         },

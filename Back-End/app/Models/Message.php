@@ -9,6 +9,14 @@ class Message extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "sender_id",
+        'receiver_id',
+        'content',
+        'sender_username',
+        'receiver_username'
+
+    ];
     // Define a many-to-one relationship with the sender user
     public function sender()
     {

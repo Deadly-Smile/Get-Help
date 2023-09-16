@@ -34,7 +34,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/add/comment/post/{id}', [PostsController::class, 'addComment']);
     Route::get('/get-contacts', [UserController::class, 'getContacts']);
     Route::get('/messages/{receiver}/{sender}', [UserController::class, 'getMessages']);
-    Route::get('/message-send/{receiver}/{sender}', [UserController::class, 'sendMessage']);
+    Route::post('/message-send', [UserController::class, 'sendMessage']);
+    Route::post('/pusher/auth', [UserController::class, 'authenticatePusher']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);

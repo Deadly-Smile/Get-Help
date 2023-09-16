@@ -9,7 +9,7 @@ const ChattingContentPanel = ({ message }) => {
     >
       <div
         className={`p-2 my-1 mx-4 text-white w-fit rounded ${
-          message.type === "sent" ? "bg-blue-500" : "bg-gray-500"
+          message.type === "sent" ? "bg-[#3B82F6]" : "bg-[#6B7280]"
         }`}
       >
         <p>{message.message}</p>

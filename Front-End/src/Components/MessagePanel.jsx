@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { useGetMessagesQuery } from "../Store";
+import { useContext, useEffect, useState, useRef } from "react";
+import { useGetMessagesQuery, useSendMessageMutation } from "../Store";
 import { BiSolidSend } from "react-icons/bi";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsFillTelephoneFill } from "react-icons/bs";
@@ -7,20 +7,57 @@ import { FaWindowMinimize } from "react-icons/fa";
 import Button from "./Button";
 import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
+import Pusher from "pusher-js";
 
 // eslint-disable-next-line react/prop-types
 const MessagePanel = ({ receiver, userId, username }) => {
+  const [messages, setMessages] = useState([]);
+  const panelRef = useRef(null);
   const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
     receiver: receiver,
     sender: userId,
   });
-  // const [sendMessage, result] = useSendMessageMutation();
+  const [sendMessage] = useSendMessageMutation();
   const { removeMsgPanel } = useContext(MsgListContext);
-  const [messages, setMessages] = useState([
-    // { id: 1, text: "Hello", sender: "user", status: "sent" },
-    // { id: 2, text: "Hi there!", sender: "other", status: "read" },
-    // // Add more messages here
-  ]);
+
+  // Pusher.logToConsole = true;
+  useEffect(() => {
+    const usePusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+      cluster: import.meta.env.VITE_CLUSTER,
+      encrypted: true,
+      channelAuthorization: {
+        endpoint: `${import.meta.env.VITE_BACKEND_URL}/api/pusher/auth`,
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("login_token")}`,
+        },
+      },
+    });
+
+    const roomname = [userId, receiver];
+    roomname.sort();
+    const channel = usePusher.subscribe(
+      `private-chat.${roomname[0]}${roomname[1]}`
+    );
+
+    channel.bind("App\\Events\\MessageSent", (data) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: data?.message?.id,
+          type: "received",
+          senderName: data?.message?.sender_username,
+          status: data?.message?.read,
+          message: data?.message?.content,
+          timestamp: data?.message?.created_at,
+        },
+      ]);
+    });
+
+    return () => {
+      usePusher.unsubscribe(`private-chat.${receiver}`);
+      usePusher.disconnect();
+    };
+  }, [receiver, userId]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -32,14 +69,7 @@ const MessagePanel = ({ receiver, userId, username }) => {
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== "") {
-      const newMessageObj = {
-        id: messages.length + 1,
-        text: newMessage,
-        sender: "user",
-        status: "sending...", // Initially set as sent
-      };
-      // sendMessage({ receiver: receiver, sender: userId, content: newMessage });
-      setMessages([...messages, newMessageObj]);
+      sendMessage({ receiver: receiver, sender: userId, content: newMessage });
       setNewMessage("");
     }
   };
@@ -48,11 +78,16 @@ const MessagePanel = ({ receiver, userId, username }) => {
     removeMsgPanel({ userId: receiver });
   };
 
+  useEffect(() => {
+    // Scroll to the bottom of the panel on initial load
+    panelRef.current.scrollTop = panelRef.current.scrollHeight;
+  }, [messages]);
+
   let renderMessages = null;
 
   if (messages.length > 0) {
-    renderMessages = messages.map((message) => (
-      <ChattingContentPanel message={message} key={message.id} />
+    renderMessages = messages.map((message, index) => (
+      <ChattingContentPanel message={message} key={index} />
     ));
   } else if (isLoading) {
     renderMessages = (
@@ -94,7 +129,11 @@ const MessagePanel = ({ receiver, userId, username }) => {
           </Button>
         </div>
       </div>
-      <div className="flex-grow overflow-y-scroll p-3">
+      <div
+        className="flex-grow overflow-y-scroll p-3"
+        style={{ maxHeight: "100%", overflowY: "scroll" }}
+        ref={panelRef}
+      >
         <p className="flex justify-center text-xl font-semibold">{username}</p>
         {renderMessages}
       </div>
