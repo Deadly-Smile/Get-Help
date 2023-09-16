@@ -4,7 +4,7 @@ import classNames from "classnames";
 
 const Footer = ({ className, linkList, website }) => {
   const finalClassNames = classNames(
-    "bg-gray-900 py-5 text-white  h-auto",
+    "bg-gray-900 py-5 text-white h-auto",
     className
   );
   const linkClasses = classNames(

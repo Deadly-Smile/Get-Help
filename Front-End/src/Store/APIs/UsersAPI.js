@@ -105,6 +105,14 @@ const UsersAPI = createApi({
           return `user/${id}`;
         },
       }),
+      getUserByUsername: builder.mutation({
+        query: ({ username }) => {
+          return {
+            url: `username:${username}`,
+            method: "GET",
+          };
+        },
+      }),
       approveDoctor: builder.mutation({
         invalidatesTags: (result, error, arg) => {
           return [{ type: "all-users" }];
@@ -212,6 +220,29 @@ const UsersAPI = createApi({
           };
         },
       }),
+      getMessages: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [
+            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
+          ];
+          return tags;
+        },
+        query: ({ receiver, sender }) => `/messages/${receiver}/${sender}`,
+      }),
+      sendMessage: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [
+            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
+          ];
+        },
+        query: ({ receiver, sender, content }) => {
+          return {
+            url: `/message-send`,
+            body: { content, receiver, sender },
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
@@ -233,5 +264,8 @@ export const {
   useSignUpVerifyMutation,
   useLoginMutation,
   useGetUserByIDQuery,
+  useGetUserByUsernameMutation,
+  useGetMessagesQuery,
+  useSendMessageMutation,
 } = UsersAPI;
 export { UsersAPI };

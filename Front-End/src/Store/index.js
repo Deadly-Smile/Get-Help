@@ -33,6 +33,9 @@ export {
   useSignUpVerifyMutation,
   useLoginMutation,
   useGetUserByIDQuery,
+  useGetUserByUsernameMutation,
+  useGetMessagesQuery,
+  useSendMessageMutation,
 } from "./APIs/UsersAPI";
 
 export {

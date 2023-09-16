@@ -19,6 +19,10 @@ php artisan passport:install
 - [ ] npm i -D react-router-dom
 - [ ] npm i classnames
 - [ ] npm i react-query
+- [ ] npm i simple-peer
+- [ ] npm i pusher-js
+- [ ] npm install react-webcam
+
 =======
 ## Used commands for back-end
 - php artisan make:model Flight --all
@@ -38,6 +42,7 @@ php artisan passport:install
 -  npm i classnames
 -  npm i prop-types
 -  npm install moment
+-  npm i socket.io-client
 <!-- -  npm i quill -->
 -  npm i quill highlight.js // not using
 -  npm install react-quill --save
@@ -78,4 +83,6 @@ $admin->permissions()->attach($view_all_users);
 $admin->users; // array of users
 $admin->permissions // array of permissions
 ```
-=======
+
+## Node package
+- npm i socket.io

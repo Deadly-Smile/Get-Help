@@ -1,8 +1,14 @@
 // eslint-disable-next-line no-unused-vars
-import React from "react";
+import React, { useContext } from "react";
 
 const NotFound = () => {
-  return <div>Page not found</div>;
+  return (
+    <div>
+      <p className="text-center text-3xl flex justify-center font-bold mt-12">
+        404 Page not found
+      </p>
+    </div>
+  );
 };
 
 export default NotFound;

@@ -1,11 +1,15 @@
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import { useGetUserByIDQuery } from "../Store";
+import Button from "../Components/Button";
+import { useContext } from "react";
+import MsgListContext from "../Context/MsgListContext";
 
 const backEndURL = import.meta.env.VITE_BACKEND_URL;
 const ProfileViewPage = () => {
   const { id } = useParams();
   const { data, isError, isLoading } = useGetUserByIDQuery({ id });
+  const { addMsgPanel } = useContext(MsgListContext);
 
   if (isLoading) {
     return (
@@ -58,9 +62,15 @@ const ProfileViewPage = () => {
             {data?.user?.name} {status}
           </h1>
           <p className="text-gray-600">{data?.user?.username}</p>
-          <p className="text-gray-800">{data?.user?.email}</p>
+          {/* <p className="text-gray-800">{data?.user?.email}</p> */}
           <p className="text-gray-900 font-semibold">
             Contribution : {data?.user?.contribution}
+          </p>
+          <p className="flex">
+            Status :{" "}
+            <span className="ml-1">
+              {data?.user.status === "Active" ? "Active" : "Inactive"}
+            </span>
           </p>
           <p className="text-gray-800">
             Country :{" "}
@@ -70,6 +80,15 @@ const ProfileViewPage = () => {
             District :{" "}
             {data?.user?.district ? data?.user?.district : "Not specified"}
           </p>
+          <Button
+            onClick={() => {
+              addMsgPanel({ userId: id, username: data?.user?.username });
+            }}
+            className="mt-2 rounded"
+            secondary
+          >
+            Contact
+          </Button>
         </div>
       </div>
       <div className="mt-4">

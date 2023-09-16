@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Pusher\Pusher;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Message;
+use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\SignUpRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
@@ -99,7 +101,6 @@ class UserController extends Controller
             if ($user->pending_subscriber) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
-
             return response()->json(['token' => $token], 200);
         } catch (JWTException $e) {
             return response()->json(['message' => 'Could not create token'], 500);
@@ -371,6 +372,7 @@ class UserController extends Controller
             'avatar' => $user->avatar, 'country' => $user->country,
             'district' => $user->district,
             'posts' => $posts,
+            'status' => $user->getStatusAttribute(),
             'contribution' => (int)$totalUpvotes - $totalDownvotes,
             'isAdmin' => $user->userHasRole(Role::findOrFail(3)->slug) ? true : false,
             'isDoctor' => $user->userHasRole(Role::findOrFail(2)->slug) ? true : false,
@@ -378,5 +380,120 @@ class UserController extends Controller
         );
 
         return response()->json(['user' => $sendingUser], 200);
+    }
+
+    public function getContacts()
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('get-contacts')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+        $contacts = $user->contacts;
+        return response()->json(['contacts' => $contacts], 200);
+    }
+
+    public function getUsersByUsername($username)
+    {
+        $users = User::where('username', 'like', '%' . $username . '%')->get();
+        $sendingUsers = array();
+        foreach ($users as $user) {
+            if ($user->pending_subscriber == 1) {
+                continue;
+            }
+            $tempUser = array(
+                'id' => $user->id,
+                'username' => $user->username,
+                'avatar' => $user->avatar,
+                'status' => $user->getStatusAttribute(),
+                'isAdmin' => $user->userHasRole(Role::findOrFail(3)->slug) ? true : false,
+                'isDoctor' => $user->userHasRole(Role::findOrFail(2)->slug) ? true : false,
+                'isMaster' => $user->userHasRole(Role::findOrFail(4)->slug) ? true : false
+            );
+            array_push($sendingUsers, $tempUser);
+        }
+        return response()->json(['users' => $sendingUsers], 200);
+    }
+
+    public function getMessages($receiver, $sender)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('get-messages') || $user->id != $sender) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $sentMessages = Message::where('sender_id', $user->id)
+            ->where('receiver_id', $receiver)
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'type' => 'sent', // Type indicator for sender
+                    'senderName' => $message->sender_username,
+                    'status' => $message->read,
+                    'message' => $message->content,
+                    'timestamp' => $message->created_at,
+                ];
+            });
+
+        $receivedMessages = Message::where('sender_id', $receiver)
+            ->where('receiver_id', $user->id)
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'type' => 'received', // Type indicator for receiver
+                    'senderName' => $message->sender_username,
+                    'status' => $message->read,
+                    'message' => $message->content,
+                    'timestamp' => $message->created_at,
+                ];
+            });
+
+        $allMessages = $sentMessages->concat($receivedMessages)->sortBy('timestamp')->values();
+
+        return response()->json(['messages' => $allMessages], 200);
+    }
+
+    public function sendMessage(Request $request)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('send-message')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $messageData = [
+            'sender_id' => $user->id,
+            'receiver_id' => $request['receiver'],
+            'content' => $request["content"],
+            'sender_username' => $user->username,
+            'receiver_username' => User::findOrFail($request['receiver'])->username,
+        ];
+        $message = Message::create($messageData);
+        broadcast(new MessageSent($user->id, $message))->toOthers();
+        return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
+    }
+
+    public function authenticatePusher(Request $request)
+    {
+        $socket_id = $request->socket_id;
+        $channel_name = $request->channel_name;
+        $user = JWTAuth::user();
+
+        $pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'encrypted' => config('broadcasting.connections.pusher.options.encrypted'),
+            ]
+        );
+
+        $auth = $pusher->presence_auth($channel_name, $socket_id, $user->id);
+
+        return response($auth);
     }
 }

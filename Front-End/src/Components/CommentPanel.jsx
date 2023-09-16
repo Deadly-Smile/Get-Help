@@ -30,6 +30,7 @@ const CommentPanel = ({ comments }) => {
                 content={comment?.content}
                 author={comment?.author}
                 created_at={comment?.created_at}
+                authorID={comment?.user_id}
                 wordLimit={400}
               />
             </li>
