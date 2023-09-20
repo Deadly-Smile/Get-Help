@@ -36,6 +36,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/messages/{receiver}/{sender}', [UserController::class, 'getMessages']);
     Route::post('/message-send', [UserController::class, 'sendMessage']);
     Route::post('/pusher/auth', [UserController::class, 'authenticatePusher']);
+    Route::post('/message/update/status', [UserController::class, 'updateMsgStat']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);

@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Message;
 use App\Events\MessageSent;
+use App\Events\MessageStatusUpdated;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
+use Carbon\Exceptions\Exception as ExceptionsException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
@@ -471,6 +473,7 @@ class UserController extends Controller
             'sender_username' => $user->username,
             'receiver_username' => User::findOrFail($request['receiver'])->username,
         ];
+
         $message = Message::create($messageData);
         broadcast(new MessageSent($user->id, $message))->toOthers();
         return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
@@ -495,5 +498,23 @@ class UserController extends Controller
         $auth = $pusher->presence_auth($channel_name, $socket_id, $user->id);
 
         return response($auth);
+    }
+
+    public function updateMsgStat(Request $request)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('send-message')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        Message::where('receiver_id', $user->id)
+            ->where('sender_id', $request['senderId'])
+            ->update(['read' => true]);
+
+        broadcast(new MessageStatusUpdated($request['messageId'], $request['senderId'], $user->id))->toOthers();
+        // broadcast(new MessageStatusUpdated($request['messageId'], $request['senderId'], $user->id))->toOthers();
+
+        return response()->json(['message' => "Successfully updated status"], 200);
     }
 }

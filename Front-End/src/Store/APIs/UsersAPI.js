@@ -222,23 +222,31 @@ const UsersAPI = createApi({
       }),
       getMessages: builder.query({
         providesTags: (result, error, arg) => {
-          const tags = [
-            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
-          ];
+          const tags = [{ type: "message", receiverId: arg.receiver }];
           return tags;
         },
         query: ({ receiver, sender }) => `/messages/${receiver}/${sender}`,
       }),
       sendMessage: builder.mutation({
         invalidatesTags: (result, error, arg) => {
-          return [
-            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
-          ];
+          return [{ type: "message", receiverId: arg.receiver }];
         },
         query: ({ receiver, sender, content }) => {
           return {
             url: `/message-send`,
             body: { content, receiver, sender },
+            method: "POST",
+          };
+        },
+      }),
+      updateMsgStatus: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "message", receiverId: arg.senderId }];
+        },
+        query: ({ senderId, messageId }) => {
+          return {
+            url: `/message/update/status`,
+            body: { senderId, messageId },
             method: "POST",
           };
         },
@@ -267,5 +275,6 @@ export const {
   useGetUserByUsernameMutation,
   useGetMessagesQuery,
   useSendMessageMutation,
+  useUpdateMsgStatusMutation,
 } = UsersAPI;
 export { UsersAPI };

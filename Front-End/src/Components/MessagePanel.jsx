@@ -1,5 +1,9 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import { useGetMessagesQuery, useSendMessageMutation } from "../Store";
+import {
+  useGetMessagesQuery,
+  useSendMessageMutation,
+  useUpdateMsgStatusMutation,
+} from "../Store";
 import { BiSolidSend } from "react-icons/bi";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsFillTelephoneFill } from "react-icons/bs";
@@ -8,6 +12,7 @@ import Button from "./Button";
 import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
 import Pusher from "pusher-js";
+import { beamsClient } from "../Hooks/push-noti";
 
 // eslint-disable-next-line react/prop-types
 const MessagePanel = ({ receiver, userId, username }) => {
@@ -19,7 +24,27 @@ const MessagePanel = ({ receiver, userId, username }) => {
   });
   const [sendMessage] = useSendMessageMutation();
   const { removeMsgPanel } = useContext(MsgListContext);
+  const [updateMsgStatus] = useUpdateMsgStatusMutation();
 
+  //Tesing push-notification
+  useEffect(() => {
+    beamsClient
+      .start()
+      .then((beamsClient) => beamsClient.getDeviceId())
+      .then((deviceId) =>
+        console.log("Successfully registered with Beams. Device ID:", deviceId)
+      )
+      .catch(console.error);
+  }, []);
+
+  const handlePanelClick = () => {
+    if (messages.length > 0) {
+      updateMsgStatus({
+        senderId: receiver,
+        messageId: messages[messages.length - 1].id,
+      });
+    }
+  };
   // Pusher.logToConsole = true;
   useEffect(() => {
     const usePusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
@@ -40,6 +65,7 @@ const MessagePanel = ({ receiver, userId, username }) => {
     );
 
     channel.bind("App\\Events\\MessageSent", (data) => {
+      // console.log(data);
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -51,6 +77,15 @@ const MessagePanel = ({ receiver, userId, username }) => {
           timestamp: data?.message?.created_at,
         },
       ]);
+    });
+
+    channel.bind("App\\Events\\MessageStatusUpdated", (data) => {
+      console.log(data);
+      setMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message.id === data?.messageId ? { ...message, status: 1 } : message
+        )
+      );
     });
 
     return () => {
@@ -133,6 +168,7 @@ const MessagePanel = ({ receiver, userId, username }) => {
         className="flex-grow overflow-y-scroll p-3"
         style={{ maxHeight: "100%", overflowY: "scroll" }}
         ref={panelRef}
+        onClick={handlePanelClick}
       >
         <p className="flex justify-center text-xl font-semibold">{username}</p>
         {renderMessages}

@@ -4,12 +4,14 @@ import { useGetUserByIDQuery } from "../Store";
 import Button from "../Components/Button";
 import { useContext } from "react";
 import MsgListContext from "../Context/MsgListContext";
+import UserContext from "../Context/UserContext";
 
 const backEndURL = import.meta.env.VITE_BACKEND_URL;
 const ProfileViewPage = () => {
   const { id } = useParams();
   const { data, isError, isLoading } = useGetUserByIDQuery({ id });
   const { addMsgPanel } = useContext(MsgListContext);
+  const { isSuccess } = useContext(UserContext);
 
   if (isLoading) {
     return (
@@ -80,15 +82,17 @@ const ProfileViewPage = () => {
             District :{" "}
             {data?.user?.district ? data?.user?.district : "Not specified"}
           </p>
-          <Button
-            onClick={() => {
-              addMsgPanel({ userId: id, username: data?.user?.username });
-            }}
-            className="mt-2 rounded"
-            secondary
-          >
-            Contact
-          </Button>
+          {isSuccess && (
+            <Button
+              onClick={() => {
+                addMsgPanel({ userId: id, username: data?.user?.username });
+              }}
+              className="mt-2 rounded"
+              secondary
+            >
+              Contact
+            </Button>
+          )}
         </div>
       </div>
       <div className="mt-4">
