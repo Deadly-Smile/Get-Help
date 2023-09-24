@@ -37,6 +37,7 @@ export {
   useGetMessagesQuery,
   useSendMessageMutation,
   useUpdateMsgStatusMutation,
+  useUpdateNotificationStatusMutation,
 } from "./APIs/UsersAPI";
 
 export {

@@ -251,6 +251,15 @@ const UsersAPI = createApi({
           };
         },
       }),
+      updateNotificationStatus: builder.mutation({
+        query: ({ noti_id }) => {
+          return {
+            url: `/notification/seen`,
+            body: { noti_id },
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
@@ -276,5 +285,6 @@ export const {
   useGetMessagesQuery,
   useSendMessageMutation,
   useUpdateMsgStatusMutation,
+  useUpdateNotificationStatusMutation,
 } = UsersAPI;
 export { UsersAPI };

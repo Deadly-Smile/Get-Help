@@ -12,7 +12,7 @@ import Button from "./Button";
 import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
 import Pusher from "pusher-js";
-import { beamsClient } from "../Hooks/push-noti";
+// import { beamsClient } from "../Hooks/push-noti";
 
 // eslint-disable-next-line react/prop-types
 const MessagePanel = ({ receiver, userId, username }) => {
@@ -27,15 +27,15 @@ const MessagePanel = ({ receiver, userId, username }) => {
   const [updateMsgStatus] = useUpdateMsgStatusMutation();
 
   //Tesing push-notification
-  useEffect(() => {
-    beamsClient
-      .start()
-      .then((beamsClient) => beamsClient.getDeviceId())
-      .then((deviceId) =>
-        console.log("Successfully registered with Beams. Device ID:", deviceId)
-      )
-      .catch(console.error);
-  }, []);
+  // useEffect(() => {
+  //   beamsClient
+  //     .start()
+  //     .then((beamsClient) => beamsClient.getDeviceId())
+  //     .then((deviceId) =>
+  //       console.log("Successfully registered with Beams. Device ID:", deviceId)
+  //     )
+  //     .catch(console.error);
+  // }, []);
 
   const handlePanelClick = () => {
     if (messages.length > 0) {

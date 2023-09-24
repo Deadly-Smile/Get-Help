@@ -8,16 +8,16 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Message;
 use App\Events\MessageSent;
-use App\Events\MessageStatusUpdated;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Events\MessageStatusUpdated;
 use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
-use Carbon\Exceptions\Exception as ExceptionsException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
@@ -25,7 +25,8 @@ class UserController extends Controller
     public function getUser(Request $request)
     {
         $permission = $request->user()->getAllPermissions();
-        return response()->json(['user' => $request->user(), 'permission' => $permission]);
+        $notifications = Notification::where('receiver_user_id', $request->user()->id)->orderByDesc('id')->get();
+        return response()->json(['user' => $request->user(), 'permission' => $permission, 'notifications' => $notifications]);
     }
     /**
      * Store a newly created resource in storage.
@@ -475,7 +476,19 @@ class UserController extends Controller
         ];
 
         $message = Message::create($messageData);
+
+        $notification = Notification::create([
+            'type' => 'message',
+            'is_read' => false,
+            'content' => $request["content"],
+            'triggered_user_id' => $user->id,
+            'receiver_user_id' => $request['receiver']
+        ]);
+
         broadcast(new MessageSent($user->id, $message))->toOthers();
+        $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'));
+        $pusher->trigger('notifications.' . $request['receiver'], 'new-message', $notification);
+        // Pusher::trigger('notifications.' . $request['receiver'], 'new-message', $notification);
         return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
     }
 
@@ -516,5 +529,18 @@ class UserController extends Controller
         // broadcast(new MessageStatusUpdated($request['messageId'], $request['senderId'], $user->id))->toOthers();
 
         return response()->json(['message' => "Successfully updated status"], 200);
+    }
+
+    public function updateNoti(Request $request)
+    {
+        $user = JWTAuth::user();
+        if ($user) {
+            $noti = Notification::findOrFail($request['noti_id']);
+            $noti->is_read = true;
+            $noti->save();
+            return response()->json(['message' => "Successfully updated the notification"], 200);
+        } else {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
     }
 }
