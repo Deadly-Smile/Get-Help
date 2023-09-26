@@ -25,7 +25,9 @@ class UserController extends Controller
     public function getUser(Request $request)
     {
         $permission = $request->user()->getAllPermissions();
-        $notifications = Notification::where('receiver_user_id', $request->user()->id)->orderByDesc('id')->get();
+        $msgN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'message')->orderByDesc('id')->take(20)->get();
+        $otrN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'notification')->orderByDesc('id')->take(20)->get();
+        $notifications = $otrN->concat($msgN)->sortBy('timestamp')->values();
         return response()->json(['user' => $request->user(), 'permission' => $permission, 'notifications' => $notifications]);
     }
     /**
@@ -479,15 +481,15 @@ class UserController extends Controller
 
         $notification = Notification::create([
             'type' => 'message',
-            'is_read' => false,
+            'is_read' => 0,
             'content' => $request["content"],
             'triggered_user_id' => $user->id,
-            'receiver_user_id' => $request['receiver']
+            'receiver_user_id' => (int)$request['receiver']
         ]);
 
         broadcast(new MessageSent($user->id, $message))->toOthers();
         $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'));
-        $pusher->trigger('notifications.' . $request['receiver'], 'new-message', $notification);
+        $pusher->trigger('notifications.' . $request['receiver'], 'new-message', ["notification" => $notification]);
         // Pusher::trigger('notifications.' . $request['receiver'], 'new-message', $notification);
         return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
     }

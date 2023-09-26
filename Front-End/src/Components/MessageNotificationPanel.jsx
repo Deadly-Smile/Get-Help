@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import moment from "moment";
+import { GoMail } from "react-icons/go";
 import { useUpdateNotificationStatusMutation } from "../Store";
-import { GoBell } from "react-icons/go";
 
-const NotificationPanel = ({
+const MessageNotificationPanel = ({
   notifications,
   setNotifications,
   indicator,
@@ -23,17 +23,22 @@ const NotificationPanel = ({
       )
     );
     setIndicator(() => {
-      return notifications?.some((notification) => notification.is_read === 0);
+      return notifications?.some(
+        (notification) =>
+          notification.is_read === 0 && newNotification?.id !== notification.id
+      );
     });
+    console.log(indicator);
   };
+
   return (
-    <div className="">
-      {/* <GoBell
+    <div>
+      {/* <GoMail
         className="text-2xl font-bold"
         onClick={() => setShowPanel(!showPanel)}
       /> */}
       <div className="relative">
-        <GoBell
+        <GoMail
           className="text-2xl font-bold"
           onClick={() => setShowPanel(!showPanel)}
         />
@@ -49,11 +54,11 @@ const NotificationPanel = ({
       </button> */}
 
       {showPanel && (
-        <div className="fixed top-14 right-20 min-w-[280px] max-h-[400px] overflow-y-auto bg-white border border-gray-300 shadow-lg rounded p-4">
-          <h2 className="text-xl mb-2 text-gray-800">Notifications</h2>
+        <div className="fixed top-14 right-20 w-[280px] max-h-[400px] overflow-y-auto bg-white border border-gray-300 shadow-lg rounded p-4">
+          <h2 className="text-xl mb-2 text-gray-800">Messages</h2>
           <ul>
             {notifications
-              // .filter((notification) => notification?.type === "notification")
+              // .filter((notification) => notification.type === "message")
               .map((notification) => (
                 <li
                   key={notification?.id}
@@ -75,10 +80,11 @@ const NotificationPanel = ({
                 </li>
               ))}
           </ul>
+          {/* <p className="text-gray-800">{notifications[0].content}</p> */}
         </div>
       )}
     </div>
   );
 };
 
-export default NotificationPanel;
+export default MessageNotificationPanel;

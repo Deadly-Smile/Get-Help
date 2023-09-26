@@ -1,21 +1,61 @@
-import { GoMail } from "react-icons/go";
+/* eslint-disable react/prop-types */
 import Navbar from "./Navbar";
-import { useContext, useEffect, useState } from "react";
-import UserContext from "../Context/UserContext";
+import { useEffect, useState } from "react";
 import Pusher from "pusher-js";
 import NotificationPanel from "./NotificationPanel";
+import MessageNotificationPanel from "./MessageNotificationPanel";
+import {
+  requestNotificationPermission,
+  displayNotification,
+} from "../Hooks/PushNotificationsHooks";
 
-const NavConfig = () => {
-  const { data, isSuccess } = useContext(UserContext);
-  const [notifications, setNotifications] = useState([]);
-  useEffect(() => {
-    if (isSuccess) {
-      setNotifications(data.notifications);
+const NavConfig = ({ data }) => {
+  const [notifications, setNotifications] = useState(
+    data?.notifications?.filter(
+      (notification) => notification.type === "notification"
+    )
+  );
+  const [messagesNotification, setMessageNotification] = useState(
+    data?.notifications?.filter(
+      (notification) => notification.type === "message"
+    )
+  );
+  const [messageIndicator, setMessageIndicator] = useState(() => {
+    return messagesNotification?.some(
+      (notification) => notification.is_read === 0
+    );
+  });
+  const [othNotificationIndecator, setOthNotificationIndecator] = useState(
+    () => {
+      return notifications?.some((notification) => notification.is_read === 0);
     }
-  }, [data?.notifications, isSuccess]);
+  );
 
   useEffect(() => {
-    if (data?.user && isSuccess) {
+    setNotifications(
+      data?.notifications?.filter(
+        (notification) => notification.type === "notification"
+      )
+    );
+    setMessageNotification(
+      data?.notifications?.filter(
+        (notification) => notification.type === "message"
+      )
+    );
+    setMessageIndicator(() => {
+      return messagesNotification?.some(
+        (notification) => notification.is_read === 0
+      );
+    });
+
+    setOthNotificationIndecator(() => {
+      return notifications?.some((notification) => notification.is_read === 0);
+    });
+  }, [data?.notifications]);
+
+  useEffect(() => {
+    if (data?.user?.id) {
+      requestNotificationPermission();
       const usePusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
         cluster: import.meta.env.VITE_CLUSTER,
         encrypted: true,
@@ -27,16 +67,31 @@ const NavConfig = () => {
         },
       });
       const channel = usePusher.subscribe(`notifications.${data?.user?.id}`);
+      channel.bind("new-notification", (data) => {
+        setNotifications([data.notification, ...notifications]);
+        displayNotification("New Notification", {
+          body: data.notification.content,
+        });
+      });
+
       channel.bind("new-message", (data) => {
-        setNotifications([...notifications, data?.notification]);
+        console.log("triggered : ", data.notification);
+        setMessageNotification((prevMessages) => [
+          data.notification,
+          ...prevMessages,
+        ]);
+        setMessageIndicator(true);
+        displayNotification(`New Message`, {
+          body: data.notification.content,
+        });
       });
 
       return () => {
-        // Unsubscribe from the Pusher channel when component unmounts
         channel.unbind(`notifications.${data?.user?.id}`);
       };
     }
-  }, [notifications, data?.user, isSuccess]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.user?.id]);
   const [activeNavLinks, setActiveNavLinks] = useState([
     { label: "About", link: "/about" },
     { label: "Log in", link: "/login" },
@@ -50,7 +105,7 @@ const NavConfig = () => {
       { label: "Sign up", link: "/signup" },
     ];
 
-    if (isSuccess && data && data.user) {
+    if (data && data.user) {
       const navLinkWithPermission = [
         { label: "About", link: "/about" },
         {
@@ -58,15 +113,20 @@ const NavConfig = () => {
             <NotificationPanel
               notifications={notifications}
               setNotifications={setNotifications}
+              indicator={othNotificationIndecator}
+              setIndicator={setOthNotificationIndecator}
             />
           ),
           link: "#",
         },
         {
           label: (
-            <div className="">
-              <GoMail className="text-2xl font-bold" />
-            </div>
+            <MessageNotificationPanel
+              notifications={messagesNotification}
+              setNotifications={setMessageNotification}
+              indicator={messageIndicator}
+              setIndicator={setMessageIndicator}
+            />
           ),
           link: "#",
         },
@@ -105,12 +165,17 @@ const NavConfig = () => {
           link: "/create-post",
         });
       }
-
       setActiveNavLinks(navLinkWithPermission);
     } else {
       setActiveNavLinks(defaultNavLink);
     }
-  }, [data, isSuccess, notifications]);
+  }, [
+    data,
+    messageIndicator,
+    messagesNotification,
+    notifications,
+    othNotificationIndecator,
+  ]);
   return <Navbar linkList={activeNavLinks} />;
 };
 

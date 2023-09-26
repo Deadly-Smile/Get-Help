@@ -29,7 +29,7 @@ const App = () => {
       <UserContext.Provider value={{ data, isSuccess }}>
         <Provider>
           <header className="fixed top-0 z-10 w-full">
-            <NavConfig />
+            <NavConfig data={data} />
           </header>
           <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
             <Routes>
