@@ -1,18 +1,24 @@
 /* eslint-disable react/prop-types */
 import SortableTable from "../Components/SortableTable";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Button from "../Components/Button";
+import LoadingContext from "../Context/LoadingContext";
 
 const maxVisiblePages = 5;
 const itemsPerPage = 10;
 const ItemTable = ({ query, config, result }) => {
   const [items, setItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const isLoadingContext = useContext(LoadingContext);
   // const [itemsPerPage] = useState(10);
   const { data, isLoading, isError, isSuccess } = query({
     currentPage,
     itemsPerPage,
   });
+
+  useEffect(() => {
+    isLoadingContext.isLoading = isLoading;
+  }, [isLoading, isLoadingContext]);
 
   const totalPages = data?.items?.last_page || 1;
   const handlePageChange = (page) => {
@@ -23,9 +29,9 @@ const ItemTable = ({ query, config, result }) => {
   };
 
   let render = null;
-  if (isLoading) {
-    render = <p className="text-blue-700 font-semibold">Loading...</p>;
-  }
+  // if (isLoading) {
+  //   render = <p className="text-blue-700 font-semibold">Loading...</p>;
+  // }
   if (isError) {
     render = <p className="text-red-800 font-semibold">Error occured!!</p>;
   }

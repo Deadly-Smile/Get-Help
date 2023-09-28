@@ -20,15 +20,32 @@ import { Provider } from "./Context/MsgListContext";
 import MessagePanelList from "./Components/MessagePanelList";
 import NavConfig from "./Components/NavConfig";
 import FooterConfig from "./Components/FooterConfig";
+import LoadingContext from "./Context/LoadingContext";
+import LoadingBar from "react-top-loading-bar";
+import { useState, useEffect } from "react";
 
 const App = () => {
-  const { data, isSuccess } = useGetUserQuery();
+  const { data, isSuccess, isLoading } = useGetUserQuery();
+  // console.log(useGetUserQuery);
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    if (isLoading) {
+      setProgress(30);
+    } else {
+      setProgress(100);
+    }
+  }, [isLoading]);
 
   return (
-    <div>
+    <LoadingContext.Provider value={{ isLoading }}>
       <UserContext.Provider value={{ data, isSuccess }}>
         <Provider>
           <header className="fixed top-0 z-10 w-full">
+            <LoadingBar
+              color="#f11946"
+              progress={progress}
+              onLoaderFinished={() => setProgress(0)}
+            />
             <NavConfig data={data} />
           </header>
           <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
@@ -61,7 +78,7 @@ const App = () => {
           </footer>
         </Provider>
       </UserContext.Provider>
-    </div>
+    </LoadingContext.Provider>
   );
 };
 

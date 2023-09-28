@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import PostView from "../Components/PostView";
 import Button from "../Components/Button";
+import LoadingContext from "../Context/LoadingContext";
 
 const maxVisiblePages = 5;
 const itemsPerPage = 10;
@@ -12,7 +13,7 @@ const PostList = ({ query, mutation }) => {
     currentPage,
     itemsPerPage
   );
-
+  const isLoadingContext = useContext(LoadingContext);
   const totalPages = data?.items?.last_page || 1;
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -104,6 +105,10 @@ const PostList = ({ query, mutation }) => {
   );
 
   useEffect(() => {
+    isLoadingContext.isLoading = isLoading;
+  }, [isLoading, isLoadingContext]);
+
+  useEffect(() => {
     if (data && isSuccess) {
       setPostList(
         data?.posts?.data?.map((post, id) => {
@@ -128,13 +133,13 @@ const PostList = ({ query, mutation }) => {
       </div>
     );
   }
-  if (isLoading) {
-    render = (
-      <div className="flex justify-center">
-        <p className="text-blue-600 font-semibold">Loding...</p>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   render = (
+  //     <div className="flex justify-center">
+  //       <p className="text-blue-600 font-semibold">Loading...</p>
+  //     </div>
+  //   );
+  // }
   return (
     <div>
       {render}

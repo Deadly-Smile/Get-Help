@@ -51,6 +51,13 @@ php artisan passport:install
 -  backup dependency -// "draft-js": "^0.11.7",
     // "emoji-mart": "^5.5.2",    // "react-draft-wysiwyg": "^1.15.0",
 -  npm install @pusher/push-notifications-web
+-  npm install react-top-loading-bar
+
+<!-- -  npm install react-loading-skeleton -->
+<!-- -  npm install react-content-loader -->
+
+
+
 
 
 ## importent facts

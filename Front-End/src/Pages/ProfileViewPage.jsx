@@ -11,7 +11,7 @@ const ProfileViewPage = () => {
   const { id } = useParams();
   const { data, isError, isLoading } = useGetUserByIDQuery({ id });
   const { addMsgPanel } = useContext(MsgListContext);
-  const { isSuccess } = useContext(UserContext);
+  const conObj = useContext(UserContext);
 
   if (isLoading) {
     return (
@@ -82,7 +82,10 @@ const ProfileViewPage = () => {
             District :{" "}
             {data?.user?.district ? data?.user?.district : "Not specified"}
           </p>
-          {isSuccess && (
+          {conObj?.data?.user?.id == id ? (
+            <p>Balance : {conObj?.data?.user?.balance}</p>
+          ) : null}
+          {conObj?.data?.user?.id != id && (
             <Button
               onClick={() => {
                 addMsgPanel({ userId: id, username: data?.user?.username });
@@ -93,6 +96,11 @@ const ProfileViewPage = () => {
               Contact
             </Button>
           )}
+          {conObj?.data?.user?.id != id ? (
+            <Button className="mt-2 rounded" secondary>
+              Donate
+            </Button>
+          ) : null}
         </div>
       </div>
       <div className="mt-4">

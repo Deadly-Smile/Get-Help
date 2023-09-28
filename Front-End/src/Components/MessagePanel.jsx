@@ -12,7 +12,7 @@ import Button from "./Button";
 import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
 import Pusher from "pusher-js";
-// import { beamsClient } from "../Hooks/push-noti";
+import LoadingContext from "../Context/LoadingContext";
 
 // eslint-disable-next-line react/prop-types
 const MessagePanel = ({ receiver, userId, username }) => {
@@ -25,6 +25,11 @@ const MessagePanel = ({ receiver, userId, username }) => {
   const [sendMessage] = useSendMessageMutation();
   const { removeMsgPanel } = useContext(MsgListContext);
   const [updateMsgStatus] = useUpdateMsgStatusMutation();
+  const isLoadingContext = useContext(LoadingContext);
+
+  useEffect(() => {
+    isLoadingContext.isLoading = isLoading;
+  }, [isLoading, isLoadingContext]);
 
   //Tesing push-notification
   // useEffect(() => {
@@ -124,11 +129,13 @@ const MessagePanel = ({ receiver, userId, username }) => {
     renderMessages = messages.map((message, index) => (
       <ChattingContentPanel message={message} key={index} />
     ));
-  } else if (isLoading) {
-    renderMessages = (
-      <p className="flex justify-center font-medium text-lg">Loading...</p>
-    );
-  } else if (isError) {
+  }
+  // else if (isLoading) {
+  //   renderMessages = (
+  //     <p className="flex justify-center font-medium text-lg">Loading...</p>
+  //   );
+  // }
+  else if (isError) {
     if (userId) {
       renderMessages = (
         <p className="flex items-center justify-center font-medium text-lg text-red-600">
