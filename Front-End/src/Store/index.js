@@ -44,6 +44,7 @@ export {
   useAssignTokenToAdminMutation,
   useAddMoneyMutation,
   useDonateToMutation,
+  useGetContactsQuery,
 } from "./APIs/UsersAPI";
 
 export {

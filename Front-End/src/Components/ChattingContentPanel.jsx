@@ -1,9 +1,8 @@
 /* eslint-disable react/prop-types */
 import moment from "moment";
 
-const ChattingContentPanel = ({ message }) => {
-  // console.log(message);
-  // console.log(message.id, lastSeenMsg);
+const ChattingContentPanel = ({ message, avatar }) => {
+  const backEndURL = import.meta.env.VITE_BACKEND_URL;
   let status;
 
   if (message.type === "received") {
@@ -19,6 +18,38 @@ const ChattingContentPanel = ({ message }) => {
       status = "Sent";
     }
   }
+  let renderMessage = null;
+  if (message.type !== "sent") {
+    renderMessage = (
+      <div className="flex">
+        <img
+          src={
+            avatar
+              ? `${backEndURL}${avatar}`
+              : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+          }
+          className="max-w-[24px] max-h-6 rounded-full mr-1 mt-3"
+        />
+        <div
+          className={`p-2 my-1 text-white w-fit rounded-lg ${
+            message.type === "sent" ? "bg-[#3B82F6]" : "bg-[#6B7280]"
+          }`}
+        >
+          <p>{message.message}</p>
+        </div>
+      </div>
+    );
+  } else {
+    renderMessage = (
+      <div
+        className={`p-2 ml-1 text-white w-fit rounded-lg ${
+          message.type === "sent" ? "bg-[#3B82F6]" : "bg-[#6B7280]"
+        }`}
+      >
+        <p>{message.message}</p>
+      </div>
+    );
+  }
   return (
     <div className="mx-4">
       <div
@@ -29,13 +60,7 @@ const ChattingContentPanel = ({ message }) => {
         }`}
         title={moment(message?.timestamp).fromNow()}
       >
-        <div
-          className={`p-2 my-1 text-white w-fit rounded-lg ${
-            message.type === "sent" ? "bg-[#3B82F6]" : "bg-[#6B7280]"
-          }`}
-        >
-          <p>{message.message}</p>
-        </div>
+        {renderMessage}
       </div>
       <div
         className={`flex ${

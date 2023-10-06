@@ -13,9 +13,11 @@ import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
 import Pusher from "pusher-js";
 import LoadingContext from "../Context/LoadingContext";
+import { Link } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
-const MessagePanel = ({ receiver, userId, username }) => {
+const MessagePanel = ({ receiver, userId, username, avatar }) => {
+  const backEndURL = import.meta.env.VITE_BACKEND_URL;
   const [messages, setMessages] = useState([]);
   const panelRef = useRef(null);
   const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
@@ -30,17 +32,6 @@ const MessagePanel = ({ receiver, userId, username }) => {
   useEffect(() => {
     isLoadingContext.isLoading = isLoading;
   }, [isLoading, isLoadingContext]);
-
-  //Tesing push-notification
-  // useEffect(() => {
-  //   beamsClient
-  //     .start()
-  //     .then((beamsClient) => beamsClient.getDeviceId())
-  //     .then((deviceId) =>
-  //       console.log("Successfully registered with Beams. Device ID:", deviceId)
-  //     )
-  //     .catch(console.error);
-  // }, []);
 
   const handlePanelClick = () => {
     if (messages.length > 0) {
@@ -127,15 +118,9 @@ const MessagePanel = ({ receiver, userId, username }) => {
 
   if (messages.length > 0) {
     renderMessages = messages.map((message, index) => (
-      <ChattingContentPanel message={message} key={index} />
+      <ChattingContentPanel message={message} key={index} avatar={avatar} />
     ));
-  }
-  // else if (isLoading) {
-  //   renderMessages = (
-  //     <p className="flex justify-center font-medium text-lg">Loading...</p>
-  //   );
-  // }
-  else if (isError) {
+  } else if (isError) {
     if (userId) {
       renderMessages = (
         <p className="flex items-center justify-center font-medium text-lg text-red-600">
@@ -154,7 +139,22 @@ const MessagePanel = ({ receiver, userId, username }) => {
   return (
     <div className="flex flex-col rounded h-96 max-w-[300px] bg-gray-200 mx-2">
       <div className="bg-gray-900 p-4 border-b border-gray-900 flex justify-between">
-        <h1 className="text-lg font-semibold text-gray-100">{username}</h1>
+        <div className="flex">
+          <img
+            src={
+              avatar
+                ? `${backEndURL}${avatar}`
+                : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+            }
+            alt={`${username}'s Avatar`}
+            className="max-w-[24px] max-h-6 rounded-full"
+          />
+          <Link to={`/get-user/${receiver}`}>
+            <h1 className="font-semibold ml-2 text-blue-100 hover:text-green-800 hover:underline">
+              {username}
+            </h1>
+          </Link>
+        </div>
         <div className="flex">
           <Button className="text-gray-200 border-collapse border-0 text-2xl hover:text-blue-700 -mr-2">
             <BsFillTelephoneFill />

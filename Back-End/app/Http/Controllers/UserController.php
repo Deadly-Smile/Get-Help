@@ -6,6 +6,7 @@ use Exception;
 use Pusher\Pusher;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Contact;
 use App\Models\Message;
 use App\Events\MessageSent;
 use App\Models\Notification;
@@ -394,7 +395,17 @@ class UserController extends Controller
         if (!$user->userHasPermission('get-contacts')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
-        $contacts = $user->contacts;
+        $contacts = Contact::where('user_1', $user->id)
+            ->orWhere('user_2', $user->id)
+            ->get();
+
+        foreach ($contacts as $contact) {
+            $contact->userID = $contact->user_1 == $user->id ? $contact->user_2 : $contact->user_1;
+            $contact->avatar = User::findOrFail($contact->userID)->avatar;
+            $contact->status = User::findOrFail($contact->userID)->status;
+            $contact->name = User::findOrFail($contact->userID)->name;
+        }
+
         return response()->json(['contacts' => $contacts], 200);
     }
 
@@ -476,6 +487,11 @@ class UserController extends Controller
             'sender_username' => $user->username,
             'receiver_username' => User::findOrFail($request['receiver'])->username,
         ];
+
+        Contact::updateOrCreate(
+            ['user_1' => $user->id, 'user_2' => $request['receiver']],
+            ['updated_at' => now()]
+        );
 
         $message = Message::create($messageData);
 

@@ -97,7 +97,7 @@ const PostView = ({
           <h2 className="font-semibold text-xl mt-2 ">{post?.title}</h2>
         </div>
 
-        <div className="text-gray-600 text-sm ">
+        <div className="text-gray-600 text-sm min-w-fit">
           Created {moment(post?.created_at).fromNow()}
         </div>
       </div>

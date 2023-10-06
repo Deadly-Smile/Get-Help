@@ -283,7 +283,11 @@ const ProfileViewPage = () => {
           {conObj?.data?.user?.id != id && (
             <Button
               onClick={() => {
-                addMsgPanel({ userId: id, username: data?.user?.username });
+                addMsgPanel({
+                  userId: id,
+                  username: data?.user?.username,
+                  avater: data?.user?.avatar,
+                });
               }}
               className="mt-2 rounded"
               secondary

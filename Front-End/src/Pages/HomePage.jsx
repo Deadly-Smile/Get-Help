@@ -1,3 +1,4 @@
+import ContactPanel from "../Components/ContactsPanel";
 import PostList from "../Components/PostList";
 import UserSearchPanel from "../Components/UserSearchPanel";
 // import { VideoChat } from "../Components/VideoChat";
@@ -15,6 +16,7 @@ const HomePage = () => {
         {/* Top-right User Search Panel */}
         <div className="fixed top-12 right-0 w-2/12 p-1">
           <UserSearchPanel />
+          <ContactPanel />
         </div>
       </div>
     </div>

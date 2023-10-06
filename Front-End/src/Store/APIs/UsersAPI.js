@@ -333,6 +333,15 @@ const UsersAPI = createApi({
           };
         },
       }),
+      getContacts: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "contacts" }];
+          return tags;
+        },
+        query: () => {
+          return "/get-contacts";
+        },
+      }),
     };
   },
 });
@@ -365,5 +374,6 @@ export const {
   useAssignTokenToAdminMutation,
   useAddMoneyMutation,
   useDonateToMutation,
+  useGetContactsQuery,
 } = UsersAPI;
 export { UsersAPI };
