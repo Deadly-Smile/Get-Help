@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostsController;
+use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
-
+use TheSeer\Tokenizer\TokenCollection;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/messages/{receiver}/{sender}', [UserController::class, 'getMessages']);
     Route::post('/message-send', [UserController::class, 'sendMessage']);
     Route::post('/pusher/auth', [UserController::class, 'authenticatePusher']);
+    Route::post('/message/update/status', [UserController::class, 'updateMsgStat']);
+    Route::post('/notification/seen', [UserController::class, 'updateNoti']);
+    Route::get('/get-recharge-token', [TokenController::class, 'getRechargeToken']);
+    Route::post('/create/recharge-token', [TokenController::class, 'createToken']);
+    Route::get('/delete-recharge-token/{id}', [TokenController::class, 'deleteToken']);
+    Route::post('/assign-recharge-token/{id}', [TokenController::class, 'assignAdmin']);
+    Route::post('/use-recharge-token', [TokenController::class, 'useToken']);
+    Route::post('/donate/to_{id}', [TokenController::class, 'transferMoney']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
 Route::resource('/users', UserController::class);

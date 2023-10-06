@@ -22,6 +22,9 @@ const Login = () => {
       });
     }
   };
+  // useEffect(() => {
+  //   window.location.reload();
+  // }, []);
   useEffect(() => {
     if (result.isSuccess && result.data) {
       setAuthInfo({ username: "", password: "" });

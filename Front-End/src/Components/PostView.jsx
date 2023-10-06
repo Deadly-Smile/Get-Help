@@ -15,6 +15,7 @@ const PostView = ({
   useVotePostMutation,
   ...rest
 }) => {
+  const backEndURL = import.meta.env.VITE_BACKEND_URL;
   const [votePost, postResult] = useVotePostMutation();
   const [addComment, cmtResult] = useAddCommentMutation();
   const finalClassNames = classNames(
@@ -41,7 +42,6 @@ const PostView = ({
 
   const [newComment, setNewComment] = useState("");
   const handleSubmitComment = () => {
-    console.log(post.id);
     addComment({ content: newComment, id: post.id });
   };
 
@@ -77,15 +77,31 @@ const PostView = ({
   return (
     <div className={finalClassNames} {...rest}>
       <div className="flex justify-between">
-        <h2 className="font-semibold text-3xl mb-2">{post?.title}</h2>
-        <div className="text-gray-600 text-sm mb-2">
-          Created {moment(post?.created_at).fromNow()} by{" "}
-          <span className="hover:text-green-800 hover:underline">
-            <Link to={`/get-user/${post?.users[0]?.id}`}>{post?.author}</Link>
-          </span>
+        <div>
+          <div className="flex">
+            <img
+              src={
+                post?.author_avatar
+                  ? `${backEndURL}${post?.author_avatar}`
+                  : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+              }
+              alt={`${post?.author}'s Avatar`}
+              className="max-w-[40px] max-h-10 rounded-full"
+            />
+            <Link to={`/get-user/${post?.users[0]?.id}`}>
+              <h1 className="font-semibold text-2xl ml-2 text-blue-600 hover:text-green-800 hover:underline">
+                {post?.author}
+              </h1>
+            </Link>
+          </div>
+          <h2 className="font-semibold text-xl mt-2 ">{post?.title}</h2>
+        </div>
+
+        <div className="text-gray-600 text-sm min-w-fit">
+          Created {moment(post?.created_at).fromNow()}
         </div>
       </div>
-      <div dangerouslySetInnerHTML={{ __html: contentToShow }} />
+      <div className="" dangerouslySetInnerHTML={{ __html: contentToShow }} />
       {fullContent.length > maxLengthToShow && (
         <div className="flex justify-end">
           <button

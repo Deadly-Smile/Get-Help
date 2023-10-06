@@ -5,13 +5,13 @@ const MsgListContext = createContext();
 function Provider({ children }) {
   const [msgList, setMsgList] = useState([]);
 
-  const addMsgPanel = ({ userId, username }) => {
+  const addMsgPanel = ({ userId, username, avater }) => {
     let list = msgList;
     if (msgList.length > 2) {
       list = msgList.slice(1, msgList.length);
     }
     list = list.filter((msg) => msg.id !== userId);
-    list.push({ id: userId, username });
+    list.push({ id: userId, username, avater });
     setMsgList(list);
   };
 

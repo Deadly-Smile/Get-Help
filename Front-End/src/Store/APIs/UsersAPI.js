@@ -153,7 +153,8 @@ const UsersAPI = createApi({
       logout: builder.mutation({
         invalidatesTags: (result, error, arg) => {
           localStorage.setItem("login_token", "");
-          return [{ type: "user" }];
+          const tags = [{ type: "user" }];
+          return tags;
         },
         query: ({ message }) => {
           return {
@@ -222,18 +223,14 @@ const UsersAPI = createApi({
       }),
       getMessages: builder.query({
         providesTags: (result, error, arg) => {
-          const tags = [
-            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
-          ];
+          const tags = [{ type: "message", receiverId: arg.receiver }];
           return tags;
         },
         query: ({ receiver, sender }) => `/messages/${receiver}/${sender}`,
       }),
       sendMessage: builder.mutation({
         invalidatesTags: (result, error, arg) => {
-          return [
-            { type: "message", receiverId: arg.receiver, senderId: arg.sender },
-          ];
+          return [{ type: "message", receiverId: arg.receiver }];
         },
         query: ({ receiver, sender, content }) => {
           return {
@@ -241,6 +238,108 @@ const UsersAPI = createApi({
             body: { content, receiver, sender },
             method: "POST",
           };
+        },
+      }),
+      updateMsgStatus: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "message", receiverId: arg.senderId }];
+        },
+        query: ({ senderId, messageId }) => {
+          return {
+            url: `/message/update/status`,
+            body: { senderId, messageId },
+            method: "POST",
+          };
+        },
+      }),
+      updateNotificationStatus: builder.mutation({
+        query: ({ noti_id }) => {
+          return {
+            url: `/notification/seen`,
+            body: { noti_id },
+            method: "POST",
+          };
+        },
+      }),
+      getRechargeTokens: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "token" }];
+          return tags;
+        },
+        query: ({ currentPage, perPage }) => {
+          if (!perPage) perPage = 20;
+          return {
+            url: `/get-recharge-token?page=${currentPage}&perPage=${perPage}`,
+          };
+        },
+      }),
+      createRechargeToken: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "token" }];
+        },
+        query: ({ value, handler }) => {
+          console.log(value, handler);
+          return {
+            url: `/create/recharge-token`,
+            body: { value, handler },
+            method: "POST",
+          };
+        },
+      }),
+      deleteRechargeToken: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "token" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/delete-recharge-token/${id}`,
+            method: "GET",
+          };
+        },
+      }),
+      assignTokenToAdmin: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "token" }];
+        },
+        query: ({ id, adminName }) => {
+          return {
+            url: `/assign-recharge-token/${id}`,
+            body: { username: adminName },
+            method: "POST",
+          };
+        },
+      }),
+      addMoney: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "user" }];
+        },
+        query: ({ token }) => {
+          return {
+            url: `/use-recharge-token`,
+            body: { token },
+            method: "POST",
+          };
+        },
+      }),
+      donateTo: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "user" }];
+        },
+        query: ({ amount, id }) => {
+          return {
+            url: `/donate/to_${id}`,
+            body: { amount },
+            method: "POST",
+          };
+        },
+      }),
+      getContacts: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "contacts" }];
+          return tags;
+        },
+        query: () => {
+          return "/get-contacts";
         },
       }),
     };
@@ -267,5 +366,14 @@ export const {
   useGetUserByUsernameMutation,
   useGetMessagesQuery,
   useSendMessageMutation,
+  useUpdateMsgStatusMutation,
+  useUpdateNotificationStatusMutation,
+  useGetRechargeTokensQuery,
+  useDeleteRechargeTokenMutation,
+  useCreateRechargeTokenMutation,
+  useAssignTokenToAdminMutation,
+  useAddMoneyMutation,
+  useDonateToMutation,
+  useGetContactsQuery,
 } = UsersAPI;
 export { UsersAPI };

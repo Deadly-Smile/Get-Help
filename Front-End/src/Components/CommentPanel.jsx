@@ -18,6 +18,18 @@ const CommentPanel = ({ comments }) => {
     setShowAllComments(!showAllComments);
   };
 
+  let renderViewMore = null;
+  if (parseInt(comments.length) > visibleComments && comments.length > 0) {
+    renderViewMore = (
+      <button
+        className="text-blue-600 hover:underline mt-2"
+        onClick={toggleShowAllComments}
+      >
+        {showAllComments ? "Hide Comments" : "View All Comments"}
+      </button>
+    );
+  }
+
   return (
     <div className="mt-4">
       <h3 className="text-lg font-semibold mb-2">Comments</h3>
@@ -31,12 +43,15 @@ const CommentPanel = ({ comments }) => {
                 author={comment?.author}
                 created_at={comment?.created_at}
                 authorID={comment?.user_id}
+                author_avatar={comment?.author_avatar}
                 wordLimit={400}
               />
             </li>
           ))}
       </ul>
-      {!showAllComments && (
+      {!showAllComments &&
+      parseInt(comments.length) > visibleComments &&
+      comments.length > 0 ? (
         <>
           <button
             className="text-blue-600 hover:underline"
@@ -46,15 +61,8 @@ const CommentPanel = ({ comments }) => {
           </button>
           <br />
         </>
-      )}
-      {comments.length > visibleComments && (
-        <button
-          className="text-blue-600 hover:underline mt-2"
-          onClick={toggleShowAllComments}
-        >
-          {showAllComments ? "Hide Comments" : "View All Comments"}
-        </button>
-      )}
+      ) : null}
+      {renderViewMore}
     </div>
   );
 };

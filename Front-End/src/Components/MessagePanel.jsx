@@ -1,5 +1,9 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import { useGetMessagesQuery, useSendMessageMutation } from "../Store";
+import {
+  useGetMessagesQuery,
+  useSendMessageMutation,
+  useUpdateMsgStatusMutation,
+} from "../Store";
 import { BiSolidSend } from "react-icons/bi";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsFillTelephoneFill } from "react-icons/bs";
@@ -8,9 +12,12 @@ import Button from "./Button";
 import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
 import Pusher from "pusher-js";
+import LoadingContext from "../Context/LoadingContext";
+import { Link } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
-const MessagePanel = ({ receiver, userId, username }) => {
+const MessagePanel = ({ receiver, userId, username, avatar }) => {
+  const backEndURL = import.meta.env.VITE_BACKEND_URL;
   const [messages, setMessages] = useState([]);
   const panelRef = useRef(null);
   const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
@@ -19,7 +26,21 @@ const MessagePanel = ({ receiver, userId, username }) => {
   });
   const [sendMessage] = useSendMessageMutation();
   const { removeMsgPanel } = useContext(MsgListContext);
+  const [updateMsgStatus] = useUpdateMsgStatusMutation();
+  const isLoadingContext = useContext(LoadingContext);
 
+  useEffect(() => {
+    isLoadingContext.isLoading = isLoading;
+  }, [isLoading, isLoadingContext]);
+
+  const handlePanelClick = () => {
+    if (messages.length > 0) {
+      updateMsgStatus({
+        senderId: receiver,
+        messageId: messages[messages.length - 1].id,
+      });
+    }
+  };
   // Pusher.logToConsole = true;
   useEffect(() => {
     const usePusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
@@ -40,6 +61,7 @@ const MessagePanel = ({ receiver, userId, username }) => {
     );
 
     channel.bind("App\\Events\\MessageSent", (data) => {
+      // console.log(data);
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -51,6 +73,15 @@ const MessagePanel = ({ receiver, userId, username }) => {
           timestamp: data?.message?.created_at,
         },
       ]);
+    });
+
+    channel.bind("App\\Events\\MessageStatusUpdated", (data) => {
+      console.log(data);
+      setMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message.id === data?.messageId ? { ...message, status: 1 } : message
+        )
+      );
     });
 
     return () => {
@@ -87,12 +118,8 @@ const MessagePanel = ({ receiver, userId, username }) => {
 
   if (messages.length > 0) {
     renderMessages = messages.map((message, index) => (
-      <ChattingContentPanel message={message} key={index} />
+      <ChattingContentPanel message={message} key={index} avatar={avatar} />
     ));
-  } else if (isLoading) {
-    renderMessages = (
-      <p className="flex justify-center font-medium text-lg">Loading...</p>
-    );
   } else if (isError) {
     if (userId) {
       renderMessages = (
@@ -112,7 +139,22 @@ const MessagePanel = ({ receiver, userId, username }) => {
   return (
     <div className="flex flex-col rounded h-96 max-w-[300px] bg-gray-200 mx-2">
       <div className="bg-gray-900 p-4 border-b border-gray-900 flex justify-between">
-        <h1 className="text-lg font-semibold text-gray-100">{username}</h1>
+        <div className="flex">
+          <img
+            src={
+              avatar
+                ? `${backEndURL}${avatar}`
+                : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+            }
+            alt={`${username}'s Avatar`}
+            className="max-w-[24px] max-h-6 rounded-full"
+          />
+          <Link to={`/get-user/${receiver}`}>
+            <h1 className="font-semibold ml-2 text-blue-100 hover:text-green-800 hover:underline">
+              {username}
+            </h1>
+          </Link>
+        </div>
         <div className="flex">
           <Button className="text-gray-200 border-collapse border-0 text-2xl hover:text-blue-700 -mr-2">
             <BsFillTelephoneFill />
@@ -133,6 +175,7 @@ const MessagePanel = ({ receiver, userId, username }) => {
         className="flex-grow overflow-y-scroll p-3"
         style={{ maxHeight: "100%", overflowY: "scroll" }}
         ref={panelRef}
+        onClick={handlePanelClick}
       >
         <p className="flex justify-center text-xl font-semibold">{username}</p>
         {renderMessages}

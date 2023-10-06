@@ -50,7 +50,7 @@ const SortableTable = (props) => {
       header: (
         <th
           onClick={() => handleSortingCritaria(column.title)}
-          className="bg-blue-400 cursor-pointer hover:bg-slate-300"
+          className="cursor-pointer"
         >
           <div className="flex items-center">
             {getIcons(column.title, sortBy, sortOrder)}

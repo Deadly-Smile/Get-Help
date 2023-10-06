@@ -4,12 +4,9 @@ import NotFound from "./Pages/NotFound";
 import SignUp from "./Pages/SignUp";
 import Login from "./Pages/Login";
 import { Route, Routes } from "react-router-dom";
-import Navbar from "./Components/Navbar";
 import Logout from "./Pages/Logout";
 import { useGetUserQuery } from "./Store";
-import { useEffect, useState } from "react";
 import EditProfile from "./Pages/EditProfile";
-import Footer from "./Components/Footer";
 import AdminReg from "./Pages/AdminReg";
 import UserTable from "./Pages/UserTable";
 import DoctorTable from "./Pages/DoctorTable";
@@ -21,102 +18,37 @@ import PostPage from "./Pages/PostPage";
 import UserContext from "./Context/UserContext";
 import { Provider } from "./Context/MsgListContext";
 import MessagePanelList from "./Components/MessagePanelList";
+import NavConfig from "./Components/NavConfig";
+import FooterConfig from "./Components/FooterConfig";
+import LoadingContext from "./Context/LoadingContext";
+import LoadingBar from "react-top-loading-bar";
+import { useState, useEffect } from "react";
+import RechargeTokenTable from "./Pages/RechargeTokenTable";
 
 const App = () => {
-  const { data, isSuccess } = useGetUserQuery();
-  const [activeNavLinks, setActiveNavLinks] = useState([
-    { label: "About", link: "/about" },
-    { label: "Log in", link: "/login" },
-    { label: "Sign up", link: "/signup" },
-  ]);
-  const [activeFooterLinks, setActiveFooterLinks] = useState([
-    { label: "Privacy Policy", link: "#" },
-    { label: "Terms of Service", link: "#" },
-    { label: "Contact", link: "#" },
-    { label: "Buy me a cup of coffee", link: "#" },
-  ]);
-
+  let { data, isSuccess, isLoading } = useGetUserQuery();
+  // console.log(useGetUserQuery);
+  const [progress, setProgress] = useState(0);
   useEffect(() => {
-    let defaultNavLink = [
-      { label: "About", link: "/about" },
-      { label: "Log in", link: "/login" },
-      { label: "Sign up", link: "/signup" },
-    ];
-    let defaultFooterLinks = [
-      { label: "Privacy Policy", link: "#" },
-      { label: "Terms of Service", link: "#" },
-      { label: "Contact", link: "#" },
-      { label: "Buy me a cup of coffee", link: "#" },
-    ];
-
-    if (isSuccess && data && data.user) {
-      const navLinkWithPermission = [
-        { label: "About", link: "/about" },
-        { label: data.user.username, link: "/edit-profile" },
-        { label: "Log out", link: "/logout" },
-      ];
-      const footerLinkWithPermission = [
-        { label: "Privacy Policy", link: "#" },
-        { label: "Terms of Service", link: "#" },
-        { label: "Contact", link: "#" },
-        { label: "Buy me a cup of coffee", link: "#" },
-        { label: "Become an Admin", link: "/apply-for-admin" },
-      ];
-
-      if (data.permission.includes("edit-my-post")) {
-        navLinkWithPermission.splice(2, 0, { label: "Posts", link: "#" });
-      }
-
-      if (data.permission.includes("edit-user-table")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Users",
-          link: "/user-table",
-        });
-      }
-
-      if (data.permission.includes("edit-doctor-table")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Doctors",
-          link: "/doctor-table",
-        });
-      }
-
-      if (data.permission.includes("edit-admin-table")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Admins",
-          link: "/admin-table",
-        });
-      }
-
-      if (data.permission.includes("edit-post-table")) {
-        footerLinkWithPermission.splice(1, 0, {
-          label: "Post Table",
-          link: "/post-table",
-        });
-      }
-
-      if (data.permission.includes("create-post")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Create Post",
-          link: "/create-post",
-        });
-      }
-
-      setActiveNavLinks(navLinkWithPermission);
-      setActiveFooterLinks(footerLinkWithPermission);
+    if (isLoading) {
+      setProgress(30);
     } else {
-      setActiveNavLinks(defaultNavLink);
-      setActiveFooterLinks(defaultFooterLinks);
+      setProgress(100);
     }
-  }, [data, isSuccess]);
+  }, [isLoading]);
 
   return (
-    <div>
-      <header className="fixed top-0 z-10 w-full">
-        <Navbar linkList={activeNavLinks} />
-      </header>
+    <LoadingContext.Provider value={{ progress, setProgress }}>
       <UserContext.Provider value={{ data, isSuccess }}>
         <Provider>
+          <header className="fixed top-0 z-10 w-full">
+            <LoadingBar
+              color="#f11946"
+              progress={progress}
+              onLoaderFinished={() => setProgress(0)}
+            />
+            <NavConfig data={data} />
+          </header>
           <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -136,19 +68,19 @@ const App = () => {
               <Route path="/create-post" element={<CreatePostPage />} />
               <Route path="/get-user/:id" element={<ProfileViewPage />} />
               <Route path="/posts/:id" element={<PostPage />} />
+              <Route path="/token-table" element={<RechargeTokenTable />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <div className="fixed right-2 bottom-2">
               <MessagePanelList />
             </div>
           </section>
+          <footer>
+            <FooterConfig />
+          </footer>
         </Provider>
       </UserContext.Provider>
-
-      <footer>
-        <Footer linkList={activeFooterLinks} website="Get Help" />
-      </footer>
-    </div>
+    </LoadingContext.Provider>
   );
 };
 

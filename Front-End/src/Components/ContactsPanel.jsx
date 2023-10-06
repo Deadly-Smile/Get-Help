@@ -1,14 +1,74 @@
-// import { useEffect, useState } from "react";
-// import { useGetAllUsersQuery } from "../Store";
-// import ContactsList from "./ContactsList";
+import { useGetContactsQuery } from "../Store";
+import ToastMessage from "../Components/ToastMessage";
+import { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
+import MsgListContext from "../Context/MsgListContext";
 
-const ContactsPanel = () => {
+const ContactPanel = () => {
+  const [showToast, setShowToast] = useState(false);
+  const { data, isError } = useGetContactsQuery();
+  const backEndURL = import.meta.env.VITE_BACKEND_URL;
+  const { addMsgPanel } = useContext(MsgListContext);
+
+  const handleShowToast = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  useEffect(() => {
+    if (isError) {
+      handleShowToast();
+    }
+  }, [isError]);
+  let renderMsg = null;
+  if (isError) {
+    renderMsg = (
+      <ToastMessage type={"error"} message={"An unexpected error occured"} />
+    );
+  }
   return (
-    <div className="bg-white border rounded-lg shadow-lg p-4">
-      <h2 className="text-2xl font-semibold mb-4">Contacts</h2>
-      {/* <ContactsList contacts={} /> */}
+    <div className="p-4 overflow-y-auto min-h-[100px]">
+      <h2 className="text-xl font-bold mb-4">Contacts</h2>
+      <ul>
+        {data?.contacts?.map((contact) => (
+          <li
+            onClick={() => {
+              addMsgPanel({
+                userId: contact.userID,
+                username: contact.name,
+                avater: contact?.avatar,
+              });
+            }}
+            key={contact.userID}
+            className="flex items-center p-2 rounded hover:bg-blue-100"
+          >
+            <div
+              className={`w-3 h-3 rounded-full fixed right-6 ${
+                contact.status === "Online" ? "bg-green-500" : "bg-yellow-500"
+              }`}
+            />
+            <img
+              src={
+                contact?.avatar
+                  ? `${backEndURL}${contact?.avatar}`
+                  : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+              }
+              alt={`${contact.name}'s Avatar`}
+              className="w-8 h-8 rounded-full "
+            />
+            <div>
+              <Link to={`/get-user/${contact.userID}`}>
+                <h1 className="font-semibold ml-2 text-xl text-blue-600 hover:text-green-800 hover:underline">
+                  {contact.name}
+                </h1>
+              </Link>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {showToast && renderMsg}
     </div>
   );
 };
 
-export default ContactsPanel;
+export default ContactPanel;

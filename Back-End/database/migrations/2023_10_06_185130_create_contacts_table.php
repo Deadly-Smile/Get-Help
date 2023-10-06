@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('contacts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('contact_id');
+            $table->unsignedBigInteger('user_1');
+            $table->unsignedBigInteger('user_2');
             $table->timestamps();
 
-            // Define foreign keys to link user_id and contact_id to a users table
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('contact_id')->references('id')->on('users');
+            // Define foreign keys to link user_1 and user_2 to a users table
+            $table->foreign('user_1')->references('id')->on('users');
+            $table->foreign('user_2')->references('id')->on('users');
         });
     }
 

@@ -6,11 +6,14 @@ use Exception;
 use Pusher\Pusher;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Contact;
 use App\Models\Message;
 use App\Events\MessageSent;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Jobs\SendUserVarifyMail;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Events\MessageStatusUpdated;
 use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
@@ -23,7 +26,10 @@ class UserController extends Controller
     public function getUser(Request $request)
     {
         $permission = $request->user()->getAllPermissions();
-        return response()->json(['user' => $request->user(), 'permission' => $permission]);
+        $msgN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'message')->orderByDesc('id')->take(20)->get();
+        $otrN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'notification')->orderByDesc('id')->take(20)->get();
+        $notifications = $otrN->concat($msgN)->sortBy('timestamp')->values();
+        return response()->json(['user' => $request->user(), 'permission' => $permission, 'notifications' => $notifications]);
     }
     /**
      * Store a newly created resource in storage.
@@ -389,7 +395,17 @@ class UserController extends Controller
         if (!$user->userHasPermission('get-contacts')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
-        $contacts = $user->contacts;
+        $contacts = Contact::where('user_1', $user->id)
+            ->orWhere('user_2', $user->id)
+            ->get();
+
+        foreach ($contacts as $contact) {
+            $contact->userID = $contact->user_1 == $user->id ? $contact->user_2 : $contact->user_1;
+            $contact->avatar = User::findOrFail($contact->userID)->avatar;
+            $contact->status = User::findOrFail($contact->userID)->status;
+            $contact->name = User::findOrFail($contact->userID)->name;
+        }
+
         return response()->json(['contacts' => $contacts], 200);
     }
 
@@ -471,8 +487,26 @@ class UserController extends Controller
             'sender_username' => $user->username,
             'receiver_username' => User::findOrFail($request['receiver'])->username,
         ];
+
+        Contact::updateOrCreate(
+            ['user_1' => $user->id, 'user_2' => $request['receiver']],
+            ['updated_at' => now()]
+        );
+
         $message = Message::create($messageData);
+
+        $notification = Notification::create([
+            'type' => 'message',
+            'is_read' => 0,
+            'content' => $request["content"],
+            'triggered_user_id' => $user->id,
+            'receiver_user_id' => (int)$request['receiver']
+        ]);
+
         broadcast(new MessageSent($user->id, $message))->toOthers();
+        $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'));
+        $pusher->trigger('notifications.' . $request['receiver'], 'new-message', ["notification" => $notification]);
+        // Pusher::trigger('notifications.' . $request['receiver'], 'new-message', $notification);
         return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
     }
 
@@ -495,5 +529,36 @@ class UserController extends Controller
         $auth = $pusher->presence_auth($channel_name, $socket_id, $user->id);
 
         return response($auth);
+    }
+
+    public function updateMsgStat(Request $request)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('send-message')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        Message::where('receiver_id', $user->id)
+            ->where('sender_id', $request['senderId'])
+            ->update(['read' => true]);
+
+        broadcast(new MessageStatusUpdated($request['messageId'], $request['senderId'], $user->id))->toOthers();
+        // broadcast(new MessageStatusUpdated($request['messageId'], $request['senderId'], $user->id))->toOthers();
+
+        return response()->json(['message' => "Successfully updated status"], 200);
+    }
+
+    public function updateNoti(Request $request)
+    {
+        $user = JWTAuth::user();
+        if ($user) {
+            $noti = Notification::findOrFail($request['noti_id']);
+            $noti->is_read = true;
+            $noti->save();
+            return response()->json(['message' => "Successfully updated the notification"], 200);
+        } else {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
     }
 }

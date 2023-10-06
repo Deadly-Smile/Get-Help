@@ -14,6 +14,7 @@ const MessagePanelList = () => {
         receiver={msg.id}
         userId={data?.user?.id}
         username={msg.username}
+        avatar={msg.avatar}
       />
     );
   });

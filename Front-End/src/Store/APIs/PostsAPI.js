@@ -75,8 +75,8 @@ const PostsAPI = createApi({
       }),
       votePost: builder.mutation({
         // eslint-disable-next-line no-unused-vars
-        invalidatesTags: (_result, _error, _arg) => {
-          return [{ type: "posts" }];
+        invalidatesTags: (_result, _error, arg) => {
+          return [{ type: "post", id: arg.id }];
         },
         query: ({ id, operation }) => {
           return {
