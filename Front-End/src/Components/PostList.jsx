@@ -14,7 +14,7 @@ const PostList = ({ query, mutation }) => {
     itemsPerPage
   );
   const isLoadingContext = useContext(LoadingContext);
-  const totalPages = data?.items?.last_page || 1;
+  const totalPages = data?.posts?.last_page || 1;
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -144,7 +144,9 @@ const PostList = ({ query, mutation }) => {
     <div>
       {render}
       <div>{postList}</div>
-      <div className="flex justify-center"> {pagination} </div>
+      {isSuccess && !isLoading && !isError ? (
+        <div className="flex justify-center">{pagination}</div>
+      ) : null}
     </div>
   );
 };

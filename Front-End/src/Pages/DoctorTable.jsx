@@ -23,8 +23,8 @@ const DoctorTable = () => {
     setIsPanelOpen(true);
   };
 
-  const closePanel = (event) => {
-    event.preventDefault();
+  const closePanel = () => {
+    // event?.preventDefault();
     setIsPanelOpen(false);
   };
 
@@ -164,7 +164,10 @@ const DoctorTable = () => {
         </div>
         <div className="mt-4 flex justify-end">
           <Button
-            onClick={closePanel}
+            onClick={(event) => {
+              event.preventDefault();
+              setIsPanelOpen(!isPanelOpen);
+            }}
             secondary
             rounded
             className="text-white mr-2 px-4 py-2 rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
@@ -220,7 +223,7 @@ const DoctorTable = () => {
       render: (user) => {
         return (
           <div>
-            <Button secondary className="rounded" onClick={openPanel}>
+            <Button secondary className="rounded text-xs" onClick={openPanel}>
               See More
             </Button>
             <PopUpPanel isOpen={isPanelOpen} onClose={closePanel}>
@@ -281,6 +284,8 @@ const DoctorTable = () => {
   ];
   return (
     <div>
+      <p className="font-semibold text-center text-2xl">Doctor List</p>
+
       <ItemTable
         config={config}
         query={useGetAllDoctorsQuery}

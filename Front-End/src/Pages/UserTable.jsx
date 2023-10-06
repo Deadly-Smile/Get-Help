@@ -70,6 +70,7 @@ const UserTable = () => {
   ];
   return (
     <div>
+      <p className="font-semibold text-center text-2xl">User List</p>
       <ItemTable config={config} query={useGetAllUsersQuery} result={result} />
     </div>
   );

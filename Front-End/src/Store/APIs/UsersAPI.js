@@ -153,7 +153,8 @@ const UsersAPI = createApi({
       logout: builder.mutation({
         invalidatesTags: (result, error, arg) => {
           localStorage.setItem("login_token", "");
-          return [{ type: "user" }];
+          const tags = [{ type: "user" }];
+          return tags;
         },
         query: ({ message }) => {
           return {
@@ -260,6 +261,78 @@ const UsersAPI = createApi({
           };
         },
       }),
+      getRechargeTokens: builder.query({
+        providesTags: (result, error, arg) => {
+          const tags = [{ type: "token" }];
+          return tags;
+        },
+        query: ({ currentPage, perPage }) => {
+          if (!perPage) perPage = 20;
+          return {
+            url: `/get-recharge-token?page=${currentPage}&perPage=${perPage}`,
+          };
+        },
+      }),
+      createRechargeToken: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "token" }];
+        },
+        query: ({ value, handler }) => {
+          console.log(value, handler);
+          return {
+            url: `/create/recharge-token`,
+            body: { value, handler },
+            method: "POST",
+          };
+        },
+      }),
+      deleteRechargeToken: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "token" }];
+        },
+        query: ({ id }) => {
+          return {
+            url: `/delete-recharge-token/${id}`,
+            method: "GET",
+          };
+        },
+      }),
+      assignTokenToAdmin: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "token" }];
+        },
+        query: ({ id, adminName }) => {
+          return {
+            url: `/assign-recharge-token/${id}`,
+            body: { username: adminName },
+            method: "POST",
+          };
+        },
+      }),
+      addMoney: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "user" }];
+        },
+        query: ({ token }) => {
+          return {
+            url: `/use-recharge-token`,
+            body: { token },
+            method: "POST",
+          };
+        },
+      }),
+      donateTo: builder.mutation({
+        invalidatesTags: (result, error, arg) => {
+          return [{ type: "user" }];
+        },
+        query: ({ amount, id }) => {
+          return {
+            url: `/donate/to_${id}`,
+            body: { amount },
+            method: "POST",
+          };
+        },
+      }),
     };
   },
 });
@@ -286,5 +359,11 @@ export const {
   useSendMessageMutation,
   useUpdateMsgStatusMutation,
   useUpdateNotificationStatusMutation,
+  useGetRechargeTokensQuery,
+  useDeleteRechargeTokenMutation,
+  useCreateRechargeTokenMutation,
+  useAssignTokenToAdminMutation,
+  useAddMoneyMutation,
+  useDonateToMutation,
 } = UsersAPI;
 export { UsersAPI };

@@ -23,9 +23,10 @@ import FooterConfig from "./Components/FooterConfig";
 import LoadingContext from "./Context/LoadingContext";
 import LoadingBar from "react-top-loading-bar";
 import { useState, useEffect } from "react";
+import RechargeTokenTable from "./Pages/RechargeTokenTable";
 
 const App = () => {
-  const { data, isSuccess, isLoading } = useGetUserQuery();
+  let { data, isSuccess, isLoading } = useGetUserQuery();
   // console.log(useGetUserQuery);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
@@ -37,7 +38,7 @@ const App = () => {
   }, [isLoading]);
 
   return (
-    <LoadingContext.Provider value={{ isLoading }}>
+    <LoadingContext.Provider value={{ progress, setProgress }}>
       <UserContext.Provider value={{ data, isSuccess }}>
         <Provider>
           <header className="fixed top-0 z-10 w-full">
@@ -67,6 +68,7 @@ const App = () => {
               <Route path="/create-post" element={<CreatePostPage />} />
               <Route path="/get-user/:id" element={<ProfileViewPage />} />
               <Route path="/posts/:id" element={<PostPage />} />
+              <Route path="/token-table" element={<RechargeTokenTable />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <div className="fixed right-2 bottom-2">

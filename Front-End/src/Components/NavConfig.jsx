@@ -51,6 +51,7 @@ const NavConfig = ({ data }) => {
     setOthNotificationIndecator(() => {
       return notifications?.some((notification) => notification.is_read === 0);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.notifications]);
 
   useEffect(() => {
@@ -91,7 +92,7 @@ const NavConfig = ({ data }) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.user?.id]);
+  }, [data]);
   const [activeNavLinks, setActiveNavLinks] = useState([
     { label: "About", link: "/about" },
     { label: "Log in", link: "/login" },
@@ -130,7 +131,7 @@ const NavConfig = ({ data }) => {
           ),
           link: "#",
         },
-        { label: data.user.username, link: "/edit-profile" },
+        { label: data.user.username, link: `/get-user/${data.user.id}` },
         { label: "Log out", link: "/logout" },
       ];
 

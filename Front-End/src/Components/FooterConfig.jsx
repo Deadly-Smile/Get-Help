@@ -33,6 +33,12 @@ const FooterConfig = () => {
           link: "/post-table",
         });
       }
+      if (data.permission.includes("make-available-recharge-token")) {
+        footerLinkWithPermission.splice(1, 0, {
+          label: "Token Table",
+          link: "/token-table",
+        });
+      }
       setActiveFooterLinks(footerLinkWithPermission);
     } else {
       setActiveFooterLinks(defaultFooterLinks);

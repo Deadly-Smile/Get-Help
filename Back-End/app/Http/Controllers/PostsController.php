@@ -39,9 +39,13 @@ class PostsController extends Controller
             $users = $post->users;
             foreach ($users as $user) {
                 $post->author = $user->username;
+                $post->author_avatar = $user->avatar;
                 break;
             }
             $post->comments = $this->commentOfPost($post->id);
+            foreach ($post->comments as $comment) {
+                $comment->author_avatar = User::findOrFail($comment->user_id)->avatar;
+            }
             $post->downvote_count = $post->downvotes()->count();
             $post->upvote_count = $post->upvotes()->count();
         }

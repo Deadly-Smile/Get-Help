@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Button from "../Components/Button";
 import classNames from "classnames";
 import { useEditUserMutation } from "../Store";
+import UserContext from "../Context/UserContext";
 
 const EditUserForm = () => {
   const [editUser, result] = useEditUserMutation();
+  const { data } = useContext(UserContext);
   const [formData, setFormData] = useState({
-    mobile: "",
-    nid_card_number: "",
-    country: "",
-    district: "",
-    address: "",
+    mobile: data?.user?.mobile,
+    nid_card_number: data?.user?.nid_card_number,
+    country: data?.user?.country,
+    district: data?.user?.district,
+    address: data?.user?.address,
     document: null,
-    name: "",
-    date_of_birth: "",
-    avatar: null,
+    name: data?.user?.name,
+    date_of_birth: data?.user?.date_of_birth,
+    avatar: data?.user?.avatar,
     old_password: "",
     new_password: "",
     confirm_password: "",
