@@ -42,9 +42,9 @@ const UserSearchPanel = () => {
           {result.isLoading ? <GoIssueReopened /> : <GoSearch />}
         </Button>
       </div>
-      <div className="max-h-[100px] overflow-y-auto min-h-[100px]">
+      <div className="max-h-[100px] overflow-y-auto">
         <ul className="space-y-2">
-          {searchResults.length === 0 ? (
+          {searchResults.length === 0 && !result?.isUninitialized ? (
             <p>No user found</p>
           ) : (
             searchResults.map((user, index) => (

@@ -131,7 +131,7 @@ const NavConfig = ({ data }) => {
           ),
           link: "#",
         },
-        { label: data.user.username, link: `/get-user/${data.user.id}` },
+        { label: data.user.username, link: `/home/get-user/${data.user.id}` },
         { label: "Log out", link: "/logout" },
       ];
 
@@ -142,28 +142,28 @@ const NavConfig = ({ data }) => {
       if (data.permission.includes("edit-user-table")) {
         navLinkWithPermission.splice(1, 0, {
           label: "Users",
-          link: "/user-table",
+          link: "/home/user-table",
         });
       }
 
       if (data.permission.includes("edit-doctor-table")) {
         navLinkWithPermission.splice(1, 0, {
           label: "Doctors",
-          link: "/doctor-table",
+          link: "/home/doctor-table",
         });
       }
 
       if (data.permission.includes("edit-admin-table")) {
         navLinkWithPermission.splice(1, 0, {
           label: "Admins",
-          link: "/admin-table",
+          link: "/home/admin-table",
         });
       }
 
       if (data.permission.includes("create-post")) {
         navLinkWithPermission.splice(1, 0, {
           label: "Create Post",
-          link: "/create-post",
+          link: "/home/create-post",
         });
       }
       setActiveNavLinks(navLinkWithPermission);

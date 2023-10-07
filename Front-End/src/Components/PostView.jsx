@@ -88,7 +88,7 @@ const PostView = ({
               alt={`${post?.author}'s Avatar`}
               className="max-w-[40px] max-h-10 rounded-full"
             />
-            <Link to={`/get-user/${post?.users[0]?.id}`}>
+            <Link to={`/home/get-user/${post?.users[0]?.id}`}>
               <h1 className="font-semibold text-2xl ml-2 text-blue-600 hover:text-green-800 hover:underline">
                 {post?.author}
               </h1>

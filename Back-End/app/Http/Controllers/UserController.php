@@ -404,6 +404,7 @@ class UserController extends Controller
             $contact->avatar = User::findOrFail($contact->userID)->avatar;
             $contact->status = User::findOrFail($contact->userID)->status;
             $contact->name = User::findOrFail($contact->userID)->name;
+            $contact->category = User::findOrFail($contact->userID)->roles()->get()[0]->name;
         }
 
         return response()->json(['contacts' => $contacts], 200);

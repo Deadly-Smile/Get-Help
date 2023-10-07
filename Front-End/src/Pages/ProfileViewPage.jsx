@@ -256,7 +256,7 @@ const ProfileViewPage = () => {
           {conObj?.data?.user?.id == id ? (
             <div>
               <Button className="mt-2 rounded" secondary>
-                <Link to={"/edit-profile"}>Edit Info</Link>
+                <Link to={"/home/edit-profile"}>Edit Info</Link>
               </Button>
             </div>
           ) : null}
@@ -324,12 +324,12 @@ const ProfileViewPage = () => {
             data?.user?.posts.map((post, index) => (
               <li key={post?.id} className="mb-2">
                 <span className="text-gray-500 mr-2 px-2">{index + 1}.</span>
-                <a
-                  href={`/posts/${post?.id}`}
+                <Link
+                  to={`/home/posts/${post?.id}`}
                   className="text-blue-500 hover:underline"
                 >
                   {post?.title}
-                </a>
+                </Link>
               </li>
             ))
           ) : (
