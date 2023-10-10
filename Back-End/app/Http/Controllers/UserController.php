@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Contact;
 use App\Models\Message;
+use Tymon\JWTAuth\Token;
 use App\Events\MessageSent;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class UserController extends Controller
         $notifications = $otrN->concat($msgN)->sortBy('timestamp')->values();
         return response()->json(['user' => $request->user(), 'permission' => $permission, 'notifications' => $notifications]);
     }
+
     /**
      * Store a newly created resource in storage.
      */
