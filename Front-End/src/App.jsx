@@ -26,6 +26,7 @@ import ProfileViewPage from "./Pages/ProfileViewPage";
 import PostPage from "./Pages/PostPage";
 import RechargeTokenTable from "./Pages/RechargeTokenTable";
 import EditProfile from "./Pages/EditProfile";
+import IntroPage from "./Pages/IntroPage";
 
 const App = () => {
   let { data, isSuccess, isLoading } = useGetUserQuery();
@@ -53,6 +54,7 @@ const App = () => {
           </header>
           <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
             <Routes>
+              <Route path="/" element={<IntroPage />} />
               <Route path="/home" element={<HomePage />}>
                 <Route
                   index

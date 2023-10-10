@@ -56,7 +56,7 @@ const ContactPanel = () => {
                   addMsgPanel({
                     userId: contact.userID,
                     username: contact.name,
-                    avater: contact?.avatar,
+                    avatar: contact?.avatar,
                   });
                 }}
                 key={contact.userID}

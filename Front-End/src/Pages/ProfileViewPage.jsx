@@ -283,6 +283,7 @@ const ProfileViewPage = () => {
           {conObj?.data?.user?.id != id && (
             <Button
               onClick={() => {
+                console.log(data);
                 addMsgPanel({
                   userId: id,
                   username: data?.user?.username,

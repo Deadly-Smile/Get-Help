@@ -8,6 +8,7 @@ const MessagePanelList = () => {
   const { msgList } = useContext(MsgListContext);
   let renderList = null;
   renderList = msgList.map((msg, index) => {
+    console.log(msg);
     return (
       <MessagePanel
         key={index}

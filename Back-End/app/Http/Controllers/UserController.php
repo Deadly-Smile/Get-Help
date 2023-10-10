@@ -396,7 +396,7 @@ class UserController extends Controller
             return response()->json(['error' => 'permission not granted'], 401);
         }
         $contacts = Contact::where('user_1', $user->id)
-            ->orWhere('user_2', $user->id)
+            ->orWhere('user_2', $user->id)->distinct()
             ->get();
 
         foreach ($contacts as $contact) {
@@ -489,8 +489,10 @@ class UserController extends Controller
             'receiver_username' => User::findOrFail($request['receiver'])->username,
         ];
 
+        $users = array($user->id, $request['receiver']);
+        sort($users);
         Contact::updateOrCreate(
-            ['user_1' => $user->id, 'user_2' => $request['receiver']],
+            ['user_1' => $users[0], 'user_2' => $users[1]],
             ['updated_at' => now()]
         );
 
