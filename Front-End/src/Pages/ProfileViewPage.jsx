@@ -225,7 +225,7 @@ const ProfileViewPage = () => {
               : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
           }
           alt={`${data?.user?.username}'s Avatar`}
-          className="h-96 max-w-3xl"
+          className="rounded-3xl max-w-[400px] max-h-[400px]"
         />
         <div className="p-4 ml-8">
           <h1 className="text-2xl font-semibold">
@@ -256,7 +256,7 @@ const ProfileViewPage = () => {
           {conObj?.data?.user?.id == id ? (
             <div>
               <Button className="mt-2 rounded" secondary>
-                <Link to={"/edit-profile"}>Edit Info</Link>
+                <Link to={"/home/edit-profile"}>Edit Info</Link>
               </Button>
             </div>
           ) : null}
@@ -283,6 +283,7 @@ const ProfileViewPage = () => {
           {conObj?.data?.user?.id != id && (
             <Button
               onClick={() => {
+                // console.log(data);
                 addMsgPanel({
                   userId: id,
                   username: data?.user?.username,
@@ -324,12 +325,12 @@ const ProfileViewPage = () => {
             data?.user?.posts.map((post, index) => (
               <li key={post?.id} className="mb-2">
                 <span className="text-gray-500 mr-2 px-2">{index + 1}.</span>
-                <a
-                  href={`/posts/${post?.id}`}
+                <Link
+                  to={`/home/posts/${post?.id}`}
                   className="text-blue-500 hover:underline"
                 >
                   {post?.title}
-                </a>
+                </Link>
               </li>
             ))
           ) : (

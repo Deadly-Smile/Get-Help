@@ -20,8 +20,16 @@ use TheSeer\Tokenizer\TokenCollection;
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
 Route::get('user/{id}', [UserController::class, 'getTheUser']);
-Route::middleware('auth:api')->group(function () {
+Route::resource('/users', UserController::class);
+
+Route::middleware('custom.token.validation')->group(function () {
     Route::get('/user', [UserController::class, 'getUser']);
+    Route::post("/edit-user", [UserController::class, 'editUser']);
+    Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
+});
+
+Route::middleware('auth:api')->group(function () {
+    // Route::get('/user', [UserController::class, 'getUser']);
     Route::get('/get-users', [UserController::class, 'getPagedUsers']);
     Route::delete('/delete-user/{id}', [UserController::class, 'deleteUser']);
     Route::get('/get-doctors', [UserController::class, 'getPagedDoctors']);
@@ -45,11 +53,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/assign-recharge-token/{id}', [TokenController::class, 'assignAdmin']);
     Route::post('/use-recharge-token', [TokenController::class, 'useToken']);
     Route::post('/donate/to_{id}', [TokenController::class, 'transferMoney']);
+    Route::get('/get-pending-posts', [PostsController::class, 'getPendingPosts']);
+    Route::get('/delete-post/{id}', [PostsController::class, 'deletePost']);
+    Route::get('/approve-post/{id}', [PostsController::class, 'approvePost']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
-Route::resource('/users', UserController::class);
-Route::post("/edit-user", [UserController::class, 'editUser']);
-Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 Route::get('/posts', [PostsController::class, 'showAllPost']);
 Route::get('/post/{id}', [PostsController::class, 'getFullPost']);
 Route::get('username:{username}', [UserController::class, 'getUsersByUsername']);

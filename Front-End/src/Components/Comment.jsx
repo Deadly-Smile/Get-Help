@@ -36,7 +36,7 @@ const Comment = ({
             alt={`${author}'s Avatar`}
             className="max-w-[24px] max-h-6 rounded-full"
           />
-          <Link to={`/get-user/${authorID}`}>
+          <Link to={`/home/get-user/${authorID}`}>
             <h1 className="font-semibold ml-2 text-blue-600 hover:text-green-800 hover:underline">
               {author}
             </h1>

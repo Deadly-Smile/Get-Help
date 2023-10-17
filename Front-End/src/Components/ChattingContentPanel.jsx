@@ -18,6 +18,7 @@ const ChattingContentPanel = ({ message, avatar }) => {
       status = "Sent";
     }
   }
+  // console.log(avatar);
   let renderMessage = null;
   if (message.type !== "sent") {
     renderMessage = (

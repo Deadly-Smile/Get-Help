@@ -24,19 +24,19 @@ const FooterConfig = () => {
         { label: "Terms of Service", link: "#" },
         { label: "Contact", link: "#" },
         { label: "Buy me a cup of coffee", link: "#" },
-        { label: "Become an Admin", link: "/apply-for-admin" },
+        { label: "Become an Admin", link: "/home/apply-for-admin" },
       ];
 
       if (data.permission.includes("edit-post-table")) {
         footerLinkWithPermission.splice(1, 0, {
           label: "Post Table",
-          link: "/post-table",
+          link: "/home/post-table",
         });
       }
       if (data.permission.includes("make-available-recharge-token")) {
         footerLinkWithPermission.splice(1, 0, {
           label: "Token Table",
-          link: "/token-table",
+          link: "/home/token-table",
         });
       }
       setActiveFooterLinks(footerLinkWithPermission);

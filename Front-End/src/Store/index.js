@@ -53,4 +53,7 @@ export {
   useVotePostMutation,
   useAddCommentMutation,
   useGetThePostQuery,
+  useGetPendingPostsQuery,
+  useDeletePendingPostMutation,
+  useApprovePostMutation,
 } from "./APIs/PostsAPI";

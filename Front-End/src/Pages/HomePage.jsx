@@ -1,23 +1,19 @@
 import ContactPanel from "../Components/ContactsPanel";
-import PostList from "../Components/PostList";
 import UserSearchPanel from "../Components/UserSearchPanel";
-// import { VideoChat } from "../Components/VideoChat";
-import { useGetPostsQuery, useVotePostMutation } from "../Store/APIs/PostsAPI";
+import { Outlet } from "react-router-dom";
 
 const HomePage = () => {
   return (
-    <div className="flex flex-col relative">
-      <div className="flex-grow flex">
-        {/* Centered Posts Panel */}
-        <div className="flex justify-center items-center w-9/12 ml-20">
-          <PostList query={useGetPostsQuery} mutation={useVotePostMutation} />
+    <div className="flex ">
+      <div className="w-1/12 flex-none"></div>
+      <div className="grow">
+        <div className="flex justify-center items-center max-w-[1000px] overflow-x-auto">
+          <Outlet />
         </div>
-
-        {/* Top-right User Search Panel */}
-        <div className="fixed top-12 right-0 w-2/12 p-1">
-          <UserSearchPanel />
-          <ContactPanel />
-        </div>
+      </div>
+      <div className="flex-none w-2/12 p-1 border-l-4 max-h-[500px] overflow-y-auto">
+        <UserSearchPanel />
+        <ContactPanel />
       </div>
     </div>
   );

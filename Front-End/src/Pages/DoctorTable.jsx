@@ -5,6 +5,7 @@ import Button from "../Components/Button";
 import classNames from "classnames";
 import DownloadLink from "../Components/DownloadLink";
 import PopUpPanel from "../Components/PopUpPanel";
+import { Link } from "react-router-dom";
 import {
   useApproveDoctorMutation,
   useDeleteUserMutation,
@@ -202,7 +203,13 @@ const DoctorTable = () => {
     {
       title: "Username",
       render: (user) => {
-        return user?.username;
+        return (
+          <Link to={`/home/get-user/${user?.id}`}>
+            <h1 className="font-semibold text-2xl ml-2 text-blue-600 hover:text-green-800 hover:underline">
+              {user?.username}
+            </h1>
+          </Link>
+        );
       },
       sortValue: (user) => user?.username,
     },
@@ -213,7 +220,7 @@ const DoctorTable = () => {
           <img
             src={`${backEndURL}${user?.avatar}`}
             alt="User Avatar"
-            className="max-w-xs max-h-48"
+            className="rounded-3xl max-w-[40px] max-h-[40px]"
           />
         );
       },

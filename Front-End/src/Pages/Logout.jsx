@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../Store";
 import ToastMessage from "../Components/ToastMessage";
 import LoadingContext from "../Context/LoadingContext";
+import MsgListContext from "../Context/MsgListContext";
 
 const Logout = () => {
   const navigate = useNavigate();
   const [logout, result] = useLogoutMutation();
   const [showToast, setShowToast] = useState(false);
   const isLoadingContext = useContext(LoadingContext);
+  const { removeAll } = useContext(MsgListContext);
 
   useEffect(() => {
     if (result.isLoading) {
@@ -37,9 +39,10 @@ const Logout = () => {
 
   useEffect(() => {
     if (result.isSuccess) {
+      removeAll();
       navigate("/login");
     }
-  }, [navigate, result.isSuccess]);
+  }, [navigate, removeAll, result.isSuccess]);
 
   let render = null;
   if (result.isSuccess) {

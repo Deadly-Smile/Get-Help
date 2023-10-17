@@ -10,6 +10,7 @@ php artisan make:job SendUserVarifyMail
 php artisan queue:table
 composer require laravel/passport
 php artisan passport:install
+composer require guzzlehttp/guzzle
 ```
 
 - [ ] npm install bootstrap@latest // Not using

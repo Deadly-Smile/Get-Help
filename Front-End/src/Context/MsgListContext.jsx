@@ -5,13 +5,13 @@ const MsgListContext = createContext();
 function Provider({ children }) {
   const [msgList, setMsgList] = useState([]);
 
-  const addMsgPanel = ({ userId, username, avater }) => {
+  const addMsgPanel = ({ userId, username, avatar }) => {
     let list = msgList;
     if (msgList.length > 2) {
       list = msgList.slice(1, msgList.length);
     }
     list = list.filter((msg) => msg.id !== userId);
-    list.push({ id: userId, username, avater });
+    list.push({ id: userId, username, avatar });
     setMsgList(list);
   };
 
@@ -20,10 +20,15 @@ function Provider({ children }) {
     setMsgList([...list]);
   };
 
+  const removeAll = () => {
+    setMsgList([]);
+  };
+
   const valToShare = {
     msgList,
     addMsgPanel,
     removeMsgPanel,
+    removeAll,
   };
 
   return (

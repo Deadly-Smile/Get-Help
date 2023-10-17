@@ -3,6 +3,8 @@ import Button from "../Components/Button";
 import classNames from "classnames";
 import { useEditUserMutation } from "../Store";
 import UserContext from "../Context/UserContext";
+import LoadingContext from "../Context/LoadingContext";
+import ToastMessage from "../Components/ToastMessage";
 
 const EditUserForm = () => {
   const [editUser, result] = useEditUserMutation();
@@ -23,6 +25,48 @@ const EditUserForm = () => {
     is_a_doctor: false,
   });
   const [validationErrors, setValidationErrors] = useState({});
+  const isLoadingContext = useContext(LoadingContext);
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (result?.isLoading) {
+      isLoadingContext.setProgress(30);
+    } else {
+      isLoadingContext.setProgress(100);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result?.isLoading]);
+
+  const handleShowToast = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000); // Hides the toast after 3 seconds
+  };
+
+  useEffect(() => {
+    if (result?.isError || result?.isSuccess) {
+      handleShowToast();
+    }
+  }, [result?.isError, result?.isSuccess]);
+
+  let render = null;
+  if (result.isError) {
+    render = (
+      <div>
+        {showToast && (
+          <ToastMessage type="error" message={result?.data?.message} />
+        )}
+      </div>
+    );
+  }
+  if (result?.isSuccess) {
+    render = (
+      <div>
+        {showToast && (
+          <ToastMessage type="success" message={result?.data?.message} />
+        )}
+      </div>
+    );
+  }
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -64,7 +108,8 @@ const EditUserForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
+    setValidationErrors([]);
 
     const formDataToSend = new FormData();
 
@@ -335,9 +380,9 @@ const EditUserForm = () => {
 
   return (
     <>
-      <section>
+      <section className="w-3/4">
         <form
-          className="mx-auto my-4 p-6 max-w-4xl bg-white rounded shadow"
+          className="mx-auto my-4 p-6 bg-white rounded shadow"
           encType="multipart/form-data"
         >
           <h2 className="font-bold text-5xl mb-4 flex justify-center">
@@ -355,21 +400,7 @@ const EditUserForm = () => {
           )}
         </form>
       </section>
-      <div>
-        {result.isLoading && (
-          <p className="flex justify-center text-blue-950">Loading...</p>
-        )}
-        {result.isSuccess && (
-          <p className="flex justify-center text-blue-950">
-            Edited successfully
-          </p>
-        )}
-        {result.isError && (
-          <p className="flex justify-center text-red-600">
-            Something went wrong
-          </p>
-        )}
-      </div>
+      {render}
     </>
   );
 };

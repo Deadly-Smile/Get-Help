@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Http;
 
 class PostsController extends Controller
 {
@@ -24,10 +25,16 @@ class PostsController extends Controller
             'content' => $request->input('content'),
         ]);
 
+        $isPassable = $this->filterContent($request->input('content'));
+
+        $post->isPending = !$isPassable;
+        // $post->isPending = true;
         $post->save();
-        // it hase many-to-many relation after next migration i want to make it one to many
+
         $user->posts()->attach($post);
-        // JWTAuth::user()->posts()->save($post);
+        if (!$isPassable) {
+            return response()->json(['message' => 'Pending for an Admin approval'], 200);
+        }
         return response()->json(['message' => "Post successfully created"], 200);
     }
 
@@ -50,6 +57,72 @@ class PostsController extends Controller
             $post->upvote_count = $post->upvotes()->count();
         }
         return response()->json(['posts' => $posts], 200);
+    }
+
+    /**
+     * Scope to improve performance
+     */
+    public function getPendingPosts()
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('approve_or_delete_posts ')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $perPage = (int)request()->input('perPage', 10);
+        $posts = Post::query()->where('isPending', true)->orderByDesc('id')->paginate($perPage);
+        foreach ($posts as $post) {
+            $users = $post->users;
+            foreach ($users as $user) {
+                $post->author = $user->username;
+                $post->author_avatar = $user->avatar;
+                break;
+            }
+            $post->comments = $this->commentOfPost($post->id);
+            foreach ($post->comments as $comment) {
+                $comment->author_avatar = User::findOrFail($comment->user_id)->avatar;
+            }
+            $post->downvote_count = $post->downvotes()->count();
+            $post->upvote_count = $post->upvotes()->count();
+        }
+        return response()->json(['items' => $posts], 200);
+    }
+
+    public function deletePost($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('approve_or_delete_posts ')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+        $post = Post::findOrFail($id);
+        if ($post->isPending) {
+            if (!$post->delete()) {
+                return response()->json(["message" => "Failed to delete", 'id' => $id]);
+            }
+            return response()->json(["message" => "Successfully deleted", 'id' => $id]);
+        } else {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+    }
+
+    public function approvePost($id)
+    {
+        // check the user
+        $user = JWTAuth::user();
+        if (!$user->userHasPermission('approve_or_delete_posts ')) {
+            return response()->json(['error' => 'permission not granted'], 401);
+        }
+
+        $post = Post::findOrFail($id);
+        if ($post->isPending) {
+            $post->isPending = false;
+            $post->save();
+            return response()->json(["message" => "Successfully approved", 'id' => $id]);
+        } else {
+            return response()->json(['error' => 'Already approved'], 401);
+        }
     }
 
     public function getFullPost($id)
@@ -147,5 +220,80 @@ class PostsController extends Controller
         $comment->save();
 
         return response()->json(['message' => 'Successfully commented'], 200);
+    }
+
+
+
+    private function filterContent($content)
+    {
+        // Get the text to filter from the request
+        $htmlToFilter = $content;
+
+        // Extract plain text from HTML content
+        $plainTextToFilter = $this->extractPlainText($htmlToFilter);
+        // Make the API call to OpenAI Content Filter. Do not have cradit to call this api need money
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+        ])->post('https://api.openai.com/v1/moderations', [
+            'input' => $plainTextToFilter
+        ]);
+        // $apiKey = env('FILTER_API_KEY'); // Replace with your Perspective API key
+
+        // $response = Http::post('https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze', [
+        //     'comment' => ['text' => $plainTextToFilter],
+        //     'requestedAttributes' => ['TOXICITY' => []],
+        // ], [
+        //     'query' => ['key' => $apiKey],
+        // ]);
+
+        $data = $response->json();
+        // dd($data);
+        $categoryScores = $response['results'][0]['category_scores'];
+
+        // Threshold score for passing
+        $threshold = 0.5;
+
+        // Check if all category scores are less than the threshold
+        $isPassable = true;
+
+        // $resData = array([]);
+        foreach ($categoryScores as $category) {
+            // array_push($resData, ['Score' => $category]);
+            if ($category >= $threshold) {
+                $isPassable = false;
+                break;
+            }
+        }
+        // dd($data, $resData, $isPassable);
+
+        return $isPassable;
+
+        // if (isset($data['attributeScores']['TOXICITY']['summaryScore']['value'])) {
+        //     $toxicityScore = $data['attributeScores']['TOXICITY']['summaryScore']['value'];
+        //     if ($toxicityScore !== null && $toxicityScore > 0.5) {
+        //         return false;
+        //     } else {
+        //         return true;
+        //         // Content is not toxic, proceed
+        //     }
+        // } else {
+        //     return true;
+        // }
+    }
+
+    private function extractPlainText($html)
+    {
+        // Remove HTML tags and their content, keeping only the text
+        $plainText = strip_tags($html);
+
+        // Decode HTML entities to get the actual characters
+        $plainText = htmlspecialchars_decode($plainText);
+
+        // Remove extra whitespaces and newlines
+        $plainText = preg_replace('/\s+/', ' ', $plainText);
+        $plainText = trim($plainText);
+
+        return $plainText;
     }
 }

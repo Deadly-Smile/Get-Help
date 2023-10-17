@@ -22,7 +22,7 @@ const Navbar = ({ linkList }) => {
           <div className="flex items-center justify-between h-16">
             <div className="flex-shrink-0">
               <Link
-                to="/"
+                to="/home"
                 className="text-white text-xl font-bold hover:text-green-100 hover:underline"
               >
                 Home

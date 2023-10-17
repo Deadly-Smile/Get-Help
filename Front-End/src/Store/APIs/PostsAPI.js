@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const getAuthToken = () => {
@@ -86,6 +87,28 @@ const PostsAPI = createApi({
           };
         },
       }),
+      getPendingPosts: builder.query({
+        // eslint-disable-next-line no-unused-vars
+        providesTags: (_result, _error, _arg) => {
+          return [{ type: "post" }];
+        },
+        query: ({ currentPage, perPage }) => {
+          if (!perPage) perPage = 10;
+          return `get-pending-posts?page=${currentPage}&perPage=${perPage}`;
+        },
+      }),
+      deletePendingPost: builder.mutation({
+        invalidatesTags: (_result, _error, arg) => {
+          return [{ type: "post" }];
+        },
+        query: ({ id }) => `/delete-post/${id}`,
+      }),
+      approvePost: builder.mutation({
+        invalidatesTags: (_result, _error, arg) => {
+          return [{ type: "post" }];
+        },
+        query: ({ id }) => `/approve-post/${id}`,
+      }),
     };
   },
 });
@@ -96,6 +119,9 @@ export const {
   useVotePostMutation,
   useAddCommentMutation,
   useGetThePostQuery,
+  useGetPendingPostsQuery,
+  useDeletePendingPostMutation,
+  useApprovePostMutation,
 } = PostsAPI;
 
 export { PostsAPI };
