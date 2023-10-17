@@ -20,10 +20,15 @@ function Provider({ children }) {
     setMsgList([...list]);
   };
 
+  const removeAll = () => {
+    setMsgList([]);
+  };
+
   const valToShare = {
     msgList,
     addMsgPanel,
     removeMsgPanel,
+    removeAll,
   };
 
   return (

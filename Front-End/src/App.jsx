@@ -27,6 +27,7 @@ import PostPage from "./Pages/PostPage";
 import RechargeTokenTable from "./Pages/RechargeTokenTable";
 import EditProfile from "./Pages/EditProfile";
 import IntroPage from "./Pages/IntroPage";
+import SignUpVerification from "./Components/SignUpVerification";
 
 const App = () => {
   let { data, isSuccess, isLoading } = useGetUserQuery();
@@ -84,6 +85,11 @@ const App = () => {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/logout" element={<Logout />} />
+              <Route path="/get-user/:id" element={<ProfileViewPage />} />
+              <Route
+                path="/verify-user/:id"
+                element={<SignUpVerification message="Submit the code" />}
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <div className="fixed right-2 bottom-2">

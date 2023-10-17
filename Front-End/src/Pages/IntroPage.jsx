@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Button from "../Components/Button";
 import { Link } from "react-router-dom";
+import ExpandablePanel from "../Components/ExpandablePanel";
 
 const slides = [
   {
@@ -38,7 +39,7 @@ const slides = [
 
 const Slide = ({ title, description }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+    <div className="p-6 rounded-lg shadow-lg text-center bg-slate-100">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <p>{description}</p>
     </div>
@@ -47,7 +48,7 @@ const Slide = ({ title, description }) => {
 
 const TestimonialSlide = ({ testimonials }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
+    <div className="p-6 rounded-lg shadow-lg bg-slate-100">
       {testimonials.map((testimonial, index) => (
         <div key={index} className="mb-4">
           <p className="font-bold">{testimonial.author}</p>
@@ -111,32 +112,37 @@ const IntroPage = () => {
           />
         </div>
       </section>
-      <section className=" mx-36">
+      <section className="mx-36 w-4/5">
         <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
-        <div className="space-y-6">
-          <div>
-            <p className="font-bold">Q: How does GetHelp work?</p>
+        <div className="space-y-2">
+          <ExpandablePanel
+            header={<p className="font-bold">Q: How does GetHelp work?</p>}
+          >
             <p>
               A: After signing up and completing a short questionnaire, youll be
               matched with a licensed counselor who best meets your needs. You
               can then start communicating via secure messaging or choose other
               communication methods.
             </p>
-          </div>
-          <div>
-            <p className="font-bold">Q: Is my information confidential?</p>
+          </ExpandablePanel>
+          <ExpandablePanel
+            header={
+              <p className="font-bold">Q: Is my information confidential?</p>
+            }
+          >
             <p>
               A: Yes, your privacy is a top priority. GetHelp uses secure and
               encrypted technology to protect your information.
             </p>
-          </div>
-          <div>
-            <p className="font-bold">Q: Can I switch counselors?</p>
+          </ExpandablePanel>
+          <ExpandablePanel
+            header={<p className="font-bold">Q: Can I switch counselors?</p>}
+          >
             <p>
               A: Absolutely. If you feel your counselor isnt the right fit, you
               can switch to another counselor at any time.
             </p>
-          </div>
+          </ExpandablePanel>
         </div>
       </section>
       <section className="my-12 mx-16">

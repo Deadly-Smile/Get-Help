@@ -97,11 +97,11 @@ const SignUp = () => {
               value={newUser.email}
             />
             <p className="text-sm text-red-600">{emailFieldError}</p>
-            {!emailFieldError && (
+            {/* {!emailFieldError && (
               <p className="text-sm text-gray-500">
                 We will never share your email with anyone else.
               </p>
-            )}
+            )} */}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 font-medium">Password</label>
@@ -154,8 +154,8 @@ const SignUp = () => {
     if (result.data.message) {
       waitForMailMessage = (
         <SignUpVerification
-          message={result.data.message}
-          id={result.data.data.id}
+          message={result?.data?.message}
+          userId={result?.data?.data?.id}
         />
       );
       form = null;
@@ -164,9 +164,6 @@ const SignUp = () => {
 
   return (
     <div className="bg-gray-100">
-      <h1 className="flex justify-center font-semibold text-2xl">
-        Create User
-      </h1>
       {result.isLoading && (
         <h1 className="flex justify-center font-semibold text-lg text-blue-950">
           Loading...

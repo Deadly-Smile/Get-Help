@@ -24,12 +24,12 @@ const UserSearchPanel = () => {
 
   return (
     <div className="space-y-2 p-4">
-      <p className="text-sm text-gray-600">Search User</p>
+      {/* <p className="text-sm text-gray-600">Search User</p> */}
       <div className="flex">
         <input
           type="text"
-          placeholder="Search"
-          className="w-full px-3 focus:outline-none focus:ring focus:border-blue-300 bg-slate-100"
+          placeholder="Search User"
+          className="w-full px-3 text-sm focus:outline-none focus:ring focus:border-blue-300 bg-slate-100"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

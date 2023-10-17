@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useContext, useState } from "react";
 import moment from "moment";
 import { GoMail } from "react-icons/go";
 import { useUpdateNotificationStatusMutation } from "../Store";
+import MsgListContext from "../Context/MsgListContext";
 
 const MessageNotificationPanel = ({
   notifications,
@@ -12,6 +13,7 @@ const MessageNotificationPanel = ({
 }) => {
   const [showPanel, setShowPanel] = useState(false);
   const [updateNotificationStatus] = useUpdateNotificationStatusMutation();
+  const { addMsgPanel } = useContext(MsgListContext);
 
   const updateNotification = (newNotification) => {
     updateNotificationStatus({ noti_id: newNotification.id });
@@ -59,26 +61,48 @@ const MessageNotificationPanel = ({
           <ul>
             {notifications
               // .filter((notification) => notification.type === "message")
-              .map((notification) => (
-                <li
-                  key={notification?.id}
-                  className={`mb-4 ${
-                    notification?.is_read
-                      ? "bg-gray-200 opacity-70"
-                      : "bg-blue-200"
-                  } p-3 rounded text-gray-800`}
-                  onClick={() => updateNotification(notification)}
-                  title={moment(notification?.created_at).fromNow()}
-                >
-                  <h3 className="text-lg mb-1">{notification?.type}</h3>
-                  <p className="text-sm text-gray-700 mb-1">
-                    {notification?.content}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {moment(notification?.created_at).fromNow()}
-                  </p>
-                </li>
-              ))}
+              .map((notification) => {
+                return (
+                  <li
+                    key={notification?.id}
+                    className={`mb-4 ${
+                      notification?.is_read
+                        ? "bg-gray-200 opacity-70"
+                        : "bg-blue-200"
+                    } p-3 rounded text-gray-800`}
+                    onClick={() => {
+                      addMsgPanel({
+                        userId: notification?.triggered_user_id,
+                        username: notification?.triggered_username,
+                        avater: notification?.triggered_user_avatar,
+                      });
+                      updateNotification(notification);
+                    }}
+                    title={moment(notification?.created_at).fromNow()}
+                  >
+                    <div className="flex">
+                      <img
+                        src={
+                          notification?.triggered_user_avatar
+                            ? `${import.meta.env.VITE_BACKEND_URL}${
+                                notification?.triggered_user_avatar
+                              }`
+                            : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+                        }
+                        alt={`${notification?.triggered_username}'s Avatar`}
+                        className="rounded-3xl w-4 h-4 mt-1 mr-1"
+                      />
+                      <h3 className="">{notification?.triggered_username}</h3>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-1">
+                      {notification?.content}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {moment(notification?.created_at).fromNow()}
+                    </p>
+                  </li>
+                );
+              })}
           </ul>
           {/* <p className="text-gray-800">{notifications[0].content}</p> */}
         </div>

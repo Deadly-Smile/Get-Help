@@ -8,7 +8,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Contact;
 use App\Models\Message;
-use Tymon\JWTAuth\Token;
 use App\Events\MessageSent;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -30,6 +29,10 @@ class UserController extends Controller
         $msgN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'message')->orderByDesc('id')->take(20)->get();
         $otrN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'notification')->orderByDesc('id')->take(20)->get();
         $notifications = $otrN->concat($msgN)->sortBy('timestamp')->values();
+        foreach ($notifications as $notification) {
+            $notification->triggered_username = User::findOrFail($notification->triggered_user_id)->username;
+            $notification->triggered_user_avatar = User::findOrFail($notification->triggered_user_id)->avatar;
+        }
         return response()->json(['user' => $request->user(), 'permission' => $permission, 'notifications' => $notifications]);
     }
 
@@ -38,15 +41,8 @@ class UserController extends Controller
      */
     public function store(SignUpRequest $request)
     {
-        // Validate the user input
-        // already validated
-
         // mail data
-        $mailData = [
-            "name" => $request["name"],
-            "link" => "http://localhost:5173/",
-            "sixDigitNumber" => random_int(100000, 999999),
-        ];
+        $randomNum = random_int(100000, 999999);
 
         // Create a new user with the validated data
         $user = User::create([
@@ -54,15 +50,20 @@ class UserController extends Controller
             'email' => $request['email'],
             'password' => Hash::make($request['password']),
             'username' => $request['username'],
-            'verify_token' => $mailData['sixDigitNumber'],
+            'verify_token' => $randomNum,
             'pending_subscriber' => true,
         ]);
 
-        // send mail
-        // dispatch(new SendUserVarifyMail(["send-to" => $user->email, "data" => $mailData]));
-
         // get leatest user id
         $user = User::latest()->first();
+        $mailData = [
+            "name" => $request["name"],
+            "link" => "http://localhost:5173/verify-user/" . $user->id,
+            "sixDigitNumber" => $randomNum,
+        ];
+
+        // send mail
+        dispatch(new SendUserVarifyMail(["send-to" => $user->email, "data" => $mailData]));
 
         // Optionally, you can log in the user after registration
         // auth()->login($user);
@@ -493,10 +494,13 @@ class UserController extends Controller
 
         $users = array($user->id, $request['receiver']);
         sort($users);
-        Contact::updateOrCreate(
-            ['user_1' => $users[0], 'user_2' => $users[1]],
-            ['updated_at' => now()]
-        );
+        if ($users[0] != $users[1]) {
+            Contact::updateOrCreate(
+                ['user_1' => $users[0], 'user_2' => $users[1]],
+                ['updated_at' => now()]
+            );
+        }
+
 
         $message = Message::create($messageData);
 
@@ -507,6 +511,9 @@ class UserController extends Controller
             'triggered_user_id' => $user->id,
             'receiver_user_id' => (int)$request['receiver']
         ]);
+
+        $notification->triggered_username = $user->username;
+        $notification->triggered_user_avatar = $user->avatar;
 
         broadcast(new MessageSent($user->id, $message))->toOthers();
         $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'));

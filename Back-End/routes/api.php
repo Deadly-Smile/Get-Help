@@ -20,8 +20,12 @@ use TheSeer\Tokenizer\TokenCollection;
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
 Route::get('user/{id}', [UserController::class, 'getTheUser']);
+Route::resource('/users', UserController::class);
+
 Route::middleware('custom.token.validation')->group(function () {
     Route::get('/user', [UserController::class, 'getUser']);
+    Route::post("/edit-user", [UserController::class, 'editUser']);
+    Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 });
 
 Route::middleware('auth:api')->group(function () {
@@ -54,9 +58,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/approve-post/{id}', [PostsController::class, 'approvePost']);
 });
 Route::put('/{id}/signup/verify', [UserController::class, 'signUpVerify']);
-Route::resource('/users', UserController::class);
-Route::post("/edit-user", [UserController::class, 'editUser']);
-Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 Route::get('/posts', [PostsController::class, 'showAllPost']);
 Route::get('/post/{id}', [PostsController::class, 'getFullPost']);
 Route::get('username:{username}', [UserController::class, 'getUsersByUsername']);

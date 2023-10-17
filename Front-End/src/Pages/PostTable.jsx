@@ -16,14 +16,38 @@ const PostTable = () => {
     {
       title: "ID.",
       render: (post) => {
-        return post?.id;
+        return (
+          <Link
+            to={`/home/posts/${post?.id}`}
+            className="text-blue-500 hover:underline"
+          >
+            {post?.id}
+          </Link>
+        );
       },
       sortValue: (post) => post?.id,
     },
     {
       title: "Title",
       render: (post) => {
-        return post?.title;
+        const maxLength = 20;
+        if (post?.title && post?.title?.length > maxLength) {
+          return post.title.slice(0, maxLength) + "...";
+        } else {
+          return post?.title;
+        }
+      },
+    },
+    {
+      title: "Author",
+      render: (post) => {
+        return (
+          <Link to={`/home/get-user/${post?.users[0]?.id}`}>
+            <h1 className="ml-2 text-blue-600 hover:text-green-800 hover:underline">
+              {post?.author}
+            </h1>
+          </Link>
+        );
       },
     },
     {
@@ -37,7 +61,7 @@ const PostTable = () => {
                 : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
             }
             alt={`${post?.author}'s Avatar`}
-            className="max-w-[30px] max-h-7 rounded"
+            className="rounded w-6 h-6"
           />
         );
       },
@@ -53,7 +77,7 @@ const PostTable = () => {
             }}
             secondary
             rounded
-            className="text-white mr-2 px-4 py-2 rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
+            className="text-white mr-2 px-4 py-2 items-center text-center rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
           >
             Approve
           </Button>
@@ -63,7 +87,7 @@ const PostTable = () => {
       },
     },
     {
-      title: "Delete User",
+      title: "Delete Post",
       render: (post) => {
         const id = post.id;
         return (

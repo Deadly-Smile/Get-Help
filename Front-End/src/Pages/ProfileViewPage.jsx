@@ -225,7 +225,7 @@ const ProfileViewPage = () => {
               : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
           }
           alt={`${data?.user?.username}'s Avatar`}
-          className="h-96 max-w-3xl"
+          className="rounded-3xl max-w-[400px] max-h-[400px]"
         />
         <div className="p-4 ml-8">
           <h1 className="text-2xl font-semibold">
@@ -283,7 +283,7 @@ const ProfileViewPage = () => {
           {conObj?.data?.user?.id != id && (
             <Button
               onClick={() => {
-                console.log(data);
+                // console.log(data);
                 addMsgPanel({
                   userId: id,
                   username: data?.user?.username,

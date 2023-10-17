@@ -90,22 +90,22 @@ const PostsAPI = createApi({
       getPendingPosts: builder.query({
         // eslint-disable-next-line no-unused-vars
         providesTags: (_result, _error, _arg) => {
-          return [{ type: "pending-post" }];
+          return [{ type: "post" }];
         },
         query: ({ currentPage, perPage }) => {
           if (!perPage) perPage = 10;
-          return `get-users?page=${currentPage}&perPage=${perPage}`;
+          return `get-pending-posts?page=${currentPage}&perPage=${perPage}`;
         },
       }),
       deletePendingPost: builder.mutation({
         invalidatesTags: (_result, _error, arg) => {
-          return [{ type: "pending-post" }];
+          return [{ type: "post" }];
         },
         query: ({ id }) => `/delete-post/${id}`,
       }),
       approvePost: builder.mutation({
         invalidatesTags: (_result, _error, arg) => {
-          return [{ type: "pending-post" }];
+          return [{ type: "post" }];
         },
         query: ({ id }) => `/approve-post/${id}`,
       }),

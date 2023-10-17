@@ -7,6 +7,8 @@ import CommentPanel from "./CommentPanel";
 import Button from "./Button";
 import { useAddCommentMutation } from "../Store";
 import { Link } from "react-router-dom";
+import { AiFillLike, AiFillDislike } from "react-icons/ai";
+import ToastMessage from "./ToastMessage";
 
 const PostView = ({
   post,
@@ -19,13 +21,14 @@ const PostView = ({
   const [votePost, postResult] = useVotePostMutation();
   const [addComment, cmtResult] = useAddCommentMutation();
   const finalClassNames = classNames(
-    "mx-auto p-4 bg-white shadow-md rounded-lg my-3",
+    "mx-auto p-4 bg-white shadow-md rounded-lg my-3 min-w-[600px]",
     className
   );
   const fullContent = post?.content;
   const maxLengthToShow = wordLimit ? wordLimit : 1000;
 
   const [showFullContent, setShowFullContent] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const contentToShow = showFullContent
     ? fullContent
     : fullContent.slice(0, maxLengthToShow);
@@ -44,6 +47,43 @@ const PostView = ({
   const handleSubmitComment = () => {
     addComment({ content: newComment, id: post.id });
   };
+
+  const handleShowToast = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000); // Hides the toast after 3 seconds
+  };
+  useEffect(() => {
+    if (
+      postResult?.isError ||
+      cmtResult?.isSuccess ||
+      cmtResult?.isError ||
+      postResult?.isSuccess
+    ) {
+      handleShowToast();
+    }
+  }, [
+    postResult?.isError,
+    postResult?.isSuccess,
+    cmtResult?.isError,
+    cmtResult?.isSuccess,
+  ]);
+
+  let renderMsg = null;
+  if (postResult?.isSuccess) {
+    renderMsg = showToast && (
+      <ToastMessage type={"success"} message={"Successfully voted"} />
+    );
+  }
+  if (cmtResult?.isSuccess) {
+    renderMsg = showToast && (
+      <ToastMessage type={"success"} message={"Successfully commented"} />
+    );
+  }
+  if (postResult?.isError || cmtResult?.isError) {
+    renderMsg = showToast && (
+      <ToastMessage type={"error"} message={"Error occured"} />
+    );
+  }
 
   useEffect(() => {
     if (cmtResult.isSuccess) {
@@ -86,7 +126,7 @@ const PostView = ({
                   : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
               }
               alt={`${post?.author}'s Avatar`}
-              className="max-w-[40px] max-h-10 rounded-full"
+              className="rounded-full w-10 h-10"
             />
             <Link to={`/home/get-user/${post?.users[0]?.id}`}>
               <h1 className="font-semibold text-2xl ml-2 text-blue-600 hover:text-green-800 hover:underline">
@@ -108,26 +148,25 @@ const PostView = ({
             className="text-blue-600 hover:underline"
             onClick={toggleShowFullContent}
           >
-            {showFullContent ? "See Less" : "See More"}
+            {showFullContent ? "See Less" : "...See More"}
           </button>
         </div>
       )}
       <div className="flex items-center justify-end space-x-2 bg-gray-300 rounded p-2">
-        {postResult.isError ? (
-          <p className="text-red-500">Error occured</p>
-        ) : null}
         <button
-          className="text-blue-500 hover:underline"
+          className="text-blue-500 hover:underline text-2xl"
           onClick={() => handleVote(post.id, "upvote")}
         >
-          Upvote
+          {/* Upvote */}
+          <AiFillLike />
         </button>
         <span className="text-gray-600">({post?.upvote_count})</span>
         <button
-          className="text-red-500 hover:underline"
+          className="text-red-500 hover:underline text-2xl"
           onClick={() => handleVote(post.id, "downvote")}
         >
-          Downvote
+          {/* Downvote */}
+          <AiFillDislike />
         </button>
         <span className="text-gray-600">({post?.downvote_count})</span>
       </div>
@@ -135,6 +174,7 @@ const PostView = ({
         {comment}
         {addCommentPanel}
       </div>
+      {showToast && renderMsg}
     </div>
   );
 };

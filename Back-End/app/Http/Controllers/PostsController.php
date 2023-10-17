@@ -25,14 +25,16 @@ class PostsController extends Controller
             'content' => $request->input('content'),
         ]);
 
-        // $isPassable = $this->filterContent($request->input('content'));
+        $isPassable = $this->filterContent($request->input('content'));
 
-        // $post->isPending = !$isPassable;
-        $post->isPending = true;
+        $post->isPending = !$isPassable;
+        // $post->isPending = true;
         $post->save();
 
-        // dd($isPassable);
         $user->posts()->attach($post);
+        if (!$isPassable) {
+            return response()->json(['message' => 'Pending for an Admin approval'], 200);
+        }
         return response()->json(['message' => "Post successfully created"], 200);
     }
 
@@ -84,7 +86,7 @@ class PostsController extends Controller
             $post->downvote_count = $post->downvotes()->count();
             $post->upvote_count = $post->upvotes()->count();
         }
-        return response()->json(['posts' => $posts], 200);
+        return response()->json(['items' => $posts], 200);
     }
 
     public function deletePost($id)
@@ -220,9 +222,8 @@ class PostsController extends Controller
         return response()->json(['message' => 'Successfully commented'], 200);
     }
 
-    /**
-     * Need openai cradits
-     
+
+
     private function filterContent($content)
     {
         // Get the text to filter from the request
@@ -231,51 +232,54 @@ class PostsController extends Controller
         // Extract plain text from HTML content
         $plainTextToFilter = $this->extractPlainText($htmlToFilter);
         // Make the API call to OpenAI Content Filter. Do not have cradit to call this api need money
-        // $response = Http::withHeaders([
-        //     'Content-Type' => 'application/json',
-        //     'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
-        // ])->post('https://api.openai.com/v1/moderations', [
-        //     'input' => 'I want to kill them.'
-        // ]);
-        $apiKey = env('FILTER_API_KEY'); // Replace with your Perspective API key
-
-        $response = Http::post('https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze', [
-            'comment' => ['text' => $plainTextToFilter],
-            'requestedAttributes' => ['TOXICITY' => []],
-        ], [
-            'query' => ['key' => $apiKey],
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+        ])->post('https://api.openai.com/v1/moderations', [
+            'input' => $plainTextToFilter
         ]);
+        // $apiKey = env('FILTER_API_KEY'); // Replace with your Perspective API key
+
+        // $response = Http::post('https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze', [
+        //     'comment' => ['text' => $plainTextToFilter],
+        //     'requestedAttributes' => ['TOXICITY' => []],
+        // ], [
+        //     'query' => ['key' => $apiKey],
+        // ]);
 
         $data = $response->json();
-        dd($data);
-        // $categoryScores = $response['results'][0]['category_scores'];
+        // dd($data);
+        $categoryScores = $response['results'][0]['category_scores'];
 
-        // // Threshold score for passing
-        // $threshold = 5;
+        // Threshold score for passing
+        $threshold = 0.5;
 
-        // // Check if all category scores are less than the threshold
-        // $isPassable = true;
+        // Check if all category scores are less than the threshold
+        $isPassable = true;
 
-        // foreach ($categoryScores as $category => $score) {
-        //     if ($score >= $threshold) {
-        //         $isPassable = false;
-        //         break;
-        //     }
-        // }
-
-        // return $isPassable;
-
-        if (isset($data['attributeScores']['TOXICITY']['summaryScore']['value'])) {
-            $toxicityScore = $data['attributeScores']['TOXICITY']['summaryScore']['value'];
-            if ($toxicityScore !== null && $toxicityScore > 0.5) {
-                return false;
-            } else {
-                return true;
-                // Content is not toxic, proceed
+        // $resData = array([]);
+        foreach ($categoryScores as $category) {
+            // array_push($resData, ['Score' => $category]);
+            if ($category >= $threshold) {
+                $isPassable = false;
+                break;
             }
-        } else {
-            return true;
         }
+        // dd($data, $resData, $isPassable);
+
+        return $isPassable;
+
+        // if (isset($data['attributeScores']['TOXICITY']['summaryScore']['value'])) {
+        //     $toxicityScore = $data['attributeScores']['TOXICITY']['summaryScore']['value'];
+        //     if ($toxicityScore !== null && $toxicityScore > 0.5) {
+        //         return false;
+        //     } else {
+        //         return true;
+        //         // Content is not toxic, proceed
+        //     }
+        // } else {
+        //     return true;
+        // }
     }
 
     private function extractPlainText($html)
@@ -292,5 +296,4 @@ class PostsController extends Controller
 
         return $plainText;
     }
-     */
 }
