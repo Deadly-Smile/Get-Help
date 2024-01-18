@@ -76,7 +76,6 @@ const NavConfig = ({ data }) => {
       });
 
       channel.bind("new-message", (data) => {
-        console.log("triggered : ", data.notification);
         setMessageNotification((prevMessages) => [
           data.notification,
           ...prevMessages,

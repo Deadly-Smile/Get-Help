@@ -25,7 +25,9 @@ class PostsController extends Controller
             'content' => $request->input('content'),
         ]);
 
-        $isPassable = $this->filterContent($request->input('content'));
+        // $isPassable = $this->filterContent($request->input('content'));
+        // API verification expaired
+        $isPassable = true;
 
         $post->isPending = !$isPassable;
         // $post->isPending = true;
@@ -66,7 +68,7 @@ class PostsController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('approve_or_delete_posts ')) {
+        if (!$user->userHasPermission('approve_or_delete_posts')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 

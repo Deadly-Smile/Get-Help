@@ -71,7 +71,7 @@ class UserController extends Controller
     }
 
     /**
-     * Verify user 
+     * Verify user
      */
     public function signUpVerify(Request $request, $id)
     {
