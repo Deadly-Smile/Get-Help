@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Message;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -137,7 +138,7 @@ class User extends Authenticatable implements JWTSubject
     // Define a one-to-many relationship between User and Messaging
     public function messages()
     {
-        return $this->hasMany(Messaging::class, 'sender_id');
+        return $this->hasMany(Message::class, 'sender_id');
     }
 
     // Define a many-to-many relationship between User and Contact

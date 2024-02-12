@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Button from "../Components/Button";
 import { Link } from "react-router-dom";
 import ExpandablePanel from "../Components/ExpandablePanel";
+import careImage from "../assets/care-1.png";
 
 const slides = [
   {
@@ -106,7 +107,7 @@ const IntroPage = () => {
             </p>
           </div>
           <img
-            src={"..\\src\\assets\\care-1.png"}
+            src={careImage}
             alt={`Care Image`}
             className="max-h-[500px] max-w-[500px]"
           />

@@ -76,7 +76,6 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     });
 
     channel.bind("App\\Events\\MessageStatusUpdated", (data) => {
-      console.log(data);
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
           message.id === data?.messageId ? { ...message, status: 1 } : message
