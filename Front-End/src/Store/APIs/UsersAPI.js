@@ -8,6 +8,7 @@ const getAuthToken = () => {
   } catch (error) {
     console.log("token not found");
   }
+
   return token;
 };
 
@@ -15,7 +16,7 @@ const UsersAPI = createApi({
   reducerPath: "users",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://get-help.000.pe/api`,
+    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api`,
     prepareHeaders: (headers) => {
       // Add the authentication token to the request headers
       const token = getAuthToken();
