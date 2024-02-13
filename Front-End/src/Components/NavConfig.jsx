@@ -90,13 +90,15 @@ const NavConfig = ({ data }) => {
         channel.unbind(`notifications.${data?.user?.id}`);
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data, notifications]);
   const [activeNavLinks, setActiveNavLinks] = useState([
     { label: "About", link: "/about" },
     { label: "Log in", link: "/login" },
     { label: "Sign up", link: "/signup" },
   ]);
+
+  const [parentList, setParentList] = useState([]);
+  const [manageList, setManageList] = useState([]);
 
   useEffect(() => {
     let defaultNavLink = [
@@ -106,6 +108,11 @@ const NavConfig = ({ data }) => {
     ];
 
     if (data && data.user) {
+      const parentLinkList = [
+        { label: data.user.username, link: `/home/get-user/${data.user.id}` },
+        { label: "Log out", link: "/logout" },
+      ];
+      const manageLinkList = [];
       const navLinkWithPermission = [
         { label: "About", link: "/about" },
         {
@@ -130,42 +137,63 @@ const NavConfig = ({ data }) => {
           ),
           link: "#",
         },
-        { label: data.user.username, link: `/home/get-user/${data.user.id}` },
-        { label: "Log out", link: "/logout" },
       ];
 
       if (data.permission.includes("edit-my-post")) {
-        navLinkWithPermission.splice(1, 0, { label: "Posts", link: "#" });
+        parentLinkList.splice(1, 0, { label: "Posts", link: "post-table" });
+        // navLinkWithPermission.splice(1, 0, { label: "Posts", link: "#" });
       }
 
       if (data.permission.includes("edit-user-table")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Users",
-          link: "/home/user-table",
+        manageLinkList.push({ label: "Users", link: "/home/user-table" });
+        // navLinkWithPermission.splice(1, 0, {
+        //   label: "Users",
+        //   link: "/home/user-table",
+        // });
+      }
+
+      if (data.permission.includes("edit-post-table")) {
+        manageLinkList.push({
+          label: "Posts",
+          link: "/home/post-table",
+        });
+      }
+      if (data.permission.includes("make-available-recharge-token")) {
+        manageLinkList.push({
+          label: "Tokens",
+          link: "/home/token-table",
         });
       }
 
       if (data.permission.includes("edit-doctor-table")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Doctors",
-          link: "/home/doctor-table",
-        });
+        manageLinkList.push({ label: "Doctors", link: "/home/doctor-table" });
+        // navLinkWithPermission.splice(1, 0, {
+        //   label: "Doctors",
+        //   link: "/home/doctor-table",
+        // });
       }
 
       if (data.permission.includes("edit-admin-table")) {
-        navLinkWithPermission.splice(1, 0, {
-          label: "Admins",
-          link: "/home/admin-table",
-        });
+        manageLinkList.push({ label: "Admins", link: "/home/admin-table" });
+        // navLinkWithPermission.splice(1, 0, {
+        //   label: "Admins",
+        //   link: "/home/admin-table",
+        // });
       }
 
       if (data.permission.includes("create-post")) {
-        navLinkWithPermission.splice(1, 0, {
+        parentLinkList.splice(1, 0, {
           label: "Create Post",
           link: "/home/create-post",
         });
+        // navLinkWithPermission.splice(1, 0, {
+        //   label: "Create Post",
+        //   link: "/home/create-post",
+        // });
       }
       setActiveNavLinks(navLinkWithPermission);
+      setManageList(manageLinkList);
+      setParentList(parentLinkList);
     } else {
       setActiveNavLinks(defaultNavLink);
     }
@@ -176,7 +204,14 @@ const NavConfig = ({ data }) => {
     notifications,
     othNotificationIndecator,
   ]);
-  return <Navbar linkList={activeNavLinks} />;
+  return (
+    <Navbar
+      linkList={activeNavLinks}
+      parentLinkList={parentList}
+      manageLinkList={manageList}
+      userName={data?.user?.username}
+    />
+  );
 };
 
 export default NavConfig;
