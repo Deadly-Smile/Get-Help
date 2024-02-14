@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useGetUserByUsernameMutation } from "../Store";
-import { GoSearch, GoIssueReopened } from "react-icons/go";
-import Button from "./Button";
 import { Link } from "react-router-dom";
 
 const UserSearchPanel = () => {
@@ -24,23 +22,30 @@ const UserSearchPanel = () => {
 
   return (
     <div className="space-y-2 p-4">
-      {/* <p className="text-sm text-gray-600">Search User</p> */}
       <div className="flex">
-        <input
-          type="text"
-          placeholder="Search User"
-          className="w-full px-3 text-sm focus:outline-none focus:ring focus:border-blue-300 bg-slate-100"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <Button
-          className={`flex items-center justify-center text-white px-1 py-1 focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white disabled:bg-slate-400`}
-          secondary
-          onClick={handleSearchClick}
-          disabled={result.isLoading}
-        >
-          {result.isLoading ? <GoIssueReopened /> : <GoSearch />}
-        </Button>
+        <label className="input input-bordered flex items-center gap-2">
+          <input
+            type="text"
+            className="grow"
+            placeholder="Search user"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClick={handleSearchClick}
+            disabled={result.isLoading}
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            className="w-4 h-4 opacity-70"
+          >
+            <path
+              fillRule="evenodd"
+              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </label>
       </div>
       <div className="max-h-[100px] overflow-y-auto">
         <ul className="space-y-2">

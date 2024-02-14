@@ -216,106 +216,110 @@ const ProfileViewPage = () => {
   };
 
   return (
-    <div className="bg-white p-8 shadow-md rounded-md">
-      <div className="flex">
-        <img
-          src={
-            data?.user?.avatar
-              ? `${backEndURL}${data?.user?.avatar}`
-              : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
-          }
-          alt={`${data?.user?.username}'s Avatar`}
-          className="rounded-3xl max-w-[400px] max-h-[400px]"
-        />
-        <div className="p-4 ml-8">
-          <h1 className="text-2xl font-semibold">
-            {data?.user?.name} {status}
-          </h1>
-          <p className="text-gray-600">{data?.user?.username}</p>
-          {/* <p className="text-gray-800">{data?.user?.email}</p> */}
-          <p className="text-gray-900 font-semibold">
-            Contribution : {data?.user?.contribution}
-          </p>
-          <p className="flex">
-            Status :{" "}
-            <span className="ml-1">
-              {data?.user.status === "Active" ? "Active" : "Inactive"}
-            </span>
-          </p>
-          <p className="text-gray-800">
-            Country :{" "}
-            {data?.user?.country ? data?.user?.country : "Not specified"}
-          </p>
-          <p className="text-gray-800">
-            District :{" "}
-            {data?.user?.district ? data?.user?.district : "Not specified"}
-          </p>
-          {conObj?.data?.user?.id == id ? (
-            <p>Balance : {conObj?.data?.user?.balance}</p>
-          ) : null}
-          {conObj?.data?.user?.id == id ? (
-            <div>
-              <Button className="mt-2 rounded" secondary>
-                <Link to={"/home/edit-profile"}>Edit Info</Link>
-              </Button>
+    <div className="rounded-md">
+      <div className="hero min-h-screen bg-base-200">
+        <div className="hero-content flex-col lg:flex-row">
+          <img
+            src={
+              data?.user?.avatar
+                ? `${backEndURL}${data?.user?.avatar}`
+                : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+            }
+            alt={`${data?.user?.username}'s Avatar`}
+            className="max-w-sm rounded-lg shadow-2xl"
+          />
+          <div>
+            <h1 className="text-5xl font-bold p-4 ml-8">
+              {data?.user?.name} {status}
+            </h1>
+            <div className="p-4 ml-8">
+              <p className="">{data?.user?.username}</p>
+              {/* <p className="text-gray-800">{data?.user?.email}</p> */}
+              <p className="font-semibold">
+                Contribution : {data?.user?.contribution}
+              </p>
+              <p className="flex">
+                Status :{" "}
+                <span className="ml-1">
+                  {data?.user.status === "Active" ? "Active" : "Inactive"}
+                </span>
+              </p>
+              <p className="">
+                Country :{" "}
+                {data?.user?.country ? data?.user?.country : "Not specified"}
+              </p>
+              <p className="">
+                District :{" "}
+                {data?.user?.district ? data?.user?.district : "Not specified"}
+              </p>
+              {conObj?.data?.user?.id == id ? (
+                <p>Balance : {conObj?.data?.user?.balance}</p>
+              ) : null}
+              {conObj?.data?.user?.id == id ? (
+                <div>
+                  <Button className="mt-2 rounded" secondary>
+                    <Link to={"/home/edit-profile"}>Edit Info</Link>
+                  </Button>
+                </div>
+              ) : null}
+              {conObj?.data?.user?.id == id ? (
+                <div>
+                  <Button
+                    onClick={() => setIsRechargePanelOpen(!isRechargePanelOpen)}
+                    className="mt-2 rounded"
+                    secondary
+                  >
+                    Add Money
+                  </Button>
+                  <PopUpPanel
+                    isOpen={isRechargePanelOpen}
+                    onClose={() => setIsRechargePanelOpen(false)}
+                  >
+                    <h2 className="flex justify-center font-semibold text-lg my-2">
+                      Add Money by Token
+                    </h2>
+                    {rechargePanel()}
+                  </PopUpPanel>
+                </div>
+              ) : null}
+              {conObj?.data?.user?.id != id && (
+                <Button
+                  onClick={() => {
+                    // console.log(data);
+                    addMsgPanel({
+                      userId: id,
+                      username: data?.user?.username,
+                      avater: data?.user?.avatar,
+                    });
+                  }}
+                  className="mt-2 rounded"
+                  secondary
+                >
+                  Contact
+                </Button>
+              )}
+              {conObj?.data?.user?.id != id ? (
+                <div>
+                  <Button
+                    className="mt-2 rounded"
+                    secondary
+                    onClick={() => setIsDonatePanelOpen(!isDonatePanelOpen)}
+                  >
+                    Donate
+                  </Button>
+                  <PopUpPanel
+                    isOpen={isDonatePanelOpen}
+                    onClose={() => setIsDonatePanelOpen(false)}
+                  >
+                    <h2 className="flex justify-center font-semibold text-lg my-2">
+                      Donate Money
+                    </h2>
+                    {donatePanel(id)}
+                  </PopUpPanel>
+                </div>
+              ) : null}
             </div>
-          ) : null}
-          {conObj?.data?.user?.id == id ? (
-            <div>
-              <Button
-                onClick={() => setIsRechargePanelOpen(!isRechargePanelOpen)}
-                className="mt-2 rounded"
-                secondary
-              >
-                Add Money
-              </Button>
-              <PopUpPanel
-                isOpen={isRechargePanelOpen}
-                onClose={() => setIsRechargePanelOpen(false)}
-              >
-                <h2 className="flex justify-center font-semibold text-lg my-2">
-                  Add Money by Token
-                </h2>
-                {rechargePanel()}
-              </PopUpPanel>
-            </div>
-          ) : null}
-          {conObj?.data?.user?.id != id && (
-            <Button
-              onClick={() => {
-                // console.log(data);
-                addMsgPanel({
-                  userId: id,
-                  username: data?.user?.username,
-                  avater: data?.user?.avatar,
-                });
-              }}
-              className="mt-2 rounded"
-              secondary
-            >
-              Contact
-            </Button>
-          )}
-          {conObj?.data?.user?.id != id ? (
-            <div>
-              <Button
-                className="mt-2 rounded"
-                secondary
-                onClick={() => setIsDonatePanelOpen(!isDonatePanelOpen)}
-              >
-                Donate
-              </Button>
-              <PopUpPanel
-                isOpen={isDonatePanelOpen}
-                onClose={() => setIsDonatePanelOpen(false)}
-              >
-                <h2 className="flex justify-center font-semibold text-lg my-2">
-                  Donate Money
-                </h2>
-                {donatePanel(id)}
-              </PopUpPanel>
-            </div>
-          ) : null}
+          </div>
         </div>
       </div>
       <div className="mt-4">
@@ -324,7 +328,7 @@ const ProfileViewPage = () => {
           {data?.user?.posts?.length !== 0 ? (
             data?.user?.posts.map((post, index) => (
               <li key={post?.id} className="mb-2">
-                <span className="text-gray-500 mr-2 px-2">{index + 1}.</span>
+                <span className="mr-2 px-2">{index + 1}.</span>
                 <Link
                   to={`/home/posts/${post?.id}`}
                   className="text-blue-500 hover:underline"

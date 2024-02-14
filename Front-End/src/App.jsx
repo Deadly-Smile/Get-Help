@@ -30,8 +30,7 @@ import SignUpVerification from "./Components/SignUpVerification";
 import Footer from "./Components/Footer";
 
 const App = () => {
-  let { data, isSuccess, isLoading } = useGetUserQuery();
-  // console.log(useGetUserQuery);
+  const { data, isSuccess, isLoading } = useGetUserQuery();
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     if (isLoading) {
@@ -56,7 +55,10 @@ const App = () => {
           <section>
             <Routes>
               <Route path="/" element={<IntroPage />} />
-              <Route path="/home" element={<HomePage />}>
+              <Route
+                path="/home"
+                element={<HomePage isSuccess={data != null} />}
+              >
                 <Route
                   index
                   element={

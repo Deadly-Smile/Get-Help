@@ -20,7 +20,7 @@ class CustomTokenValidationResponse
         } catch (TokenInvalidException $e) {
             return response()->json(['message' => 'Invalid token'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Token is not provided'], 200);
+            return response()->json(['message' => 'Token is not provided'], 400);
         }
     }
 }

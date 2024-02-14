@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
+use Illuminate\Support\Js;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller

@@ -34,7 +34,33 @@ const Navbar = ({ linkList, parentLinkList, manageLinkList, userName }) => {
 
   return (
     <div className="navbar bg-base-100">
-      <div className="flex-1 ">
+      <div className="flex-none">
+        {isManager && (
+          <div className="drawer">
+            <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+            <div className="drawer-content">
+              {/* Page content here */}
+              <label
+                htmlFor="my-drawer"
+                className="btn btn-warning drawer-button"
+              >
+                Admin option
+              </label>
+            </div>
+            <div className="drawer-side">
+              <label
+                htmlFor="my-drawer"
+                aria-label="close sidebar"
+                className="drawer-overlay"
+              ></label>
+              <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+                {renderLinks(manageLinkList, "managerList")}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl">
           Get Help
         </Link>
@@ -42,7 +68,7 @@ const Navbar = ({ linkList, parentLinkList, manageLinkList, userName }) => {
       <div className="navbar-end">
         <ul className="menu menu-horizontal px-1">
           {renderLinks(linkList, "linkList")}
-          {isManager && (
+          {/* {isManager && (
             <li>
               <details>
                 <summary>Admin Options</summary>
@@ -51,7 +77,7 @@ const Navbar = ({ linkList, parentLinkList, manageLinkList, userName }) => {
                 </ul>
               </details>
             </li>
-          )}
+          )} */}
           {isParent && (
             <li>
               <details>

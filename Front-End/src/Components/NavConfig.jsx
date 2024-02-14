@@ -102,6 +102,7 @@ const NavConfig = ({ data }) => {
 
   useEffect(() => {
     let defaultNavLink = [
+      { label: "Home", link: "/home" },
       { label: "About", link: "/about" },
       { label: "Log in", link: "/login" },
       { label: "Sign up", link: "/signup" },
@@ -114,6 +115,7 @@ const NavConfig = ({ data }) => {
       ];
       const manageLinkList = [];
       const navLinkWithPermission = [
+        { label: "Home", link: "/home" },
         { label: "About", link: "/about" },
         {
           label: (
@@ -140,21 +142,22 @@ const NavConfig = ({ data }) => {
       ];
 
       if (data.permission.includes("edit-my-post")) {
-        parentLinkList.splice(1, 0, { label: "Posts", link: "post-table" });
-        // navLinkWithPermission.splice(1, 0, { label: "Posts", link: "#" });
+        parentLinkList.splice(1, 0, {
+          label: "Manage posts",
+          link: "post-table",
+        });
       }
 
       if (data.permission.includes("edit-user-table")) {
-        manageLinkList.push({ label: "Users", link: "/home/user-table" });
-        // navLinkWithPermission.splice(1, 0, {
-        //   label: "Users",
-        //   link: "/home/user-table",
-        // });
+        manageLinkList.push({
+          label: "Manage users",
+          link: "/home/user-table",
+        });
       }
 
       if (data.permission.includes("edit-post-table")) {
         manageLinkList.push({
-          label: "Posts",
+          label: "See posts",
           link: "/home/post-table",
         });
       }
@@ -166,19 +169,17 @@ const NavConfig = ({ data }) => {
       }
 
       if (data.permission.includes("edit-doctor-table")) {
-        manageLinkList.push({ label: "Doctors", link: "/home/doctor-table" });
-        // navLinkWithPermission.splice(1, 0, {
-        //   label: "Doctors",
-        //   link: "/home/doctor-table",
-        // });
+        manageLinkList.push({
+          label: "Manage doctors",
+          link: "/home/doctor-table",
+        });
       }
 
       if (data.permission.includes("edit-admin-table")) {
-        manageLinkList.push({ label: "Admins", link: "/home/admin-table" });
-        // navLinkWithPermission.splice(1, 0, {
-        //   label: "Admins",
-        //   link: "/home/admin-table",
-        // });
+        manageLinkList.push({
+          label: "Manage admins",
+          link: "/home/admin-table",
+        });
       }
 
       if (data.permission.includes("create-post")) {
@@ -186,10 +187,6 @@ const NavConfig = ({ data }) => {
           label: "Create Post",
           link: "/home/create-post",
         });
-        // navLinkWithPermission.splice(1, 0, {
-        //   label: "Create Post",
-        //   link: "/home/create-post",
-        // });
       }
       setActiveNavLinks(navLinkWithPermission);
       setManageList(manageLinkList);
