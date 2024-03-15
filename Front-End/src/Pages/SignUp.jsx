@@ -4,6 +4,7 @@ import { useAddUserMutation } from "../Store";
 import Button from "../Components/Button";
 import Panel from "../Components/Panel";
 import SignUpVerification from "../Components/SignUpVerification";
+import axios from "axios";
 
 const SignUp = () => {
   const [newUser, setNewUser] = useState({
@@ -29,17 +30,35 @@ const SignUp = () => {
   const onConfirm_passwordChange = (event) => {
     setNewUser({ ...newUser, confirm_password: event.target.value });
   };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    addUser({
-      username: newUser.username,
-      name: newUser.name,
-      email: newUser.email,
-      password: newUser.password,
-      password_confirmation: newUser.confirm_password,
-    });
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   addUser({
+  //     username: newUser.username,
+  //     name: newUser.name,
+  //     email: newUser.email,
+  //     password: newUser.password,
+  //     password_confirmation: newUser.confirm_password,
+  //   });
+  // };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = axios.get(`https://freetestapi.com/api/v1/users/1`);
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+    }
+
+    // axios.get("/sanctum/csrf-cookie").then(async (response) => {
+    //   // Login...
+    //   if (response.status === 204)
+    //     await axios.post("api/login", {
+    //       email: "anik@anik.com",
+    //       password: "1234567890",
+    //     });
+    // });
   };
-  let usernameFieldError = null;
+  // let usernameFieldError = null;
   let nameFieldError = null;
   let emailFieldError = null;
   let passwordFieldError = null;
@@ -48,7 +67,7 @@ const SignUp = () => {
   if (result.status === "rejected") {
     if (result.error.data) {
       if (result.error.data.errors) {
-        usernameFieldError = result.error.data.errors.username;
+        // usernameFieldError = result.error.data.errors.username;
         nameFieldError = result.error.data.errors.name;
         emailFieldError = result.error.data.errors.email;
         passwordFieldError = result.error.data.errors.password;
@@ -71,7 +90,7 @@ const SignUp = () => {
               onChange={onUsernameChange}
               value={newUser.username}
             />
-            <p className="text-sm text-red-600">{usernameFieldError}</p>
+            {/* <p className="text-sm text-red-600">{usernameFieldError}</p> */}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 font-medium">Name</label>

@@ -322,7 +322,7 @@ const ProfileViewPage = () => {
           </div>
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 mx-24">
         <h2 className="text-lg font-semibold mb-2">Posts</h2>
         <ul>
           {data?.user?.posts?.length !== 0 ? (

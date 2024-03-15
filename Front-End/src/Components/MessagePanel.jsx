@@ -4,7 +4,6 @@ import {
   useSendMessageMutation,
   useUpdateMsgStatusMutation,
 } from "../Store";
-import { BiSolidSend } from "react-icons/bi";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsFillTelephoneFill } from "react-icons/bs";
 import { FaWindowMinimize } from "react-icons/fa";
@@ -136,8 +135,8 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
   }
 
   return (
-    <div className="flex flex-col rounded h-96 max-w-[300px] bg-gray-200 mx-2">
-      <div className="bg-gray-900 p-4 border-b border-gray-900 flex justify-between">
+    <div className="flex flex-col h-96 max-w-[300px]">
+      <div className="p-4 border-b flex justify-between bg-warning rounded-md rounded-e-none">
         <div className="flex">
           <img
             src={
@@ -149,20 +148,20 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
             className="max-w-[24px] max-h-6 rounded-full"
           />
           <Link to={`/get-user/${receiver}`}>
-            <h1 className="font-semibold ml-2 text-blue-100 hover:text-green-800 hover:underline">
+            <h1 className="font-semibold ml-2 hover:underline text-black">
               {username}
             </h1>
           </Link>
         </div>
         <div className="flex">
-          <Button className="text-gray-200 border-collapse border-0 text-2xl hover:text-blue-700 -mr-2">
+          <Button className="text-base-200 border-collapse border-0 text-2xl hover:text-blue-700 -mr-2">
             <BsFillTelephoneFill />
           </Button>
-          <Button className="text-gray-200 border-collapse border-0 text-2xl hover:text-gray-500 -mr-2">
+          <Button className="text-base-200 border-collapse border-0 text-2xl hover:text-base-500 -mr-2">
             <FaWindowMinimize />
           </Button>
           <Button
-            className="text-gray-200 border-collapse border-0 text-2xl hover:text-red-700 -mr-2"
+            className="text-base-200 border-collapse border-0 text-2xl hover:text-red-700 -mr-2"
             rounded
             onClick={removePanel}
           >
@@ -179,11 +178,26 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
         <p className="flex justify-center text-xl font-semibold">{username}</p>
         {renderMessages}
       </div>
-      <div className="bg-gray-200 p-3 border-t border-gray-300">
+      <div className="join p-3">
+        <input
+          type="text"
+          className="input input-bordered join-item max-w-[220px]"
+          placeholder="Type a message..."
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+        />
+        <button
+          className="btn join-item rounded-r-full"
+          onClick={handleSendMessage}
+        >
+          Send
+        </button>
+      </div>
+      {/* <div className="bg-base-200 p-3 border-t border-base-300">
         <div className="flex items-center">
           <input
             type="text"
-            className="flex-grow rounded p-2 bg-gray-300 focus:outline-none"
+            className="flex-grow rounded p-2 bg-base-300 focus:outline-none"
             placeholder="Type a message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -194,8 +208,8 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
           >
             <BiSolidSend />
           </Button>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
     </div>
   );
 };
