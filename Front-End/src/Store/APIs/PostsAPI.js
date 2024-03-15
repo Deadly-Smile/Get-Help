@@ -14,7 +14,7 @@ const getAuthToken = () => {
 const PostsAPI = createApi({
   reducerPath: "posts",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api`,
+    baseUrl: `http://get-help.000.pe/api`,
     prepareHeaders: (headers) => {
       // Add the authentication token to the request headers
       const token = getAuthToken();
