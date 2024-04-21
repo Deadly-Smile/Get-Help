@@ -1,4 +1,3 @@
-import Button from "../Components/Button";
 import PostEditor from "../Components/PostEditor";
 import { useContext, useEffect, useState } from "react";
 import { useAddPostMutation } from "../Store/APIs/PostsAPI";
@@ -14,7 +13,7 @@ const CreatePostPage = () => {
   const [showToast, setShowToast] = useState(false);
   const handleShowToast = () => {
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000); // Hides the toast after 3 seconds
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   useEffect(() => {
@@ -72,40 +71,35 @@ const CreatePostPage = () => {
   }
 
   return (
-    <div className="bg-gray-200 min-h-screen flex items-center justify-center">
-      <div className="bg-white shadow-lg rounded-lg w-4/5 p-6 h-4/5">
-        <h1 className="md-0 text-center text-4xl font-semibold">Create Post</h1>
-
-        <div className="md-0 mx-4">
-          <label htmlFor="title" className={"text-xl font-semibold py-2"}>
-            Title :
-          </label>
+    <div className="hero min-h-screen bg-base-200">
+      <div className="text-center">
+        <h1 className="text-center text-3xl font-semibold mb-8">Create Post</h1>
+        <label className="form-control w-full max-w-xl">
+          <div className="label">
+            <span className="label-text text-lg">Title of the post</span>
+          </div>
           <input
             type="text"
             value={title}
             placeholder="Title"
             onChange={handleTitleChange}
-            className={
-              "w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
-            }
+            className="input input-bordered w-full max-w-xl"
           />
-        </div>
-        <PostEditor
-          header={"Content :"}
-          onChange={handleContentChange}
-          content={content}
-        />
-        <div className="flex justify-end mx-4">
-          <Button
-            secondary
-            onClick={handleCreatePostClick}
-            className="rounded text-white focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
-          >
+        </label>
+        <label className="form-control w-full max-w-xl mt-4">
+          <div className="label">
+            <span className="label-text text-lg">Post body</span>
+          </div>
+          <PostEditor onChange={handleContentChange} content={content} />
+        </label>
+
+        <div className="flex justify-end mt-4">
+          <button onClick={handleCreatePostClick} className="btn btn-warning">
             Create Post
-          </Button>
-          {render}
+          </button>
         </div>
       </div>
+      {render}
     </div>
   );
 };

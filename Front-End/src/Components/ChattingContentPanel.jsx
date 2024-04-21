@@ -23,28 +23,33 @@ const ChattingContentPanel = ({ message, avatar }) => {
   if (message.type !== "sent") {
     renderMessage = (
       <div className="flex">
-        <img
-          src={
-            avatar
-              ? `${backEndURL}${avatar}`
-              : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
-          }
-          className="max-w-[24px] max-h-6 rounded-full mr-1 mt-3"
-        />
+        <div className="chat-image avatar">
+          <div className="w-10 rounded-full">
+            <img
+              src={
+                avatar
+                  ? `${backEndURL}${avatar}`
+                  : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+              }
+              // className="max-w-[24px] max-h-6 rounded-full mr-1 mt-3"
+            />{" "}
+          </div>
+        </div>
+
         <div
-          className={`p-2 my-1 text-white w-fit rounded-lg ${
-            message.type === "sent" ? "bg-[#3B82F6]" : "bg-[#6B7280]"
+          className={`chat-bubble ${
+            message.type === "sent" ? "chat-bubble-info" : "chat-bubble-warning"
           }`}
         >
-          <p>{message.message}</p>
+          {message.message}
         </div>
       </div>
     );
   } else {
     renderMessage = (
       <div
-        className={`p-2 ml-1 text-white w-fit rounded-lg ${
-          message.type === "sent" ? "bg-[#3B82F6]" : "bg-[#6B7280]"
+        className={`chat-bubble ${
+          message.type === "sent" ? "chat-bubble-info" : "chat-bubble-warning"
         }`}
       >
         <p>{message.message}</p>
@@ -52,12 +57,10 @@ const ChattingContentPanel = ({ message, avatar }) => {
     );
   }
   return (
-    <div className="mx-4">
+    <div className="">
       <div
         className={`flex ${
-          message.type === "sent"
-            ? "justify-end -mr-2 ml-2"
-            : "justify-start -ml-2 mr-2"
+          message.type === "sent" ? "justify-end " : "justify-start "
         }`}
         title={moment(message?.timestamp).fromNow()}
       >
@@ -65,9 +68,7 @@ const ChattingContentPanel = ({ message, avatar }) => {
       </div>
       <div
         className={`flex ${
-          message.type === "sent"
-            ? "justify-end -mr-2 ml-2"
-            : "justify-start -ml-2 mr-2"
+          message.type === "sent" ? "justify-end " : "justify-start "
         }`}
       >
         <p className="text-xs text-gray-500">{status}</p>

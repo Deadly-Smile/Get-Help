@@ -1,5 +1,4 @@
 import HomePage from "./Pages/HomePage";
-import About from "./Pages/About";
 import NotFound from "./Pages/NotFound";
 import SignUp from "./Pages/SignUp";
 import Login from "./Pages/Login";
@@ -83,7 +82,7 @@ const App = () => {
                 />
                 <Route path="*" element={<NotFound />} />
               </Route>
-              <Route path="/about" element={<About />} />
+              <Route path="/about" element={<IntroPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/logout" element={<Logout />} />

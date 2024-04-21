@@ -135,7 +135,7 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
   }
 
   return (
-    <div className="flex flex-col h-96 max-w-[300px]">
+    <div className="flex flex-col h-96 max-w-[300px] bg-base-100">
       <div className="p-4 border-b flex justify-between bg-warning rounded-md rounded-e-none">
         <div className="flex">
           <img

@@ -105,7 +105,7 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
         <div>
           <div className="flex">
             <div className="avatar online mr-4">
-              <div className="w-12 rounded-full">
+              <div className="w-8 h-8 rounded-full">
                 <img
                   src={
                     post?.author_avatar
@@ -118,12 +118,14 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
             </div>
             <Link
               to={`/home/get-user/${post?.users[0]?.id}`}
-              className="link text-4xl font-semibold link-hover underline-none"
+              className="link text-xl font-semibold link-hover underline-none text-blue-700"
             >
               {post?.author}
             </Link>
           </div>
-          <h2 className="font-semibold text-xl mt-2 ">{post?.title}</h2>
+          <h2 className="font-semibold text-2xl mt-2 underline">
+            <Link to={`posts/${post.id}`}>{post?.title}</Link>
+          </h2>
         </div>
 
         <div className="text-sm min-w-fit">

@@ -1,11 +1,10 @@
 /* eslint-disable react/prop-types */
 import SortableTable from "../Components/SortableTable";
 import { useContext, useEffect, useState } from "react";
-import Button from "../Components/Button";
 import LoadingContext from "../Context/LoadingContext";
 import ToastMessage from "./ToastMessage";
 
-const maxVisiblePages = 5;
+// const maxVisiblePages = 5;
 const itemsPerPage = 10;
 const ItemTable = ({ query, config, result, perPage }) => {
   const [items, setItems] = useState([]);
@@ -79,90 +78,28 @@ const ItemTable = ({ query, config, result, perPage }) => {
     }
   }, [data, isSuccess]);
 
-  const getPageButtons = () => {
-    const pageButtons = [];
-    const firstVisiblePage = Math.max(
-      1,
-      currentPage - Math.floor(maxVisiblePages / 2)
-    );
-    const lastVisiblePage = Math.min(
-      totalPages,
-      firstVisiblePage + maxVisiblePages - 1
-    );
-
-    for (let page = firstVisiblePage; page <= lastVisiblePage; page++) {
-      pageButtons.push(
-        <button
-          key={page}
-          onClick={() => handlePageChange(page)}
-          className={`mx-1 px-3 py-1 rounded ${
-            currentPage === page
-              ? "bg-gray-800 text-white"
-              : "bg-white text-gray-800"
-          }`}
-        >
-          {page}
-        </button>
-      );
-    }
-
-    return pageButtons;
-  };
-
   const pagination = (
-    <div className="flex justify-center mt-4">
-      <Button
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        secondary
-        className={`${
-          currentPage === 1 ? "disabled" : ""
-        } rounded hover:bg-gray-200 hover:text-gray-800 px-1 py-1`}
-      >
-        {"<<"}
-      </Button>
-      {currentPage > Math.floor(maxVisiblePages / 2) && (
-        <>
-          <button
-            className="mx-1 px-3 py-1 rounded bg-gray-200 text-gray-800"
-            onClick={() => handlePageChange(1)}
-          >
-            1
-          </button>
-          {currentPage > Math.floor(maxVisiblePages / 2) + 1 && (
-            <span>...</span>
-          )}
-        </>
-      )}
-
-      {getPageButtons()}
-
-      {currentPage < totalPages - Math.floor(maxVisiblePages / 2) && (
-        <>
-          {currentPage < totalPages - Math.floor(maxVisiblePages / 2) && (
-            <span>...</span>
-          )}
-          <button
-            className="mx-1 px-3 py-1 rounded bg-gray-200 text-gray-800"
-            onClick={() => handlePageChange(totalPages)}
-          >
-            {totalPages}
-          </button>
-        </>
-      )}
-
-      <Button
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        secondary
-        className={`${
-          currentPage === totalPages ? "disabled" : ""
-        } rounded hover:bg-gray-200 hover:text-gray-800  px-1 py-1`}
-      >
-        {">>"}
-      </Button>
+    <div className="flex justify-center">
+      <div className="join">
+        <button
+          className="join-item btn"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          «
+        </button>
+        <button className="join-item btn">Page {currentPage}</button>
+        <button
+          className="join-item btn"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          »
+        </button>
+      </div>
     </div>
   );
+
   return (
     <div>
       <div className="flex justify-center">{render}</div>
@@ -170,9 +107,7 @@ const ItemTable = ({ query, config, result, perPage }) => {
         <div className="flex justify-center">
           <SortableTable data={items} config={config} getKey={genarateKey} />
         </div>
-        {isSuccess && !isLoading && !isError ? (
-          <div className="flex justify-center">{pagination}</div>
-        ) : null}
+        {isSuccess && !isLoading && !isError && pagination}
       </div>
     </div>
   );

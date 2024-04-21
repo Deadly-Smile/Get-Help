@@ -42,7 +42,7 @@ const PostList = ({ query, mutation }) => {
 
   useEffect(() => {
     isLoadingContext.isLoading = isLoading;
-  }, [isLoading, isLoadingContext]);
+  }, [isLoading]);
 
   useEffect(() => {
     if (data && isSuccess) {
