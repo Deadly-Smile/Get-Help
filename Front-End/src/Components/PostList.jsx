@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import PostView from "../Components/PostView";
-import Button from "../Components/Button";
 import LoadingContext from "../Context/LoadingContext";
+import errorImg from "../assets/400.png";
 
-const maxVisiblePages = 5;
 const itemsPerPage = 10;
 // eslint-disable-next-line react/prop-types
 const PostList = ({ query, mutation }) => {
@@ -19,94 +18,31 @@ const PostList = ({ query, mutation }) => {
     setCurrentPage(page);
   };
 
-  const getPageButtons = () => {
-    const pageButtons = [];
-    const firstVisiblePage = Math.max(
-      1,
-      currentPage - Math.floor(maxVisiblePages / 2)
-    );
-    const lastVisiblePage = Math.min(
-      totalPages,
-      firstVisiblePage + maxVisiblePages - 1
-    );
-
-    for (let page = firstVisiblePage; page <= lastVisiblePage; page++) {
-      pageButtons.push(
-        <Button
-          key={page}
-          onClick={() => handlePageChange(page)}
-          className={`mx-1 px-3 py-1 rounded ${
-            currentPage === page
-              ? "bg-gray-800 text-white"
-              : "bg-white text-gray-800"
-          }`}
-        >
-          {page}
-        </Button>
-      );
-    }
-
-    return pageButtons;
-  };
-
   const pagination = (
-    <div className="flex justify-center mt-4">
-      <Button
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        secondary
-        className={`${
-          currentPage === 1 ? "disabled" : ""
-        } rounded hover:bg-gray-200 hover:text-gray-800 px-1 py-1`}
-      >
-        {"<<"}
-      </Button>
-      {currentPage > Math.floor(maxVisiblePages / 2) && (
-        <>
-          <button
-            className="mx-1 px-3 py-1 rounded bg-gray-200 text-gray-800"
-            onClick={() => handlePageChange(1)}
-          >
-            1
-          </button>
-          {currentPage > Math.floor(maxVisiblePages / 2) + 1 && (
-            <span>...</span>
-          )}
-        </>
-      )}
-
-      {getPageButtons()}
-
-      {currentPage < totalPages - Math.floor(maxVisiblePages / 2) && (
-        <>
-          {currentPage < totalPages - Math.floor(maxVisiblePages / 2) && (
-            <span>...</span>
-          )}
-          <button
-            className="mx-1 px-3 py-1 rounded bg-gray-200 text-gray-800"
-            onClick={() => handlePageChange(totalPages)}
-          >
-            {totalPages}
-          </button>
-        </>
-      )}
-
-      <Button
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        secondary
-        className={`${
-          currentPage === totalPages ? "disabled" : ""
-        } rounded hover:bg-gray-200 hover:text-gray-800  px-1 py-1`}
-      >
-        {">>"}
-      </Button>
+    <div className="flex justify-center">
+      <div className="join">
+        <button
+          className="join-item btn"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          «
+        </button>
+        <button className="join-item btn">Page {currentPage}</button>
+        <button
+          className="join-item btn"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          »
+        </button>
+      </div>
     </div>
   );
 
   useEffect(() => {
     isLoadingContext.isLoading = isLoading;
-  }, [isLoading, isLoadingContext]);
+  }, [isLoading]);
 
   useEffect(() => {
     if (data && isSuccess) {
@@ -126,27 +62,29 @@ const PostList = ({ query, mutation }) => {
   }, [data, isSuccess, mutation]);
 
   let render = null;
-  if (isError || data?.posts?.data?.length === 0) {
+  if (!isSuccess || data?.posts?.data?.length === 0) {
     render = (
-      <div className="flex justify-center">
-        <p className="text-red-600 font-semibold">No post found</p>
+      <div className="hero min-h-screen bg-base-200">
+        <div className="hero-content flex-col lg:flex-row">
+          <img src={errorImg} className="max-w-sm rounded-lg shadow-2xl" />
+          <div>
+            <h1 className="text-5xl font-bold">Something went wrong</h1>
+            <p className="py-6">
+              Could not get required data, check you internet connection.
+            </p>
+            <button to={"/home"} className="btn btn-warning">
+              Try again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
-  // if (isLoading) {
-  //   render = (
-  //     <div className="flex justify-center">
-  //       <p className="text-blue-600 font-semibold">Loading...</p>
-  //     </div>
-  //   );
-  // }
   return (
     <div>
       {render}
       <div>{postList}</div>
-      {isSuccess && !isLoading && !isError ? (
-        <div className="flex justify-center">{pagination}</div>
-      ) : null}
+      {isSuccess && !isLoading && !isError && pagination}
     </div>
   );
 };

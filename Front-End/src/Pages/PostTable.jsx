@@ -3,11 +3,11 @@ import {
   useDeletePendingPostMutation,
   useGetPendingPostsQuery,
 } from "../Store";
-import Button from "../Components/Button";
 import { Link } from "react-router-dom";
 import { GoTrash } from "react-icons/go";
 import ItemTable from "../Components/ItemTable";
 
+const backEndURL = import.meta.env.VITE_BACKEND_URL;
 const PostTable = () => {
   const [deletePendingPost, deleteResult] = useDeletePendingPostMutation();
   const [approvePost] = useApprovePostMutation();
@@ -39,30 +39,33 @@ const PostTable = () => {
       },
     },
     {
-      title: "Author",
+      title: "Name",
       render: (post) => {
         return (
-          <Link to={`/home/get-user/${post?.users[0]?.id}`}>
-            <h1 className="ml-2 text-blue-600 hover:text-green-800 hover:underline">
-              {post?.author}
-            </h1>
-          </Link>
-        );
-      },
-    },
-    {
-      title: "Avatar",
-      render: (post) => {
-        return (
-          <img
-            src={
-              post?.author_avatar
-                ? `${import.meta.env.VITE_BACKEND_URL}${post?.author_avatar}`
-                : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
-            }
-            alt={`${post?.author}'s Avatar`}
-            className="rounded w-6 h-6"
-          />
+          <div className="flex items-center gap-3">
+            <div className="avatar">
+              <div className="mask mask-squircle w-12 h-12">
+                <img
+                  src={
+                    post?.author
+                      ? `${backEndURL}${post?.author}`
+                      : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+                  }
+                  alt={`${post?.author}'s Avatar`}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="font-bold">{post?.author}</div>
+              <div className="text-sm opacity-50">
+                <Link to={`/home/get-user/${post?.users[0]?.id}`}>
+                  <span className=" hover:text-green-800 hover:underline">
+                    {post?.author}
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </div>
         );
       },
     },
@@ -71,18 +74,16 @@ const PostTable = () => {
       render: (post) => {
         const id = post?.id;
         return post?.isPending ? (
-          <Button
+          <button
             onClick={() => {
               approvePost({ id });
             }}
-            secondary
-            rounded
-            className="text-white mr-2 px-4 py-2 items-center text-center rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
+            className="btn btn-success"
           >
             Approve
-          </Button>
+          </button>
         ) : (
-          <p>Already approved</p>
+          <p>Approved</p>
         );
       },
     },
@@ -91,14 +92,14 @@ const PostTable = () => {
       render: (post) => {
         const id = post.id;
         return (
-          <Button
-            className="px-4 mx-5"
+          <button
+            className="p-3 mx-5 hover:bg-red-500 items-center rounded-md"
             onClick={() => {
               deletePendingPost({ id });
             }}
           >
             <GoTrash />
-          </Button>
+          </button>
         );
       },
     },
@@ -106,7 +107,7 @@ const PostTable = () => {
 
   return (
     <div>
-      <p className="font-semibold text-center text-2xl">Post List</p>
+      <p className="text-center font-bold text-2xl pt-6">Post List</p>
       <ItemTable
         config={config}
         query={useGetPendingPostsQuery}

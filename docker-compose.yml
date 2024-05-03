@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  Back-End:
+    container_name: Back-End
+    build: ./Back-End
+    volumes:
+      - ./Back-End:/var/www/html
+    ports:
+      - 5000:80
+
+  mysql_db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_docker
+    ports:
+    - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    ports:
+      - 9001:80
+    environment:
+      - PMA_ARBITRARY=1
+
+  Front-End:
+    build: ./Front-End
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Front-End:/usr/src/app
+      - /usr/src/app/node_modules

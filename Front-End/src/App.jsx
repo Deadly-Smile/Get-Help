@@ -1,5 +1,4 @@
 import HomePage from "./Pages/HomePage";
-import About from "./Pages/About";
 import NotFound from "./Pages/NotFound";
 import SignUp from "./Pages/SignUp";
 import Login from "./Pages/Login";
@@ -10,7 +9,6 @@ import UserContext from "./Context/UserContext";
 import { Provider } from "./Context/MsgListContext";
 import MessagePanelList from "./Components/MessagePanelList";
 import NavConfig from "./Components/NavConfig";
-import FooterConfig from "./Components/FooterConfig";
 import LoadingContext from "./Context/LoadingContext";
 import LoadingBar from "react-top-loading-bar";
 import { useState, useEffect } from "react";
@@ -28,10 +26,10 @@ import RechargeTokenTable from "./Pages/RechargeTokenTable";
 import EditProfile from "./Pages/EditProfile";
 import IntroPage from "./Pages/IntroPage";
 import SignUpVerification from "./Components/SignUpVerification";
+import Footer from "./Components/Footer";
 
 const App = () => {
-  let { data, isSuccess, isLoading } = useGetUserQuery();
-  // console.log(useGetUserQuery);
+  const { data, isSuccess, isLoading } = useGetUserQuery();
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     if (isLoading) {
@@ -45,7 +43,7 @@ const App = () => {
     <LoadingContext.Provider value={{ progress, setProgress }}>
       <UserContext.Provider value={{ data, isSuccess }}>
         <Provider>
-          <header className="fixed top-0 z-10 w-full">
+          <header>
             <LoadingBar
               color="#f11946"
               progress={progress}
@@ -53,10 +51,13 @@ const App = () => {
             />
             <NavConfig data={data} />
           </header>
-          <section className="min-h-[calc(100vh-60px)] pt-16 mb-2 max-h-full">
+          <section>
             <Routes>
               <Route path="/" element={<IntroPage />} />
-              <Route path="/home" element={<HomePage />}>
+              <Route
+                path="/home"
+                element={<HomePage isSuccess={data != null} />}
+              >
                 <Route
                   index
                   element={
@@ -81,7 +82,7 @@ const App = () => {
                 />
                 <Route path="*" element={<NotFound />} />
               </Route>
-              <Route path="/about" element={<About />} />
+              <Route path="/about" element={<IntroPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/logout" element={<Logout />} />
@@ -97,7 +98,7 @@ const App = () => {
             </div>
           </section>
           <footer>
-            <FooterConfig />
+            <Footer />
           </footer>
         </Provider>
       </UserContext.Provider>

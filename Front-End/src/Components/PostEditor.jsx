@@ -1,7 +1,7 @@
 import "quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import PropTypes from "prop-types";
-const PostEditor = ({ header, onChange, content, ...rest }) => {
+const PostEditor = ({ onChange, content, ...rest }) => {
   const editor = (
     <ReactQuill
       theme="snow"
@@ -26,15 +26,13 @@ const PostEditor = ({ header, onChange, content, ...rest }) => {
   );
 
   return (
-    <div className="p-4" {...rest}>
-      <h2 className="text-xl font-semibold mb-2">{header}</h2>
+    <div className="" {...rest}>
       {editor}
     </div>
   );
 };
 
 PostEditor.propTypes = {
-  header: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   content: PropTypes.string,
 };

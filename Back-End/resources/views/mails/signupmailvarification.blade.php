@@ -9,13 +9,14 @@
 
 <body>
     <div style="font-family: sans-serif;">
-        <h1>Congratulations {{$mailData['name']}}!!</h1>
-        <p>You have successfully created an account. In order goto the home page link <a href="{{$mailData['link']}}">Click me</a></p>
+        <h1>Congratulations {{ $mailData['name'] }}!!</h1>
+        <p>You have successfully created an account. Varify account by putting code <a
+                href="{{ $mailData['link'] }}">here</a></p>
     </div>
 
     <div style="text-align: center; font-family: sans-serif;">
         <h2>Varification Code</h2>
-        <h4>{{$mailData['sixDigitNumber']}}</h4>
+        <h4>{{ $mailData['sixDigitNumber'] }}</h4>
     </div>
 
 

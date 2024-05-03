@@ -1,32 +1,20 @@
-import { useState } from "react";
 import { GoTrash } from "react-icons/go";
 import ItemTable from "../Components/ItemTable";
-import Button from "../Components/Button";
 import classNames from "classnames";
 import DownloadLink from "../Components/DownloadLink";
-import PopUpPanel from "../Components/PopUpPanel";
 import {
   useGetAllAdminsQuery,
   useDeleteUserMutation,
   useApproveAdminMutation,
   useDisproveAdminMutation,
 } from "../Store";
+import { Link } from "react-router-dom";
 
 const backEndURL = import.meta.env.VITE_BACKEND_URL;
 const AdminTable = () => {
   const [deleteUser, deleteUserResult] = useDeleteUserMutation();
   const [approveAdmin, approveAdminResult] = useApproveAdminMutation();
   const [disproveAdmin, disproveAdminResult] = useDisproveAdminMutation();
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-
-  const openPanel = () => {
-    setIsPanelOpen(true);
-  };
-
-  const closePanel = (event) => {
-    event.preventDefault();
-    setIsPanelOpen(false);
-  };
 
   const labelClassnames = classNames(
     "text-sm font-bold mr-2 w-1/4 flex items-center justify-start"
@@ -37,18 +25,18 @@ const AdminTable = () => {
 
   const renderMore = (user) => {
     return (
-      <form>
+      <form className="pt-6 rounded-sm">
         <div className="flex mb-4">
-          <label className={labelClassnames}>ID :</label>
+          <label className={labelClassnames}>ID</label>
           <input
-            type="number"
+            type="text"
             value={user?.id ? user.id : ""}
             disabled="disabled"
             className={inputClassnames}
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Name :</label>
+          <label className={labelClassnames}>Name</label>
           <input
             type="text"
             value={user?.name ? user?.name : ""}
@@ -57,7 +45,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>E-mail :</label>
+          <label className={labelClassnames}>E-mail</label>
           <input
             type="email"
             value={user?.email ? user?.email : ""}
@@ -66,7 +54,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Username :</label>
+          <label className={labelClassnames}>Username</label>
           <input
             type="text"
             value={user?.username ? user?.username : ""}
@@ -75,7 +63,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Mobile :</label>
+          <label className={labelClassnames}>Mobile</label>
           <input
             type="text"
             value={user?.mobile ? user?.mobile : ""}
@@ -84,7 +72,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>NID Card :</label>
+          <label className={labelClassnames}>NID Card</label>
           <input
             type="text"
             value={user?.nid_card_number ? user?.nid_card_number : ""}
@@ -93,7 +81,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Country :</label>
+          <label className={labelClassnames}>Country</label>
           <input
             type="text"
             value={user?.country ? user?.country : ""}
@@ -102,7 +90,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>District :</label>
+          <label className={labelClassnames}>District</label>
           <input
             type="text"
             value={user?.district ? user?.district : ""}
@@ -111,7 +99,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Address :</label>
+          <label className={labelClassnames}>Address</label>
           <input
             type="text"
             value={user?.address ? user?.address : ""}
@@ -120,7 +108,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Date of Birth :</label>
+          <label className={labelClassnames}>Date of Birth</label>
           <input
             type="text"
             value={user?.date_of_birth ? user?.date_of_birth : ""}
@@ -129,7 +117,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Pending Subscriber :</label>
+          <label className={labelClassnames}>Pending Subscriber</label>
           <input
             type="text"
             value={user?.pending_subscriber ? "Pending" : "Not Pending"}
@@ -138,7 +126,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Pending Doctor :</label>
+          <label className={labelClassnames}>Pending Doctor</label>
           <input
             type="text"
             value={user?.pending_doctor ? "Pending" : "Not Pending"}
@@ -147,7 +135,7 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Pending Admin :</label>
+          <label className={labelClassnames}>Pending Admin</label>
           <input
             type="text"
             value={user?.pending_admin ? "Pending" : "Not Pending"}
@@ -156,21 +144,15 @@ const AdminTable = () => {
           />
         </div>
         <div className="flex mb-4">
-          <label className={labelClassnames}>Document :</label>
-          <DownloadLink
-            fileUrl={`${backEndURL}${user?.document}`}
-            fileName="document.pdf"
-          />
-        </div>
-        <div className="mt-4 flex justify-end">
-          <Button
-            onClick={closePanel}
-            secondary
-            rounded
-            className="text-white mr-2 px-4 py-2 rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
-          >
-            Close
-          </Button>
+          <label className={labelClassnames}>Document</label>
+          {user?.document ? (
+            <DownloadLink
+              fileUrl={`${backEndURL}${user?.document}`}
+              fileName="document.pdf"
+            />
+          ) : (
+            <span>No document provided</span>
+          )}
         </div>
       </form>
     );
@@ -187,7 +169,32 @@ const AdminTable = () => {
     {
       title: "Name",
       render: (user) => {
-        return user?.name;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="avatar">
+              <div className="mask mask-squircle w-12 h-12">
+                <img
+                  src={
+                    user?.avatar
+                      ? `${backEndURL}${user?.avatar}`
+                      : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
+                  }
+                  alt={`${user?.username}'s Avatar`}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="font-bold">{user?.name}</div>
+              <div className="text-sm opacity-50">
+                <Link to={`/home/get-user/${user?.id}`}>
+                  <span className=" hover:text-green-800 hover:underline">
+                    {user?.username}
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        );
       },
     },
     {
@@ -197,39 +204,25 @@ const AdminTable = () => {
       },
     },
     {
-      title: "Username",
-      render: (user) => {
-        return user?.username;
-      },
-      sortValue: (user) => user?.username,
-    },
-    {
-      title: "Avatar",
+      title: "Details",
       render: (user) => {
         return (
-          <img
-            src={`${backEndURL}${user?.avatar}`}
-            alt="User Avatar"
-            className="max-w-xs max-h-48"
-          />
-        );
-      },
-    },
-    {
-      title: "More Info",
-      render: (user) => {
-        return (
-          <div>
-            <Button secondary className="rounded" onClick={openPanel}>
-              See More
-            </Button>
-            <PopUpPanel isOpen={isPanelOpen} onClose={closePanel}>
-              <h2 className="flex justify-center font-semibold text-lg my-2">
-                {user?.username}
-              </h2>
-              {renderMore(user)}
-            </PopUpPanel>
-          </div>
+          <>
+            <button
+              className="btn"
+              onClick={() => document.getElementById("my_modal_5").showModal()}
+            >
+              Show details
+            </button>
+            <dialog id="my_modal_5" className="modal">
+              <div className="modal-box w-5/6 max-w-5xl">
+                {renderMore(user)}
+              </div>
+              <form method="dialog" className="modal-backdrop">
+                <button>close</button>
+              </form>
+            </dialog>
+          </>
         );
       },
     },
@@ -238,27 +231,23 @@ const AdminTable = () => {
       render: (user) => {
         const id = user?.id;
         return user?.pending_admin ? (
-          <Button
+          <button
             onClick={() => {
               approveAdmin({ id });
             }}
-            secondary
-            rounded
-            className="text-white mr-2 px-4 py-2 rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
+            className="btn btn-success"
           >
             Approve
-          </Button>
+          </button>
         ) : (
-          <Button
+          <button
             onClick={() => {
               disproveAdmin({ id });
             }}
-            secondary
-            rounded
-            className="text-white mr-2 px-4 py-2 rounded-md focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
+            className="btn btn-error"
           >
-            Remove as Admin
-          </Button>
+            Remove
+          </button>
         );
       },
     },
@@ -267,20 +256,21 @@ const AdminTable = () => {
       render: (user) => {
         const id = user.id;
         return (
-          <Button
-            className="px-4 mx-5"
+          <button
+            className="p-3 mx-5 hover:bg-red-500 items-center rounded-md"
             onClick={() => {
               deleteUser({ id });
             }}
           >
             <GoTrash />
-          </Button>
+          </button>
         );
       },
     },
   ];
   return (
     <div>
+      <p className="text-center font-bold text-2xl pt-6">Admin List</p>
       <ItemTable
         config={config}
         query={useGetAllAdminsQuery}
