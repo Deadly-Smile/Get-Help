@@ -7,7 +7,8 @@ const UserSearchPanel = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [getUserByUsername, result] = useGetUserByUsernameMutation();
 
-  const handleSearchClick = () => {
+  const handleSearchClick = (e) => {
+    e.preventDefault();
     getUserByUsername({ username: searchTerm });
   };
 
@@ -22,7 +23,7 @@ const UserSearchPanel = () => {
 
   return (
     <div className="space-y-2 p-4">
-      <div className="flex">
+      <form className="flex" onSubmit={handleSearchClick}>
         <label className="input input-bordered flex items-center gap-2">
           <input
             type="text"
@@ -30,7 +31,6 @@ const UserSearchPanel = () => {
             placeholder="Search user"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onClick={handleSearchClick}
             disabled={result.isLoading}
           />
           <svg
@@ -46,7 +46,7 @@ const UserSearchPanel = () => {
             />
           </svg>
         </label>
-      </div>
+      </form>
       <div className="max-h-[100px] overflow-y-auto">
         <ul className="space-y-2">
           {searchResults.length === 0 && !result?.isUninitialized ? (

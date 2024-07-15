@@ -27,10 +27,15 @@ import EditProfile from "./Pages/EditProfile";
 import IntroPage from "./Pages/IntroPage";
 import SignUpVerification from "./Components/SignUpVerification";
 import Footer from "./Components/Footer";
-
+import IncomingCallContext from "./Context/IncomingCallContext";
+import IncomingCallPopup from "./Components/IncomingCallPopup";
 const App = () => {
   const { data, isSuccess, isLoading } = useGetUserQuery();
   const [progress, setProgress] = useState(0);
+  const [callingPopup, setCallingPopup] = useState({
+    status: "no-call",
+    message: null,
+  });
   useEffect(() => {
     if (isLoading) {
       setProgress(30);
@@ -41,67 +46,70 @@ const App = () => {
 
   return (
     <LoadingContext.Provider value={{ progress, setProgress }}>
-      <UserContext.Provider value={{ data, isSuccess }}>
-        <Provider>
-          <header>
-            <LoadingBar
-              color="#f11946"
-              progress={progress}
-              onLoaderFinished={() => setProgress(0)}
-            />
-            <NavConfig data={data} />
-          </header>
-          <section>
-            <Routes>
-              <Route path="/" element={<IntroPage />} />
-              <Route
-                path="/home"
-                element={<HomePage isSuccess={data != null} />}
-              >
+      <IncomingCallContext.Provider value={{ callingPopup, setCallingPopup }}>
+        <UserContext.Provider value={{ data, isSuccess }}>
+          <Provider>
+            <header>
+              <LoadingBar
+                color="#f11946"
+                progress={progress}
+                onLoaderFinished={() => setProgress(0)}
+              />
+              <NavConfig data={data} />
+            </header>
+            <section>
+              <IncomingCallPopup />
+              <Routes>
+                <Route path="/" element={<IntroPage />} />
                 <Route
-                  index
-                  element={
-                    <PostList
-                      query={useGetPostsQuery}
-                      mutation={useVotePostMutation}
-                    />
-                  }
-                />
-                <Route path="apply-for-admin" element={<AdminReg />} />
-                <Route path="user-table" element={<UserTable />} />
-                <Route path="doctor-table" element={<DoctorTable />} />
-                <Route path="admin-table" element={<AdminTable />} />
-                <Route path="post-table" element={<PostTable />} />
-                <Route path="create-post" element={<CreatePostPage />} />
-                <Route path="get-user/:id" element={<ProfileViewPage />} />
-                <Route path="posts/:id" element={<PostPage />} />
-                <Route path="token-table" element={<RechargeTokenTable />} />
+                  path="/home"
+                  element={<HomePage isSuccess={data != null} />}
+                >
+                  <Route
+                    index
+                    element={
+                      <PostList
+                        query={useGetPostsQuery}
+                        mutation={useVotePostMutation}
+                      />
+                    }
+                  />
+                  <Route path="apply-for-admin" element={<AdminReg />} />
+                  <Route path="user-table" element={<UserTable />} />
+                  <Route path="doctor-table" element={<DoctorTable />} />
+                  <Route path="admin-table" element={<AdminTable />} />
+                  <Route path="post-table" element={<PostTable />} />
+                  <Route path="create-post" element={<CreatePostPage />} />
+                  <Route path="get-user/:id" element={<ProfileViewPage />} />
+                  <Route path="posts/:id" element={<PostPage />} />
+                  <Route path="token-table" element={<RechargeTokenTable />} />
+                  <Route
+                    path="edit-profile"
+                    element={<EditProfile data={data} />}
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+                <Route path="/about" element={<IntroPage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/get-user/:id" element={<ProfileViewPage />} />
                 <Route
-                  path="edit-profile"
-                  element={<EditProfile data={data} />}
+                  path="/verify-user/:id"
+                  element={<SignUpVerification message="Submit the code" />}
                 />
                 <Route path="*" element={<NotFound />} />
-              </Route>
-              <Route path="/about" element={<IntroPage />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/get-user/:id" element={<ProfileViewPage />} />
-              <Route
-                path="/verify-user/:id"
-                element={<SignUpVerification message="Submit the code" />}
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <div className="fixed right-2 bottom-2">
-              <MessagePanelList />
-            </div>
-          </section>
-          <footer>
-            <Footer />
-          </footer>
-        </Provider>
-      </UserContext.Provider>
+              </Routes>
+              <div className="fixed right-2 bottom-2">
+                <MessagePanelList />
+              </div>
+            </section>
+            <footer>
+              <Footer />
+            </footer>
+          </Provider>
+        </UserContext.Provider>
+      </IncomingCallContext.Provider>
     </LoadingContext.Provider>
   );
 };

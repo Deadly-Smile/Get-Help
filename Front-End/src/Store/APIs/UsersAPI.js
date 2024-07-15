@@ -232,10 +232,10 @@ const UsersAPI = createApi({
         invalidatesTags: (result, error, arg) => {
           return [{ type: "message", receiverId: arg.receiver }];
         },
-        query: ({ receiver, sender, content }) => {
+        query: ({ receiver, sender, content, type, roomID }) => {
           return {
             url: `/message-send`,
-            body: { content, receiver, sender },
+            body: { content, receiver, sender, type, roomID },
             method: "POST",
           };
         },
@@ -252,6 +252,7 @@ const UsersAPI = createApi({
           };
         },
       }),
+
       updateNotificationStatus: builder.mutation({
         query: ({ noti_id }) => {
           return {

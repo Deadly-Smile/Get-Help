@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('type');
             $table->boolean('is_read');
             $table->text('content');
+            $table->integer('room_id')->nullable();
             $table->unsignedBigInteger('triggered_user_id');
             $table->unsignedBigInteger('receiver_user_id');
             $table->timestamps();

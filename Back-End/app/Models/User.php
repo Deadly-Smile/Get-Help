@@ -42,6 +42,7 @@ class User extends Authenticatable implements JWTSubject
         'username',
         'verify_token',
         'status',
+        'pending_subscriber'
     ];
 
     /**
@@ -69,9 +70,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Permission::class);
     }
 
-    public function roles(): BelongsToMany
+    public function roles()
     {
-        return $this->belongsToMany(Role::class);
+        return $this->belongsToMany(Role::class)->get();
     }
 
     public function posts()
@@ -81,7 +82,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function userHasRole($role_name): bool
     {
-        foreach ($this->roles()->get() as $role) {
+        foreach ($this->roles() as $role) {
             if ($role->slug === $role_name) {
                 return true;
             }
@@ -92,7 +93,7 @@ class User extends Authenticatable implements JWTSubject
     public function getAllPermissions()
     {
         $permissions = array();
-        foreach ($this->roles()->get() as $role) {
+        foreach ($this->roles() as $role) {
             foreach ($role->getAllPermissions() as $permission) {
                 array_push($permissions, $permission->slug);
             }
@@ -102,8 +103,8 @@ class User extends Authenticatable implements JWTSubject
 
     public function userHasPermission($permission_name): bool
     {
-        foreach ($this->roles()->get() as $role) {
-            foreach ($role->getAllPermissions() as $permission) {
+        foreach ($this->roles() as $role) {
+            foreach ($role->permissions() as $permission) {
                 if ($permission->slug === $permission_name) return true;
             }
         }

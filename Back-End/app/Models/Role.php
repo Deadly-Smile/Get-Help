@@ -12,9 +12,9 @@ class Role extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    public function permissions(): BelongsToMany
+    public function permissions()
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsToMany(Permission::class)->get();
     }
 
     public function users(): BelongsToMany
@@ -25,9 +25,9 @@ class Role extends Model
     public function getAllPermissions()
     {
         $permissions = array();
-        foreach ($this->permissions()->get() as $permission) {
+        foreach ($this->permissions() as $permission) {
             array_push($permissions, $permission->name);
         }
-        return $this->permissions()->get();
+        return $this->permissions();
     }
 }

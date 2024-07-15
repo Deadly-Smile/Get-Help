@@ -14,8 +14,9 @@ class Message extends Model
         'receiver_id',
         'content',
         'sender_username',
-        'receiver_username'
-
+        'receiver_username',
+        'room_id',
+        'type',
     ];
     // Define a many-to-one relationship with the sender user
     public function sender()

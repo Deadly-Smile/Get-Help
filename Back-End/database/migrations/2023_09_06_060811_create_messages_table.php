@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('sender_id');
             $table->unsignedBigInteger('receiver_id');
+            $table->string('sender_username');
+            $table->string('receiver_username');
             $table->text('content');
+            $table->string('type')->default('text');
+            $table->string('room_id')->nullable();
             $table->boolean('read')->default(false);
             $table->timestamps();
 

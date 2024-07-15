@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
+use App\Models\Permission;
 use Illuminate\Support\Js;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -361,6 +362,34 @@ class UserController extends Controller
         return response()->json(['message' => 'Successfully disproved user ' . $id . ' as a doctor'], 200);
     }
 
+    public function getAllUsers()
+    {
+        $users = User::all();
+        foreach ($users as $user) {
+            $user->role = $user->roles();
+        }
+        return $users;
+    }
+
+    public function getAllPermissions()
+    {
+        return Permission::all();
+    }
+
+    public function getAllPermissionRoles()
+    {
+        $roles = Role::all();
+        foreach ($roles as $role) {
+            $role->permission = array($role->permissions());
+        }
+        return $roles;
+    }
+
+    public function getAllContacts()
+    {
+        return Contact::all();
+    }
+
     public function getTheUser($id)
     {
         $user = User::findOrFail($id);
@@ -403,12 +432,13 @@ class UserController extends Controller
             ->orWhere('user_2', $user->id)->distinct()
             ->get();
 
+
         foreach ($contacts as $contact) {
             $contact->userID = $contact->user_1 == $user->id ? $contact->user_2 : $contact->user_1;
             $contact->avatar = User::findOrFail($contact->userID)->avatar;
             $contact->status = User::findOrFail($contact->userID)->status;
             $contact->name = User::findOrFail($contact->userID)->name;
-            $contact->category = User::findOrFail($contact->userID)->roles()->get()[0]->name;
+            $contact->category = User::findOrFail($contact->userID)->roles()[0]->name;
         }
 
         return response()->json(['contacts' => $contacts], 200);
@@ -438,7 +468,6 @@ class UserController extends Controller
 
     public function getMessages($receiver, $sender)
     {
-        // check the user
         $user = JWTAuth::user();
         if (!$user->userHasPermission('get-messages') || $user->id != $sender) {
             return response()->json(['error' => 'permission not granted'], 401);
@@ -450,11 +479,13 @@ class UserController extends Controller
             ->map(function ($message) {
                 return [
                     'id' => $message->id,
-                    'type' => 'sent', // Type indicator for sender
+                    'type' => $message->type,
                     'senderName' => $message->sender_username,
+                    'senderId' => $message->sender_id,
                     'status' => $message->read,
                     'message' => $message->content,
                     'timestamp' => $message->created_at,
+                    'roomID' => $message->room_id,
                 ];
             });
 
@@ -464,11 +495,13 @@ class UserController extends Controller
             ->map(function ($message) {
                 return [
                     'id' => $message->id,
-                    'type' => 'received', // Type indicator for receiver
+                    'type' => $message->type,
                     'senderName' => $message->sender_username,
+                    'senderId' => $message->sender_id,
                     'status' => $message->read,
                     'message' => $message->content,
                     'timestamp' => $message->created_at,
+                    'roomID' => $message->room_id,
                 ];
             });
 
@@ -477,21 +510,13 @@ class UserController extends Controller
         return response()->json(['messages' => $allMessages], 200);
     }
 
+
     public function sendMessage(Request $request)
     {
-        // check the user
         $user = JWTAuth::user();
         if (!$user->userHasPermission('send-message')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
-
-        $messageData = [
-            'sender_id' => $user->id,
-            'receiver_id' => $request['receiver'],
-            'content' => $request["content"],
-            'sender_username' => $user->username,
-            'receiver_username' => User::findOrFail($request['receiver'])->username,
-        ];
 
         $users = array($user->id, $request['receiver']);
         sort($users);
@@ -502,15 +527,23 @@ class UserController extends Controller
             );
         }
 
-
-        $message = Message::create($messageData);
+        $message = Message::create([
+            'sender_id' => $user->id,
+            'receiver_id' => $request['receiver'],
+            'content' => $request["content"] ?? null,
+            'type' => $request["type"] ? $request["type"] : 'text',
+            'room_id' => $request["roomID"] ?? null,
+            'sender_username' => $user->username,
+            'receiver_username' => User::findOrFail($request['receiver'])->username
+        ]);
 
         $notification = Notification::create([
-            'type' => 'message',
+            'type' => $request["type"],
             'is_read' => 0,
             'content' => $request["content"],
             'triggered_user_id' => $user->id,
-            'receiver_user_id' => (int)$request['receiver']
+            'receiver_user_id' => (int)$request['receiver'],
+            'room_id' => $request["roomID"]
         ]);
 
         $notification->triggered_username = $user->username;
@@ -518,10 +551,11 @@ class UserController extends Controller
 
         broadcast(new MessageSent($user->id, $message))->toOthers();
         $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'));
-        $pusher->trigger('notifications.' . $request['receiver'], 'new-message', ["notification" => $notification]);
-        // Pusher::trigger('notifications.' . $request['receiver'], 'new-message', $notification);
+        $pusher->trigger('notifications.' . $request['receiver'], 'new-message', ["notification" => $notification, 'roomID' => $request["roomID"]]);
+
         return response()->json(['message' => "message sent successfully", 'sent' => $message], 201);
     }
+
 
     public function authenticatePusher(Request $request)
     {

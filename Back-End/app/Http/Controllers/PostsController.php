@@ -113,7 +113,7 @@ class PostsController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
-        if (!$user->userHasPermission('approve_or_delete_posts ')) {
+        if (!$user->userHasPermission('approve_or_delete_posts')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
 
