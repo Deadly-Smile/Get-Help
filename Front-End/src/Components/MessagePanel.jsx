@@ -15,12 +15,14 @@ import Pusher from "pusher-js";
 import LoadingContext from "../Context/LoadingContext";
 import { Link } from "react-router-dom";
 import IncomingCallContext from "../Context/IncomingCallContext";
+import UserContext from "../Context/UserContext";
 
 // eslint-disable-next-line react/prop-types
 const MessagePanel = ({ receiver, userId, username, avatar }) => {
   const backEndURL = import.meta.env.VITE_BACKEND_URL;
   const [messages, setMessages] = useState([]);
   const panelRef = useRef(null);
+  const { data: user } = useContext(UserContext);
   const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
     receiver: receiver,
     sender: userId,
@@ -166,7 +168,9 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     );
     const url = `${
       import.meta.env.VITE_APP_URL
-    }/test.html?roomID=${roomID}&userID=${userId}&username=${username}`;
+    }/test.html?roomID=${roomID}&userID=${user.user.id}&username=${
+      user.user.username
+    }`;
     window.open(url, "_blank");
     sendMessage({
       receiver: receiver,
