@@ -28,6 +28,14 @@ Route::middleware('custom.token.validation')->group(function () {
     Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 });
 
+Route::group(['prefix' => 'test'], function () {
+    Route::get('users', [UserController::class, 'getAllUsers']);
+    Route::get('roles', [UserController::class, 'getAllRoles']);
+    Route::get('permissions', [UserController::class, 'getAllPermissions']);
+    Route::get('permission-role', [UserController::class, 'getAllPermissionRoles']);
+    Route::get('contacts', [UserController::class, 'getAllContacts']);
+});
+
 Route::middleware('auth:api')->group(function () {
     // Route::get('/user', [UserController::class, 'getUser']);
     Route::get('/get-users', [UserController::class, 'getPagedUsers']);
@@ -47,12 +55,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/pusher/auth', [UserController::class, 'authenticatePusher']);
     Route::post('/message/update/status', [UserController::class, 'updateMsgStat']);
     Route::post('/notification/seen', [UserController::class, 'updateNoti']);
-    Route::get('/get-recharge-token', [TokenController::class, 'getRechargeToken']);
-    Route::post('/create/recharge-token', [TokenController::class, 'createToken']);
-    Route::get('/delete-recharge-token/{id}', [TokenController::class, 'deleteToken']);
-    Route::post('/assign-recharge-token/{id}', [TokenController::class, 'assignAdmin']);
-    Route::post('/use-recharge-token', [TokenController::class, 'useToken']);
-    Route::post('/donate/to_{id}', [TokenController::class, 'transferMoney']);
     Route::get('/get-pending-posts', [PostsController::class, 'getPendingPosts']);
     Route::get('/delete-post/{id}', [PostsController::class, 'deletePost']);
     Route::get('/approve-post/{id}', [PostsController::class, 'approvePost']);

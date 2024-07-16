@@ -1,3 +1,4 @@
+// src/Components/MessagePanel.jsx
 import { useContext, useEffect, useState, useRef } from "react";
 import {
   useGetMessagesQuery,
@@ -7,18 +8,21 @@ import {
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsFillTelephoneFill } from "react-icons/bs";
 import { FaWindowMinimize } from "react-icons/fa";
-import Button from "./Button";
+import { PiPaperPlaneRightFill } from "react-icons/pi";
 import MsgListContext from "../Context/MsgListContext";
 import ChattingContentPanel from "./ChattingContentPanel";
 import Pusher from "pusher-js";
 import LoadingContext from "../Context/LoadingContext";
 import { Link } from "react-router-dom";
+import IncomingCallContext from "../Context/IncomingCallContext";
+import UserContext from "../Context/UserContext";
 
 // eslint-disable-next-line react/prop-types
 const MessagePanel = ({ receiver, userId, username, avatar }) => {
   const backEndURL = import.meta.env.VITE_BACKEND_URL;
   const [messages, setMessages] = useState([]);
   const panelRef = useRef(null);
+  const { data: user } = useContext(UserContext);
   const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
     receiver: receiver,
     sender: userId,
@@ -27,6 +31,7 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
   const { removeMsgPanel } = useContext(MsgListContext);
   const [updateMsgStatus] = useUpdateMsgStatusMutation();
   const isLoadingContext = useContext(LoadingContext);
+  const { setCallingPopup } = useContext(IncomingCallContext);
 
   useEffect(() => {
     isLoadingContext.isLoading = isLoading;
@@ -40,7 +45,7 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
       });
     }
   };
-  // Pusher.logToConsole = true;
+
   useEffect(() => {
     const usePusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
       cluster: import.meta.env.VITE_CLUSTER,
@@ -60,15 +65,28 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     );
 
     channel.bind("App\\Events\\MessageSent", (data) => {
-      // console.log(data);
+      console.log(data);
+      if (
+        data.message.content === "Call invitation" &&
+        data.message.receiver_id === userId
+      ) {
+        setCallingPopup({ status: "incoming-call", message: data });
+      } else if (
+        data.message.content === "Missed call" &&
+        data.message.receiver_id === userId
+      ) {
+        setCallingPopup({ status: "missed-call", message: data });
+      }
       setMessages((prevMessages) => [
         ...prevMessages,
         {
           id: data?.message?.id,
-          type: "received",
+          type: data?.message?.type,
           senderName: data?.message?.sender_username,
           status: data?.message?.read,
           message: data?.message?.content,
+          roomId: data?.message?.room_id,
+          senderId: data?.message?.sender_id,
           timestamp: data?.message?.created_at,
         },
       ]);
@@ -96,9 +114,15 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
 
   const [newMessage, setNewMessage] = useState("");
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e) => {
+    e.preventDefault();
     if (newMessage.trim() !== "") {
-      sendMessage({ receiver: receiver, sender: userId, content: newMessage });
+      sendMessage({
+        receiver: receiver,
+        sender: userId,
+        content: newMessage,
+        type: "text",
+      });
       setNewMessage("");
     }
   };
@@ -116,7 +140,11 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
 
   if (messages.length > 0) {
     renderMessages = messages.map((message, index) => (
-      <ChattingContentPanel message={message} key={index} avatar={avatar} />
+      <ChattingContentPanel
+        message={message}
+        key={message.id + "__" + index + "__" + message.updated_at}
+        avatar={avatar}
+      />
     ));
   } else if (isError) {
     if (userId) {
@@ -133,6 +161,52 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
       );
     }
   }
+
+  const openVideoCallWindow = () => {
+    const roomID = encodeURIComponent(
+      Math.floor(Math.random() * 10000).toString()
+    );
+    const url = `${
+      import.meta.env.VITE_APP_URL
+    }/test.html?roomID=${roomID}&userID=${user.user.id}&username=${
+      user.user.username
+    }`;
+    window.open(url, "_blank");
+    sendMessage({
+      receiver: receiver,
+      sender: userId,
+      content: "Call invitation",
+      type: "call-invitation",
+      roomID: roomID,
+      userName: username,
+    });
+
+    const callTimeout = setTimeout(() => {
+      sendMessage({
+        receiver: receiver,
+        sender: userId,
+        content: "Missed call",
+        type: "missed-call",
+      });
+    }, 60000);
+
+    window.addEventListener(
+      "message",
+      (event) => {
+        if (event.data === "callEnded") {
+          console.log("Video call ended");
+          clearTimeout(callTimeout);
+          sendMessage({
+            receiver: receiver,
+            sender: userId,
+            content: "Call ended",
+            type: "call-ended",
+          });
+        }
+      },
+      false
+    );
+  };
 
   return (
     <div className="flex flex-col h-96 max-w-[300px] bg-base-100">
@@ -154,19 +228,21 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
           </Link>
         </div>
         <div className="flex">
-          <Button className="text-base-200 border-collapse border-0 text-2xl hover:text-blue-700 -mr-2">
+          <button
+            className="btn bg-transparent border-0 text-2xl btn-active -mr-2 btn-sm"
+            onClick={openVideoCallWindow}
+          >
             <BsFillTelephoneFill />
-          </Button>
-          <Button className="text-base-200 border-collapse border-0 text-2xl hover:text-base-500 -mr-2">
+          </button>
+          <button className="btn bg-transparent border-0 text-2xl btn-active -mr-2 btn-sm">
             <FaWindowMinimize />
-          </Button>
-          <Button
-            className="text-base-200 border-collapse border-0 text-2xl hover:text-red-700 -mr-2"
-            rounded
+          </button>
+          <button
+            className="btn bg-transparent border-0 text-2xl btn-active -mr-2 btn-sm"
             onClick={removePanel}
           >
             <AiFillCloseCircle />
-          </Button>
+          </button>
         </div>
       </div>
       <div
@@ -178,38 +254,20 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
         <p className="flex justify-center text-xl font-semibold">{username}</p>
         {renderMessages}
       </div>
-      <div className="join p-3">
+      <div className="divider m-0" />
+      <form className="join p-3" onSubmit={handleSendMessage}>
         <input
           type="text"
-          className="input input-bordered join-item max-w-[220px]"
-          placeholder="Type a message..."
+          className="input input-bordered w-full join-item"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Write your message"
+          required
         />
-        <button
-          className="btn join-item rounded-r-full"
-          onClick={handleSendMessage}
-        >
-          Send
+        <button className="btn btn-accent join-item text-2xl" type="submit">
+          <PiPaperPlaneRightFill />
         </button>
-      </div>
-      {/* <div className="bg-base-200 p-3 border-t border-base-300">
-        <div className="flex items-center">
-          <input
-            type="text"
-            className="flex-grow rounded p-2 bg-base-300 focus:outline-none"
-            placeholder="Type a message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-          />
-          <Button
-            className="text-blue-800 text-2xl hover:bg-blue-300"
-            onClick={handleSendMessage}
-          >
-            <BiSolidSend />
-          </Button>
-        </div> */}
-      {/* </div> */}
+      </form>
     </div>
   );
 };

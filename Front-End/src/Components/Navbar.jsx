@@ -32,6 +32,13 @@ const Navbar = ({ linkList, parentLinkList, manageLinkList, userName }) => {
     }
   }, [userName]);
 
+  const handleTest = () => {
+    const url = `${
+      import.meta.env.VITE_APP_URL
+    }/test.html?roomID=${111111}&userID=${2222222}&username=${33333333}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="navbar bg-base-100">
       <div className="flex-none">
@@ -64,6 +71,9 @@ const Navbar = ({ linkList, parentLinkList, manageLinkList, userName }) => {
         <Link to="/" className="btn btn-ghost text-xl">
           Get Help
         </Link>
+        <button className="btn btn-ghost" onClick={handleTest}>
+          test
+        </button>
       </div>
       <div className="navbar-end">
         <ul className="menu menu-horizontal px-1">

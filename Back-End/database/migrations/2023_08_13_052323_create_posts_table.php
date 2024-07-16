@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('content');
             $table->unsignedBigInteger('upvote_count')->default(0);
             $table->unsignedBigInteger('downvote_count')->default(0);
+            $table->boolean('isPending')->default(false);
             $table->timestamps();
         });
     }
