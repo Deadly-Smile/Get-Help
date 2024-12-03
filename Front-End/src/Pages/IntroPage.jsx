@@ -17,45 +17,17 @@ const slides = [
       "GetHelp offers a convenient, affordable, and efficient way to access professional counseling anytime, anywhere.",
   },
   {
-    title: "What Our Clients Say",
-    description: [
-      {
-        author: "John Doe",
-        testimonial:
-          '"GetHelp has been a game-changer for me. I can\'t thank my counselor enough for their support and guidance."',
-      },
-      {
-        author: "Alice Smith",
-        testimonial:
-          '"The convenience and flexibility of GetHelp have allowed me to prioritize my mental health in my busy life. Highly recommended!"',
-      },
-      {
-        author: "Mark Johnson",
-        testimonial:
-          '"I was skeptical at first, but GetHelp exceeded my expectations. The therapists are compassionate and understanding."',
-      },
-    ],
+    title: "About me",
+    description:
+      "I am Anik Saha, a fresh graduate. I used Laravel 10, React, Redux for developing this website.",
   },
 ];
 
 const Slide = ({ title, description }) => {
   return (
-    <div className="p-6 rounded-lg shadow-lg text-center bg-slate-100">
+    <div className="p-6 rounded-lg shadow-lg text-center bg-base-100">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <p>{description}</p>
-    </div>
-  );
-};
-
-const TestimonialSlide = ({ testimonials }) => {
-  return (
-    <div className="p-6 rounded-lg shadow-lg bg-slate-100">
-      {testimonials.map((testimonial, index) => (
-        <div key={index} className="mb-4">
-          <p className="font-bold">{testimonial.author}</p>
-          <p>{testimonial.testimonial}</p>
-        </div>
-      ))}
     </div>
   );
 };
@@ -76,11 +48,7 @@ const IntroPage = () => {
       <div className="p-4 flex justify-center min-h-[300px]">
         {slides.map((slide, index) => (
           <div key={index} className={index === currentSlide ? "" : "hidden"}>
-            {index !== 2 ? (
-              <Slide title={slide.title} description={slide.description} />
-            ) : (
-              <TestimonialSlide testimonials={slide.description} />
-            )}
+            <Slide title={slide.title} description={slide.description} />
           </div>
         ))}
       </div>
@@ -88,23 +56,80 @@ const IntroPage = () => {
       <h1 className="text-4xl font-bold mb-4">Welcome to GetHelp</h1>
       <p className="text-lg mb-8">
         Your path to emotional well-being starts here. Join over 1 million
-        people who are taking charge of their mental health.
+        people who are taking charge of their mental health.(Dummy text)
       </p>
-      <Button
-        secondary
-        rounded
-        className="px-6 py-3 text-white focus:outline-none focus:bg-white focus:text-gray-800 hover:text-gray-800 hover:bg-white"
-      >
+      <Button secondary rounded className="btn btn-ghost">
         <Link to={"/home"}>Get Started</Link>
       </Button>
       <section className="my-12 mx-24">
-        <div className="flex justify-between mt-10">
+        <div className="flex justify-between mt-10 space-y-4">
           <div>
-            <h2 className="text-3xl font-bold mb-4">Why Choose GetHelp?</h2>
-            <p>
+            <h2 className="text-3xl font-bold mb-4">Features</h2>
+            <ul className="space-y-2">
+              <li className="flex space-x-1">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="checkbox"
+                />
+                <span>Post blogs about mental health</span>
+              </li>
+              <li className="flex space-x-1">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="checkbox"
+                />
+                <span>Comment your opinion</span>
+              </li>
+              <li className="flex space-x-1">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="checkbox"
+                />
+                <span>Like or Dislike the posts</span>
+              </li>
+              <li className="flex space-x-1">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="checkbox"
+                />
+                <span>
+                  Connect with mental health professional by messaging or video
+                  call(free trial over)
+                </span>
+              </li>
+              <li className="flex space-x-1">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="checkbox"
+                />
+                <span>
+                  Admin option to manage users, doctors and other admins
+                </span>
+              </li>
+              <li className="flex space-x-1">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="checkbox"
+                />
+                <span>Apply for doctor or admin permissions</span>
+              </li>
+            </ul>
+            {/* <p>
               GetHelp offers a convenient, affordable, and efficient way to
               access professional counseling anytime, anywhere.
-            </p>
+            </p> */}
           </div>
           <img
             src={careImage}
@@ -114,7 +139,9 @@ const IntroPage = () => {
         </div>
       </section>
       <section className="mx-36 w-4/5">
-        <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          Frequently Asked Questions(dummy texts)
+        </h2>
         <div className="space-y-2">
           <ExpandablePanel
             header={<p className="font-bold">Q: How does GetHelp work?</p>}
@@ -147,23 +174,25 @@ const IntroPage = () => {
         </div>
       </section>
       <section className="my-12 mx-16">
-        <h2 className="text-2xl font-bold mb-4">What Our Clients Say</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          What Our Clients Say(Dummy texts)
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="p-6 bg-white rounded-lg shadow-lg">
+          <div className="p-6 rounded-lg shadow-lg">
             <p className="font-bold">John Doe</p>
             <p>
               GetHelp has been a game-changer for me. I cant thank my counselor
               enough for their support and guidance.
             </p>
           </div>
-          <div className="p-6 bg-white rounded-lg shadow-lg">
+          <div className="p-6 rounded-lg shadow-lg">
             <p className="font-bold">Alice Smith</p>
             <p>
               The convenience and flexibility of GetHelp have allowed me to
               prioritize my mental health in my busy life. Highly recommended!
             </p>
           </div>
-          <div className="p-6 bg-white rounded-lg shadow-lg">
+          <div className="p-6 rounded-lg shadow-lg">
             <p className="font-bold">Mark Johnson</p>
             <p>
               I was skeptical at first, but GetHelp exceeded my expectations.

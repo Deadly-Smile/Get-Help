@@ -24,7 +24,7 @@ const Comment = ({
     setShowFullContent(!showFullContent);
   };
   return (
-    <div className="bg-blue-200 p-2 rounded">
+    <div className="bg-base-100 p-2 rounded">
       <div className="flex justify-between">
         <div className="flex">
           <img
@@ -42,12 +42,10 @@ const Comment = ({
             </h1>
           </Link>
         </div>
-        <div className="text-gray-600 text-sm ">
-          {moment(created_at).fromNow()}
-        </div>
+        <div className="text-sm ">{moment(created_at).fromNow()}</div>
       </div>
       <div className="ml-8">
-        <p className="text-gray-700">{contentToShow}</p>
+        <p className="">{contentToShow}</p>
         {fullContent.length > maxLengthToShow && (
           <div className="flex justify-end">
             <button
