@@ -49,7 +49,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/add-post', [PostsController::class, 'store']);
     Route::post('/vote/post/{id}', [PostsController::class, 'vote']);
     Route::post('/add/comment/post/{id}', [PostsController::class, 'addComment']);
-    Route::get('/get-contacts', [UserController::class, 'getContacts']);
     Route::get('/messages/{receiver}/{sender}', [UserController::class, 'getMessages']);
     Route::post('/message-send', [UserController::class, 'sendMessage']);
     Route::post('/pusher/auth', [UserController::class, 'authenticatePusher']);

@@ -1,4 +1,4 @@
-FROM php:8.1.2-apache
+FROM php:8.2-apache
 
 WORKDIR /var/www/html
 
@@ -7,6 +7,7 @@ RUN a2enmod rewrite
 
 # Linux Library
 RUN apt-get update -y && apt-get install -y \
+    git \
     libicu-dev \
     unzip zip \
     zlib1g-dev \
@@ -25,6 +26,9 @@ RUN docker-php-ext-install gettext intl pdo_mysql gd
 RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd
 
+# Set a default ServerName to suppress Apache warnings
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Copy Laravel application files
 COPY . /var/www/html
 
@@ -38,10 +42,12 @@ RUN composer install --no-scripts --no-autoloader
 # Generate optimized autoload files
 RUN composer dump-autoload --no-scripts --optimize
 
-# Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache  # Add this line to set permissions
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
+# Fix permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 RUN php artisan migrate:fresh --seed
 

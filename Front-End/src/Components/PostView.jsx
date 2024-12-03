@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import CommentPanel from "./CommentPanel";
 import { useAddCommentMutation } from "../Store";
 import { Link } from "react-router-dom";
-import { AiFillLike, AiFillDislike } from "react-icons/ai";
+import { AiFillLike, AiFillDislike, AiFillMessage } from "react-icons/ai";
 import ToastMessage from "./ToastMessage";
 
 const PostView = ({ post, wordLimit, useVotePostMutation }) => {
@@ -14,6 +14,7 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
   const [addComment, cmtResult] = useAddCommentMutation();
   const fullContent = post?.content;
   const maxLengthToShow = wordLimit ? wordLimit : 1000;
+  const [showCommentPanel, setShowCommentPanel] = useState(false);
 
   const [showFullContent, setShowFullContent] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -102,7 +103,7 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
   return (
     <div className="my-8">
       <div className="flex justify-between">
-        <div>
+        <div className="">
           <div className="flex">
             <div className="avatar online mr-4">
               <div className="w-8 h-8 rounded-full">
@@ -132,7 +133,10 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
           Created {moment(post?.created_at).fromNow()}
         </div>
       </div>
-      <div className="" dangerouslySetInnerHTML={{ __html: contentToShow }} />
+      <div
+        className="pb-4"
+        dangerouslySetInnerHTML={{ __html: contentToShow }}
+      />
       {fullContent.length > maxLengthToShow && (
         <div className="flex justify-end">
           <button
@@ -143,27 +147,41 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
           </button>
         </div>
       )}
-      <div className="flex items-center justify-end space-x-2 bg-base-100 rounded p-2">
-        <button
-          className="text-blue-500 hover:underline text-2xl"
-          onClick={() => handleVote(post.id, "upvote")}
-        >
-          <AiFillLike />
-        </button>
-        <span className="text-base-50">({post?.upvote_count})</span>
-        <button
-          className="text-red-500 hover:underline text-2xl"
-          onClick={() => handleVote(post.id, "downvote")}
-        >
-          {/* Downvote */}
-          <AiFillDislike />
-        </button>
-        <span className="text-base-50">({post?.downvote_count})</span>
+      <div className="flex bg-base-100 rounded p-2 justify-between">
+        <div className="flex space-x-2">
+          <button
+            className="hover:underline text-2xl"
+            onClick={() => setShowCommentPanel(!showCommentPanel)}
+          >
+            <AiFillMessage />
+          </button>
+          <span className="text-base-50">({post?.comments?.length})</span>
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            className="text-blue-500 hover:underline text-2xl"
+            onClick={() => handleVote(post.id, "upvote")}
+          >
+            <AiFillLike />
+          </button>
+          <span className="text-base-50">({post?.upvote_count})</span>
+          <button
+            className="text-red-500 hover:underline text-2xl"
+            onClick={() => handleVote(post.id, "downvote")}
+          >
+            {/* Downvote */}
+            <AiFillDislike />
+          </button>
+          <span className="text-base-50">({post?.downvote_count})</span>
+        </div>
       </div>
-      <div className="bg-base-100 rounded p-3 mt-2">
-        {comment}
-        {addCommentPanel}
-      </div>
+      {showCommentPanel && (
+        <div className="bg-base-50 rounded p-3 mt-2">
+          {comment}
+          {addCommentPanel}
+        </div>
+      )}
+
       {showToast && renderMsg}
     </div>
   );

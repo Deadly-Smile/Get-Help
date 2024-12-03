@@ -20,13 +20,16 @@ use App\Http\Requests\EditUserRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ApplyAdminRequest;
 use App\Models\Permission;
-use Illuminate\Support\Js;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
 {
     public function getUser(Request $request)
     {
+        if (!$request->user()) {
+            return response()->json(['error' => 'Invalid username or password'], 400);
+        }
         $permission = $request->user()->getAllPermissions();
         $msgN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'message')->orderByDesc('id')->take(20)->get();
         $otrN = Notification::where('receiver_user_id', $request->user()->id)->where('type', 'notification')->orderByDesc('id')->take(20)->get();
@@ -83,7 +86,9 @@ class UserController extends Controller
                 $user->verify_token = null;
                 $user->pending_subscriber = false;
                 $user->email_verified_at = now();
-                $user->roles()->attach(Role::where('slug', 'subscriber')->firstOrFail());
+
+                // $user->roles()->attach(Role::where('slug', 'subscriber')->firstOrFail()->id);
+                DB::table('role_user')->insert(['user_id' => $user->id, 'role_id' => Role::where('slug', 'subscriber')->firstOrFail()->id]);
                 $user->save();
                 return response()->json(['message' => "Email verified"]);
             }
@@ -290,6 +295,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(["message" => "404 user not found", 'id' => $id]);
         }
+        // DB::table('role_user')->delete(['user_id' => $user->id, 'role_id' => Role::where('slug', 'subscriber')->firstOrFail()->id]);
         $user->roles()->detach(Role::findOrFail(1));
         if (!$user->userHasRole(Role::findOrFail(3)->slug)) {
             $user->roles()->attach(Role::findOrFail(3));
@@ -407,8 +413,10 @@ class UserController extends Controller
 
         $sendingUser = array(
             'name' => $user->name,
-            'username' => $user->username, 'email' => $user->email,
-            'avatar' => $user->avatar, 'country' => $user->country,
+            'username' => $user->username,
+            'email' => $user->email,
+            'avatar' => $user->avatar,
+            'country' => $user->country,
             'district' => $user->district,
             'posts' => $posts,
             'status' => $user->getStatusAttribute(),

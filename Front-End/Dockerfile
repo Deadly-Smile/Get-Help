@@ -1,14 +1,8 @@
 FROM node:18-alpine
 
 WORKDIR /app
-COPY public/ /app/public
-COPY src/ /app/src
-COPY package.json /app/
-
+COPY package*.json ./
 RUN npm install
-
-RUN npm install -D tailwindcss postcss autoprefixer
-RUN npx tailwindcss init -p
-RUN npm install react-router-dom -S
-
+COPY . .
+EXPOSE 5173
 CMD ["npm", "run", "dev"]
