@@ -2,9 +2,7 @@
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostsController;
-use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
-use TheSeer\Tokenizer\TokenCollection;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +14,11 @@ use TheSeer\Tokenizer\TokenCollection;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// healthCheck
+Route::get('/health', function () {
+    return response()->json(['message' => 'API is working correctly.'], 200);
+});
 
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
