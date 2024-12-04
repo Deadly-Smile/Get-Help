@@ -71,9 +71,9 @@ const CreatePostPage = () => {
   }
 
   return (
-    <div className="hero min-h-screen bg-base-200">
+    <div className="min-h-screen bg-base-200">
       <div className="text-center">
-        <h1 className="text-center text-3xl font-semibold mb-8">Create Post</h1>
+        <h1 className="text-center text-3xl font-semibold mx-4">Create Post</h1>
         <label className="form-control w-full max-w-xl">
           <div className="label">
             <span className="label-text text-lg">Title of the post</span>
@@ -86,14 +86,14 @@ const CreatePostPage = () => {
             className="input input-bordered w-full max-w-xl"
           />
         </label>
-        <label className="form-control w-full max-w-xl mt-4">
+        <label className="form-control w-5/6 mt-4">
           <div className="label">
             <span className="label-text text-lg">Post body</span>
           </div>
           <PostEditor onChange={handleContentChange} content={content} />
         </label>
 
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-4 w-5/6">
           <button onClick={handleCreatePostClick} className="btn btn-warning">
             Create Post
           </button>

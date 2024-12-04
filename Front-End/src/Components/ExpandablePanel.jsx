@@ -5,7 +5,7 @@ const ExpandablePanel = ({ header, children }) => {
       <input type="radio" name="my-accordion-2" defaultChecked />
       <div className="collapse-title text-xl font-medium">{header}</div>
       <div className="collapse-content">
-        <p>{children}</p>
+        <div>{children}</div>
       </div>
     </div>
   );

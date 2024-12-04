@@ -7,6 +7,7 @@ import { useAddCommentMutation } from "../Store";
 import { Link } from "react-router-dom";
 import { AiFillLike, AiFillDislike, AiFillMessage } from "react-icons/ai";
 import ToastMessage from "./ToastMessage";
+import MDEditor from "@uiw/react-md-editor";
 
 const PostView = ({ post, wordLimit, useVotePostMutation }) => {
   const backEndURL = import.meta.env.VITE_BACKEND_URL;
@@ -16,15 +17,10 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
   const maxLengthToShow = wordLimit ? wordLimit : 1000;
   const [showCommentPanel, setShowCommentPanel] = useState(false);
 
-  const [showFullContent, setShowFullContent] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const contentToShow = showFullContent
-    ? fullContent
-    : fullContent.slice(0, maxLengthToShow);
-
-  const toggleShowFullContent = () => {
-    setShowFullContent(!showFullContent);
-  };
+  let contentToShow = fullContent.slice(0, maxLengthToShow);
+  if (fullContent?.length > maxLengthToShow - 3)
+    contentToShow = contentToShow + "...";
 
   const handleVote = (id, operation) => {
     votePost({ id, operation });
@@ -105,8 +101,8 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
       <div className="flex justify-between">
         <div className="">
           <div className="flex">
-            <div className="avatar online mr-4">
-              <div className="w-8 h-8 rounded-full">
+            <div className="avatar mr-4">
+              <div className="w-12 h-12 rounded-full">
                 <img
                   src={
                     post?.author_avatar
@@ -117,23 +113,33 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
                 />
               </div>
             </div>
-            <Link
-              to={`/home/get-user/${post?.users[0]?.id}`}
-              className="link text-xl font-semibold link-hover underline-none text-blue-700"
-            >
-              {post?.author}
-            </Link>
+            <div className="py-2">
+              <p className="font-semibold text-3xl text-teal-700">
+                <Link to={`posts/${post.id}`}>{post?.title}</Link>
+              </p>
+              <Link
+                to={`/home/get-user/${post?.users[0]?.id}`}
+                className="link text-xs"
+              >
+                By {post?.author}
+              </Link>
+            </div>
           </div>
-          <h2 className="font-semibold text-2xl mt-2 underline">
-            <Link to={`posts/${post.id}`}>{post?.title}</Link>
-          </h2>
         </div>
 
         <div className="text-sm min-w-fit">
           Created {moment(post?.created_at).fromNow()}
         </div>
       </div>
-      <div
+
+      <div className="container pb-4">
+        <MDEditor.Markdown
+          className={`bg-base-100 text-gray-500 py-2 px-1 rounded`}
+          source={contentToShow}
+        />
+      </div>
+
+      {/* <div
         className="pb-4"
         dangerouslySetInnerHTML={{ __html: contentToShow }}
       />
@@ -146,8 +152,8 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
             {showFullContent ? "See Less" : "...See More"}
           </button>
         </div>
-      )}
-      <div className="flex bg-base-100 rounded p-2 justify-between">
+      )} */}
+      <div className="flex bg-base-100 rounded p-2 j py-2 px-1 justify-between">
         <div className="flex space-x-2">
           <button
             className="hover:underline text-2xl"
@@ -176,7 +182,7 @@ const PostView = ({ post, wordLimit, useVotePostMutation }) => {
         </div>
       </div>
       {showCommentPanel && (
-        <div className="bg-base-50 rounded p-3 mt-2">
+        <div className="bg-base-50 rounded p-3 mt py-2 px-1 rounded-2">
           {comment}
           {addCommentPanel}
         </div>
