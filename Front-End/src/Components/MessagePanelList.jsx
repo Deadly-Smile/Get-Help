@@ -6,7 +6,6 @@ import MessagePanel from "./MessagePanel";
 const MessagePanelList = () => {
   const { data } = useContext(UserContext);
   const { msgList } = useContext(MsgListContext);
-  console.log(msgList);
   let renderList = null;
   renderList = msgList.map((msg, index) => {
     return (
