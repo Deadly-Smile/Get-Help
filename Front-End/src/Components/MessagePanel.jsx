@@ -1,5 +1,5 @@
 // src/Components/MessagePanel.jsx
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useMemo } from "react";
 import {
   useGetMessagesQuery,
   useSendMessageMutation,
@@ -17,26 +17,36 @@ import { Link } from "react-router-dom";
 import IncomingCallContext from "../Context/IncomingCallContext";
 import UserContext from "../Context/UserContext";
 
-// eslint-disable-next-line react/prop-types
+const DEFAULT_AVATAR = "https://cdn.onlinewebfonts.com/svg/img_329115.png";
+
 const MessagePanel = ({ receiver, userId, username, avatar }) => {
   const backEndURL = import.meta.env.VITE_BACKEND_URL;
-  const [messages, setMessages] = useState([]);
-  const panelRef = useRef(null);
+
+  // Context hooks
   const { data: user } = useContext(UserContext);
-  const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
-    receiver: receiver,
-    sender: userId,
-  });
-  const [sendMessage] = useSendMessageMutation();
   const { removeMsgPanel } = useContext(MsgListContext);
-  const [updateMsgStatus] = useUpdateMsgStatusMutation();
   const isLoadingContext = useContext(LoadingContext);
   const { setCallingPopup } = useContext(IncomingCallContext);
 
+  // API hooks
+  const { data, isSuccess, isLoading, isError } = useGetMessagesQuery({
+    receiver,
+    sender: userId,
+  });
+  const [sendMessage] = useSendMessageMutation();
+  const [updateMsgStatus] = useUpdateMsgStatusMutation();
+
+  // State
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const panelRef = useRef(null);
+
+  // Loading state
   useEffect(() => {
     isLoadingContext.isLoading = isLoading;
   }, [isLoading, isLoadingContext]);
 
+  // Mark last message as read on click
   const handlePanelClick = () => {
     if (messages.length > 0) {
       updateMsgStatus({
@@ -46,26 +56,23 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     }
   };
 
+  // Pusher listener
   useEffect(() => {
-    const usePusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+    const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
       cluster: import.meta.env.VITE_CLUSTER,
       encrypted: true,
       channelAuthorization: {
-        endpoint: `${import.meta.env.VITE_BACKEND_URL}/api/pusher/auth`,
+        endpoint: `${backEndURL}/api/pusher/auth`,
         headers: {
           authorization: `Bearer ${localStorage.getItem("login_token")}`,
         },
       },
     });
 
-    const roomname = [userId, receiver];
-    roomname.sort();
-    const channel = usePusher.subscribe(
-      `private-chat.${roomname[0]}${roomname[1]}`
-    );
+    const roomname = [userId, receiver].sort().join("");
+    const channel = pusher.subscribe(`private-chat.${roomname}`);
 
     channel.bind("App\\Events\\MessageSent", (data) => {
-      console.log(data);
       if (
         data.message.content === "Call invitation" &&
         data.message.receiver_id === userId
@@ -77,8 +84,8 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
       ) {
         setCallingPopup({ status: "missed-call", message: data });
       }
-      setMessages((prevMessages) => [
-        ...prevMessages,
+      setMessages((prev) => [
+        ...prev,
         {
           id: data?.message?.id,
           type: data?.message?.type,
@@ -93,32 +100,39 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     });
 
     channel.bind("App\\Events\\MessageStatusUpdated", (data) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((message) =>
-          message.id === data?.messageId ? { ...message, status: 1 } : message
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === data?.messageId ? { ...msg, status: 1 } : msg
         )
       );
     });
 
     return () => {
-      usePusher.unsubscribe(`private-chat.${receiver}`);
-      usePusher.disconnect();
+      pusher.unsubscribe(`private-chat.${roomname}`);
+      pusher.disconnect();
     };
   }, [receiver, userId]);
 
+  // Initial messages from API
   useEffect(() => {
     if (isSuccess) {
-      setMessages(data.messages);
+      setMessages(data.messages || []);
     }
   }, [data?.messages, isSuccess]);
 
-  const [newMessage, setNewMessage] = useState("");
+  // Auto scroll to bottom
+  useEffect(() => {
+    if (panelRef.current) {
+      panelRef.current.scrollTop = panelRef.current.scrollHeight;
+    }
+  }, [messages]);
 
+  // Send message handler
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (newMessage.trim() !== "") {
+    if (newMessage.trim()) {
       sendMessage({
-        receiver: receiver,
+        receiver,
         sender: userId,
         content: newMessage,
         type: "text",
@@ -127,41 +141,10 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     }
   };
 
-  const removePanel = () => {
-    removeMsgPanel({ userId: receiver });
-  };
+  // Remove panel
+  const removePanel = () => removeMsgPanel({ userId: receiver });
 
-  useEffect(() => {
-    // Scroll to the bottom of the panel on initial load
-    panelRef.current.scrollTop = panelRef.current.scrollHeight;
-  }, [messages]);
-
-  let renderMessages = null;
-
-  if (messages.length > 0) {
-    renderMessages = messages.map((message, index) => (
-      <ChattingContentPanel
-        message={message}
-        key={message.id + "__" + index + "__" + message.updated_at}
-        avatar={avatar}
-      />
-    ));
-  } else if (isError) {
-    if (userId) {
-      renderMessages = (
-        <p className="flex items-center justify-center font-medium text-lg text-red-600">
-          Error occured, check your internet connention
-        </p>
-      );
-    } else {
-      renderMessages = (
-        <p className="flex items-center justify-center font-medium text-lg text-red-600">
-          Log in to start a conversation
-        </p>
-      );
-    }
-  }
-
+  // Open video call
   const openVideoCallWindow = () => {
     const roomID = encodeURIComponent(
       Math.floor(Math.random() * 10000).toString()
@@ -172,18 +155,19 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
       user.user.username
     }`;
     window.open(url, "_blank");
+
     sendMessage({
-      receiver: receiver,
+      receiver,
       sender: userId,
       content: "Call invitation",
       type: "call-invitation",
-      roomID: roomID,
+      roomID,
       userName: username,
     });
 
     const callTimeout = setTimeout(() => {
       sendMessage({
-        receiver: receiver,
+        receiver,
         sender: userId,
         content: "Missed call",
         type: "missed-call",
@@ -194,10 +178,9 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
       "message",
       (event) => {
         if (event.data === "callEnded") {
-          console.log("Video call ended");
           clearTimeout(callTimeout);
           sendMessage({
-            receiver: receiver,
+            receiver,
             sender: userId,
             content: "Call ended",
             type: "call-ended",
@@ -208,18 +191,39 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
     );
   };
 
+  // Render messages cleanly
+  const renderMessages = useMemo(() => {
+    if (messages.length > 0) {
+      return messages.map((message, index) => (
+        <div
+          key={message.id + "_" + index}
+          className="w-full break-words p-3 rounded-lg mb-2 shadow-sm bg-base-200"
+        >
+          <ChattingContentPanel message={message} avatar={avatar} />
+        </div>
+      ));
+    }
+    if (isError) {
+      return (
+        <p className="flex items-center justify-center font-medium text-lg text-red-600">
+          {userId
+            ? "Error occurred, check your internet connection"
+            : "Log in to start a conversation"}
+        </p>
+      );
+    }
+    return null;
+  }, [messages, isError, userId, avatar]);
+
   return (
-    <div className="flex flex-col h-96 max-w-[300px] bg-base-100">
-      <div className="p-4 border-b flex justify-between bg-warning rounded-md rounded-e-none">
-        <div className="flex">
+    <div className="flex flex-col h-96 max-w-[300px] bg-base-100 shadow-md rounded">
+      {/* Header */}
+      <div className="p-2 border-b flex justify-between items-center bg-warning rounded-t-lg">
+        <div className="flex items-center">
           <img
-            src={
-              avatar
-                ? `${backEndURL}${avatar}`
-                : "https://cdn.onlinewebfonts.com/svg/img_329115.png"
-            }
+            src={avatar ? `${backEndURL}${avatar}` : DEFAULT_AVATAR}
             alt={`${username}'s Avatar`}
-            className="max-w-[24px] max-h-6 rounded-full"
+            className="w-8 h-8 rounded-full"
           />
           <Link to={`/get-user/${receiver}`}>
             <h1 className="font-semibold ml-2 hover:underline text-black">
@@ -228,46 +232,45 @@ const MessagePanel = ({ receiver, userId, username, avatar }) => {
           </Link>
         </div>
         <div className="flex">
-          <button
-            className="btn bg-transparent border-0 text-2xl btn-active -mr-2 btn-sm"
-            onClick={openVideoCallWindow}
-          >
+          <button className="btn-circle btn-sm" onClick={openVideoCallWindow}>
             <BsFillTelephoneFill />
           </button>
-          <button className="btn bg-transparent border-0 text-2xl btn-active -mr-2 btn-sm">
+          <button className="btn-circle btn-sm">
             <FaWindowMinimize />
           </button>
-          <button
-            className="btn bg-transparent border-0 text-2xl btn-active -mr-2 btn-sm"
-            onClick={removePanel}
-          >
+          <button className="btn-circle btn-sm" onClick={removePanel}>
             <AiFillCloseCircle />
           </button>
         </div>
       </div>
+
+      {/* Messages */}
       <div
-        className="flex-grow overflow-y-scroll p-3"
-        style={{ maxHeight: "100%", overflowY: "scroll" }}
         ref={panelRef}
         onClick={handlePanelClick}
+        className="flex-grow overflow-y-auto overflow-x-hidden p-1 bg-base-200"
       >
-        <p className="flex justify-center text-xl font-semibold">{username}</p>
-        {renderMessages}
+        <p className="flex justify-center text-sm text-gray-500 my-2">
+          {username}
+        </p>
+        <div className="flex flex-col gap-2">{renderMessages}</div>
       </div>
-      <div className="divider m-0" />
-      <form className="join p-3" onSubmit={handleSendMessage}>
-        <input
-          type="text"
-          className="input input-bordered w-full join-item"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Write your message"
-          required
-        />
-        <button className="btn btn-accent join-item text-2xl" type="submit">
-          <PiPaperPlaneRightFill />
-        </button>
-      </form>
+
+      {/* Input */}
+      <div className="border-t p-3 bg-base-100">
+        <form className="flex gap-2" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            className="input-sm input-bordered w-full"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Write your message..."
+          />
+          <button className="btn-sm btn-accent text-xl" type="submit">
+            <PiPaperPlaneRightFill />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

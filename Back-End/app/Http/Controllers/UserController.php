@@ -205,6 +205,9 @@ class UserController extends Controller
     {
         // check the user
         $user = JWTAuth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
         if (!$user->userHasPermission('edit-user-table')) {
             return response()->json(['error' => 'permission not granted'], 401);
         }
@@ -212,12 +215,15 @@ class UserController extends Controller
         // sending the sorted users
         $roleName = ['admin', 'master', 'doctor'];
         $perPage = (int)request()->input('perPage', 10);
-        $users = User::query()->where(function ($query) use ($roleName) {
-            $query->whereHas('roles', function ($query) use ($roleName) {
-                $query->whereNotIn('slug', $roleName);
-            });
-        })
-            ->orderByDesc('id')->paginate($perPage);
+        $users = User::query()
+            ->with('roles')
+            ->where(function ($query) use ($roleName) {
+                $query->whereHas('roles', function ($query) use ($roleName) {
+                    $query->whereNotIn('slug', $roleName);
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate($perPage);
         return response()->json(['items' => $users, 'perPage' => $perPage], 200);
     }
 
@@ -372,7 +378,7 @@ class UserController extends Controller
     {
         $users = User::all();
         foreach ($users as $user) {
-            $user->role = $user->roles();
+            $user->role = $user->roles()->get();
         }
         return $users;
     }
@@ -393,7 +399,48 @@ class UserController extends Controller
 
     public function getAllContacts()
     {
-        return Contact::all();
+        try {
+            $user = JWTAuth::user();
+            if (!$user?->userHasPermission('get-contacts')) {
+                return response()->json(['error' => 'permission not granted'], 401);
+            }
+
+            $contacts = Contact::where('user_1', $user->id)
+                ->orWhere('user_2', $user->id)
+                ->with([
+                    'user.roles',
+                    'contactUser.roles'
+                ])
+                ->get()
+                ->map(function ($contact) use ($user) {
+                    // If current user is user_1, the contact is user_2, else vice versa
+                    $otherUser = $contact->user_1 == $user->id
+                        ? $contact->contactUser
+                        : $contact->user;
+
+                    if (!$otherUser) {
+                        return null; // skip broken records
+                    }
+
+                    return [
+                        'id'       => $contact->id,
+                        'userID'   => $otherUser->id,
+                        'name'     => $otherUser->name,
+                        'avatar'   => $otherUser->avatar,
+                        'status'   => $otherUser->status ?? 'Offline',
+                        'category' => $otherUser->roles->first()->name ?? 'Unknown'
+                    ];
+                })
+                ->filter() // remove nulls
+                ->values(); // reindex array
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Could not retrieve contacts: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json($contacts);
     }
 
     public function getTheUser($id)
@@ -446,7 +493,7 @@ class UserController extends Controller
             $contact->avatar = User::findOrFail($contact->userID)->avatar;
             $contact->status = User::findOrFail($contact->userID)->status;
             $contact->name = User::findOrFail($contact->userID)->name;
-            $contact->category = User::findOrFail($contact->userID)->roles()[0]->name;
+            $contact->category = User::findOrFail($contact->userID)->roles()->get()[0]->name;
         }
 
         return response()->json(['contacts' => $contacts], 200);
@@ -477,6 +524,9 @@ class UserController extends Controller
     public function getMessages($receiver, $sender)
     {
         $user = JWTAuth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
         if (!$user->userHasPermission('get-messages') || $user->id != $sender) {
             return response()->json(['error' => 'permission not granted'], 401);
         }

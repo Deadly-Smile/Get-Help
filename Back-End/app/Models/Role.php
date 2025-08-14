@@ -14,7 +14,7 @@ class Role extends Model
     protected $guarded = [];
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class)->get();
+        return $this->belongsToMany(Permission::class);
     }
 
     public function users(): BelongsToMany
@@ -24,10 +24,10 @@ class Role extends Model
 
     public function getAllPermissions()
     {
-        $permissions = array();
-        foreach ($this->permissions() as $permission) {
-            array_push($permissions, $permission->name);
+        $permissions = [];
+        foreach ($this->permissions()->get() as $permission) {
+            $permissions[] = $permission;
         }
-        return $this->permissions();
+        return $permissions;
     }
 }

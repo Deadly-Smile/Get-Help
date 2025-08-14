@@ -31,15 +31,13 @@ Route::middleware('custom.token.validation')->group(function () {
     Route::post('/apply-admin', [UserController::class, 'applyForAdmin']);
 });
 
-Route::group(['prefix' => 'test'], function () {
-    Route::get('users', [UserController::class, 'getAllUsers']);
-    Route::get('roles', [UserController::class, 'getAllRoles']);
-    Route::get('permissions', [UserController::class, 'getAllPermissions']);
-    Route::get('permission-role', [UserController::class, 'getAllPermissionRoles']);
-    Route::get('contacts', [UserController::class, 'getAllContacts']);
-});
+Route::get('users', [UserController::class, 'getAllUsers']);
+Route::get('roles', [UserController::class, 'getAllRoles']);
+Route::get('permissions', [UserController::class, 'getAllPermissions']);
+Route::get('permission-role', [UserController::class, 'getAllPermissionRoles']);
 
 Route::middleware('auth:api')->group(function () {
+    Route::get('get-contacts', [UserController::class, 'getAllContacts']);
     // Route::get('/user', [UserController::class, 'getUser']);
     Route::get('/get-users', [UserController::class, 'getPagedUsers']);
     Route::delete('/delete-user/{id}', [UserController::class, 'deleteUser']);
